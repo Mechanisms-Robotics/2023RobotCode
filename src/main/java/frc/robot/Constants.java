@@ -10,17 +10,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 
-public final class Constants
-{
-    public static class OperatorConstants
-    {
-        public static final int DRIVER_CONTROLLER_PORT = 0;
-    }
+public final class Constants {
+	public static class OperatorConstants {
+		public static final int DRIVER_CONTROLLER_PORT = 0;
+	}
 
-    public static final double loopTime = TimedRobot.kDefaultPeriod;
+	public static final double loopTime = TimedRobot.kDefaultPeriod;
 
-    public static final Transform2d fieldRobot =
-            new Transform2d(
-                    new Pose2d(0, 0, Rotation2d.fromDegrees(0.0)),
-                    new Pose2d(0, 0, Rotation2d.fromDegrees(0.0)));
+	public static final Transform2d fieldRobot =
+			new Transform2d(
+					new Pose2d(0, 0, Rotation2d.fromDegrees(0.0)),
+					new Pose2d(0, 0, Rotation2d.fromDegrees(0.0)));
 }

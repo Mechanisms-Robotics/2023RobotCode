@@ -9,86 +9,77 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-
 public class Robot extends TimedRobot {
-    private Command autonomousCommand;
-    
-    private RobotContainer robotContainer;
+	private Command autonomousCommand;
 
-    @Override
-    public void robotInit() {
-        // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-        // autonomous chooser on the dashboard.
-        robotContainer = new RobotContainer();
-    }
+	private RobotContainer robotContainer;
 
-    @Override
-    public void robotPeriodic() {
-        CommandScheduler.getInstance().run();
-    }
-    
-    
-    /** This method is called once each time the robot enters Disabled mode. */
-    @Override
-    public void disabledInit() {}
-    
-    
-    @Override
-    public void disabledPeriodic() {}
-    
-    
-    /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
-    @Override
-    public void autonomousInit() {
-        autonomousCommand = robotContainer.getAutonomousCommand();
-        
-        // schedule the autonomous command (example)
-        if (autonomousCommand != null) {
-            autonomousCommand.schedule();
-        }
-    }
-    
-    
-    /** This method is called periodically during autonomous. */
-    @Override
-    public void autonomousPeriodic() {}
-    
-    
-    @Override
-    public void teleopInit() {
-        // This makes sure that the autonomous stops running when
-        // teleop starts running. If you want the autonomous to
-        // continue until interrupted by another command, remove
-        // this line or comment it out.
-        if (autonomousCommand != null) {
-            autonomousCommand.cancel();
-        }
-    }
-    
-    
-    /** This method is called periodically during operator control. */
-    @Override
-    public void teleopPeriodic() {}
-    
-    
-    @Override
-    public void testInit() {
-        // Cancels all running commands at the start of test mode.
-        CommandScheduler.getInstance().cancelAll();
-    }
-    
-    
-    /** This method is called periodically during test mode. */
-    @Override
-    public void testPeriodic() {}
-    
-    
-    /** This method is called once when the robot is first started up. */
-    @Override
-    public void simulationInit() {}
-    
-    
-    /** This method is called periodically whilst in simulation. */
-    @Override
-    public void simulationPeriodic() {}
+	@Override
+	public void robotInit() {
+		// Instantiate our RobotContainer.  This will perform all our button bindings, and put our
+		// autonomous chooser on the dashboard.
+		robotContainer = new RobotContainer();
+	}
+
+	@Override
+	public void robotPeriodic() {
+		CommandScheduler.getInstance().run();
+	}
+
+	/** This method is called once each time the robot enters Disabled mode. */
+	@Override
+	public void disabledInit() {}
+
+	@Override
+	public void disabledPeriodic() {}
+
+	/**
+	 * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
+	 */
+	@Override
+	public void autonomousInit() {
+		autonomousCommand = robotContainer.getAutonomousCommand();
+
+		// schedule the autonomous command (example)
+		if (autonomousCommand != null) {
+			autonomousCommand.schedule();
+		}
+	}
+
+	/** This method is called periodically during autonomous. */
+	@Override
+	public void autonomousPeriodic() {}
+
+	@Override
+	public void teleopInit() {
+		// This makes sure that the autonomous stops running when
+		// teleop starts running. If you want the autonomous to
+		// continue until interrupted by another command, remove
+		// this line or comment it out.
+		if (autonomousCommand != null) {
+			autonomousCommand.cancel();
+		}
+	}
+
+	/** This method is called periodically during operator control. */
+	@Override
+	public void teleopPeriodic() {}
+
+	@Override
+	public void testInit() {
+		// Cancels all running commands at the start of test mode.
+		CommandScheduler.getInstance().cancelAll();
+	}
+
+	/** This method is called periodically during test mode. */
+	@Override
+	public void testPeriodic() {}
+
+	/** This method is called once when the robot is first started up. */
+	@Override
+	public void simulationInit() {}
+
+	/** This method is called periodically whilst in simulation. */
+	@Override
+	public void simulationPeriodic() {}
 }
