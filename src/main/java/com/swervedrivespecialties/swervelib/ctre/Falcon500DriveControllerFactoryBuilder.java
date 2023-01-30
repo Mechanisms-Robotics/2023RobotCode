@@ -5,8 +5,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.swervedrivespecialties.swervelib.DriveController;
 import com.swervedrivespecialties.swervelib.DriveControllerFactory;
 import com.swervedrivespecialties.swervelib.ModuleConfiguration;
@@ -76,7 +76,7 @@ public final class Falcon500DriveControllerFactoryBuilder {
 				motorConfiguration.supplyCurrLimit.enable = true;
 			}
 
-			TalonFX motor = new TalonFX(driveConfiguration);
+			WPI_TalonFX motor = new WPI_TalonFX(driveConfiguration);
 			CtreUtils.checkCtreError(
 					motor.configAllSettings(motorConfiguration), "Failed to configure Falcon 500");
 
@@ -113,7 +113,7 @@ public final class Falcon500DriveControllerFactoryBuilder {
 	}
 
 	private class ControllerImplementation implements DriveController {
-		private final TalonFX motor;
+		private final WPI_TalonFX motor;
 		private final double sensorVelocityCoefficient;
 		private final double sensorPositionCoefficient;
 		private final double nominalVoltage =
@@ -124,7 +124,7 @@ public final class Falcon500DriveControllerFactoryBuilder {
 		private final SimpleMotorFeedforward wheelFeedforward;
 
 		private ControllerImplementation(
-				TalonFX motor,
+				WPI_TalonFX motor,
 				double sensorVelocityCoefficient,
 				double sensorPositionCoefficient,
 				SimpleFeedforwardConstants feedforwardConstants) {

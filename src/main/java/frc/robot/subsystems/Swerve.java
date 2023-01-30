@@ -186,7 +186,6 @@ public class Swerve extends SubsystemBase {
 						VecBuilder.fill(0.5, 0.5, Math.toRadians(30.0)));
 
 		gyro.setFusedHeading(0.0);
-		this.register();
 		this.setName("Swerve Drive");
 
 		// Put the Field2d instance on the SmartDashboard
