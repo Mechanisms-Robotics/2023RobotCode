@@ -57,10 +57,10 @@ public class Swerve extends SubsystemBase {
 	private static final int BACK_RIGHT_MODULE_STEER_MOTOR_ID = 17;
 	private static final int BACK_RIGHT_MODULE_ENCODER_ID = 16;
 
-	private static final double FRONT_LEFT_MODULE_STEER_OFFSET = 0.0; // degs
-	private static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 0.0; // degs
-	private static final double BACK_LEFT_MODULE_STEER_OFFSET = 0.0; // degs
-	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = 0.0; // degs
+	private static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(0.0); // rads
+	private static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0.0); // rads
+	private static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(0.0); // rads
+	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0.0); // rads
 
 	private final SwerveModule m_frontLeftModule;
 	private final SwerveModule m_frontRightModule;
@@ -125,12 +125,9 @@ public class Swerve extends SubsystemBase {
 
 		m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
-		m_poseEstimator = new SwerveDrivePoseEstimator(
-				m_kinematics,
-				getGyroHeading(),
-				getModulePositions(),
-				new Pose2d()
-		);
+		m_poseEstimator =
+				new SwerveDrivePoseEstimator(
+						m_kinematics, getGyroHeading(), getModulePositions(), new Pose2d());
 
 		m_field = new Field2d();
 
@@ -150,7 +147,7 @@ public class Swerve extends SubsystemBase {
 	}
 
 	private SwerveModulePosition[] getModulePositions() {
-		return new SwerveModulePosition[]{
+		return new SwerveModulePosition[] {
 			m_frontLeftModule.getModulePosition(),
 			m_frontRightModule.getModulePosition(),
 			m_backLeftModule.getModulePosition(),
@@ -177,7 +174,7 @@ public class Swerve extends SubsystemBase {
 				states[0].angle.getRadians());
 
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());
-		
+
 		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 	}
 }

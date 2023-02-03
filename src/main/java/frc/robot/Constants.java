@@ -5,11 +5,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.wpilibj.TimedRobot;
-
 public final class Constants {
-  public static final int DRIVER_CONTROLLER_PORT = 0;
+	public static final int DRIVER_CONTROLLER_PORT = 0;
 }

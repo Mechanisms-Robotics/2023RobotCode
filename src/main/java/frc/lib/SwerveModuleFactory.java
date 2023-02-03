@@ -75,9 +75,7 @@ public class SwerveModuleFactory<DriveConfiguration, SteerConfiguration> {
 		@Override
 		public SwerveModulePosition getModulePosition() {
 			return new SwerveModulePosition(
-					driveController.getDistance(),
-					new Rotation2d(steerController.getStateAngle())
-			);
+					driveController.getDistance(), new Rotation2d(steerController.getStateAngle()));
 		}
 
 		@Override
