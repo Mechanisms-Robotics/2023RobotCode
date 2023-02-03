@@ -1,14 +1,19 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.Mk4iSwerveModuleHelper;
 import frc.lib.Mk4iSwerveModuleHelper.GearRatio;
@@ -64,7 +69,10 @@ public class Swerve extends SubsystemBase {
 
 	private final PigeonIMU m_gyro;
 
-	private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+	private ChassisSpeeds m_chassisSpeeds;
+
+	private final SwerveDrivePoseEstimator m_poseEstimator;
+	private final Field2d m_field;
 
 	public Swerve() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
@@ -114,6 +122,19 @@ public class Swerve extends SubsystemBase {
 						BACK_RIGHT_MODULE_STEER_OFFSET);
 
 		m_gyro = new PigeonIMU(GYRO_ID);
+
+		m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+
+		m_poseEstimator = new SwerveDrivePoseEstimator(
+				m_kinematics,
+				getGyroHeading(),
+				getModulePositions(),
+				new Pose2d()
+		);
+
+		m_field = new Field2d();
+
+		SmartDashboard.putData("Field", m_field);
 	}
 
 	public void zeroGyro() {
@@ -126,6 +147,15 @@ public class Swerve extends SubsystemBase {
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		m_chassisSpeeds = chassisSpeeds;
+	}
+
+	private SwerveModulePosition[] getModulePositions() {
+		return new SwerveModulePosition[]{
+			m_frontLeftModule.getModulePosition(),
+			m_frontRightModule.getModulePosition(),
+			m_backLeftModule.getModulePosition(),
+			m_backRightModule.getModulePosition()
+		};
 	}
 
 	@Override
@@ -145,5 +175,9 @@ public class Swerve extends SubsystemBase {
 		m_backRightModule.set(
 				states[3].speedMetersPerSecond / MAX_VELOCITY * MAX_VOLTAGE,
 				states[0].angle.getRadians());
+
+		m_poseEstimator.update(getGyroHeading(), getModulePositions());
+		
+		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 	}
 }

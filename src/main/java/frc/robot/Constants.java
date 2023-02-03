@@ -11,4 +11,5 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 public final class Constants {
+  public static final int DRIVER_CONTROLLER_PORT = 0;
 }
