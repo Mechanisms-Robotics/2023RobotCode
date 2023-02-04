@@ -25,8 +25,8 @@ public class RobotContainer {
 		m_swerveSubsystem.setDefaultCommand(
 				new DriveCommand(
 						m_swerveSubsystem,
-						() -> -m_driverController.getLeftX() * Swerve.MAX_VELOCITY,
 						() -> -m_driverController.getLeftY() * Swerve.MAX_VELOCITY,
+						() -> m_driverController.getLeftX() * Swerve.MAX_VELOCITY,
 						() -> -m_driverController.getRightX() * Swerve.MAX_ANGULAR_VELOCITY));
 	}
 

@@ -29,11 +29,10 @@ public class DriveCommand extends CommandBase {
 	@Override
 	public void execute() {
 		m_swerveSubsystem.drive(
-				ChassisSpeeds.fromFieldRelativeSpeeds(
+				new ChassisSpeeds(
 						m_translationXSupplier.getAsDouble(),
 						m_translationYSupplier.getAsDouble(),
-						m_rotationSupplier.getAsDouble(),
-						m_swerveSubsystem.getGyroHeading()));
+						m_rotationSupplier.getAsDouble()));
 	}
 
 	@Override
