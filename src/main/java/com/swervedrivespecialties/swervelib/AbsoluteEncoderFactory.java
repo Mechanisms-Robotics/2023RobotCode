@@ -1,4 +1,4 @@
-package frc.lib;
+package com.swervedrivespecialties.swervelib;
 
 @FunctionalInterface
 public interface AbsoluteEncoderFactory<Configuration> {

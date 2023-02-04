@@ -6,6 +6,10 @@ import frc.robot.subsystems.Swerve;
 import java.util.function.DoubleSupplier;
 
 public class DriveCommand extends CommandBase {
+	private static final double DEADBAND = 0.05;
+	private static final double TRANSLATION_EXPONENT = 1.5;
+	private static final double ROTATION_EXPONENT = 2.0;
+
 	private final Swerve m_swerveSubsystem;
 
 	private final DoubleSupplier m_translationXSupplier;
@@ -29,14 +33,24 @@ public class DriveCommand extends CommandBase {
 	@Override
 	public void execute() {
 		m_swerveSubsystem.drive(
-				new ChassisSpeeds(
-						m_translationXSupplier.getAsDouble(),
-						m_translationYSupplier.getAsDouble(),
-						m_rotationSupplier.getAsDouble()));
+				ChassisSpeeds.fromFieldRelativeSpeeds(
+						applyExponential(deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT),
+						applyExponential(deadband(m_translationYSupplier.getAsDouble()), TRANSLATION_EXPONENT),
+						applyExponential(deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
+						m_swerveSubsystem.getGyroHeading()));
 	}
 
 	@Override
 	public void end(boolean interrupted) {
 		m_swerveSubsystem.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
+	}
+
+	private double deadband(double input) {
+		return Math.abs(input) >= DEADBAND ? input : 0.0;
+	}
+
+	private double applyExponential(double input, double exponent) {
+		double product = Math.pow(Math.abs(input), exponent);
+		return input > 0 ? product : -product;
 	}
 }
