@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.swervedrivespecialties.swervelib.GearRatios.GearRatio;
@@ -22,6 +21,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.util.HeadingController;
 import frc.robot.util.TrajectoryController;
 
@@ -29,7 +29,7 @@ import frc.robot.util.TrajectoryController;
 public class Swerve extends SubsystemBase {
 	private static final double MAX_VOLTAGE = 12.0; // volts
 	public static final double MAX_VELOCITY = 1.0; // m/s
-	public static final double MAX_ANGULAR_VELOCITY = 1.0; // m/s
+	public static final double MAX_ANGULAR_VELOCITY = 1.5; // m/s
 
 	private static final double DT_TRACKWIDTH = 0.36195; // m
 	private static final double DT_WHEELBASE = 0.76835; // m
@@ -74,6 +74,8 @@ public class Swerve extends SubsystemBase {
 	private final SwerveModule m_backRightModule;
 
 	private final WPI_Pigeon2 m_gyro;
+
+	private Rotation2d m_simYaw;
 
 	private ChassisSpeeds m_chassisSpeeds;
 
@@ -151,6 +153,8 @@ public class Swerve extends SubsystemBase {
 						.build();
 
 		m_gyro = new WPI_Pigeon2(GYRO_ID);
+
+		m_simYaw = new Rotation2d();
 
 		m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
@@ -243,22 +247,24 @@ public class Swerve extends SubsystemBase {
 			m_chassisSpeeds = m_trajectoryController.calculate(getPose());
 		}
 
-		m_frontLeftModule.setSim(
-				states[0].speedMetersPerSecond / MAX_VELOCITY,
-				states[0].angle.getRadians());
-		m_frontRightModule.setSim(
-				states[1].speedMetersPerSecond / MAX_VELOCITY,
-				states[1].angle.getRadians());
-		m_backLeftModule.setSim(
-				states[2].speedMetersPerSecond / MAX_VELOCITY,
-				states[2].angle.getRadians());
-		m_backRightModule.setSim(
-				states[3].speedMetersPerSecond / MAX_VELOCITY,
-				states[3].angle.getRadians());
+		m_frontLeftModule.setSim(states[0].speedMetersPerSecond, states[0].angle.getRadians());
+		m_frontRightModule.setSim(states[1].speedMetersPerSecond, states[1].angle.getRadians());
+		m_backLeftModule.setSim(states[2].speedMetersPerSecond, states[2].angle.getRadians());
+		m_backRightModule.setSim(states[3].speedMetersPerSecond, states[3].angle.getRadians());
 
-		m_poseEstimator.update(getGyroHeading(), getModulePositions());
+		m_simYaw = m_simYaw.plus(
+				new Rotation2d(m_chassisSpeeds.omegaRadiansPerSecond * Constants.LOOP_TIME));
 
-		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
+		m_gyro.setYaw(m_simYaw.getDegrees());
+
+		m_poseEstimator.update(m_simYaw, getModulePositions());
+
+		m_field.setRobotPose(
+				new Pose2d(
+						m_poseEstimator.getEstimatedPosition().getTranslation(),
+						m_simYaw
+				)
+		);
 
 		m_frontLeftModule.offsetEncoder(FRONT_LEFT_MODULE_STEER_OFFSET);
 		m_frontRightModule.offsetEncoder(FRONT_RIGHT_MODULE_STEER_OFFSET);
