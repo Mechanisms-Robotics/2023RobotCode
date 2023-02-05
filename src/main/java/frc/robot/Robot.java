@@ -22,8 +22,7 @@ public class Robot extends TimedRobot {
 		// Instantiate our RobotContainer.  This will perform all our button bindings, and put our
 		// autonomous chooser on the dashboard.
 		m_robotContainer = new RobotContainer();
-		PhotonCamera camera = new PhotonCamera(NetworkTableInstance.getDefault(), "limelight");
-		camera.setLED(VisionLEDMode.kOff);
+		m_robotContainer.setLimelightLEDMode(VisionLEDMode.kOff);
 	}
 
 	@Override
