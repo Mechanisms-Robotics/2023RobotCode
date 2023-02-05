@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper.GearRatio;
+import com.swervedrivespecialties.swervelib.GearRatios.GearRatio;
 import com.swervedrivespecialties.swervelib.MkModuleConfiguration;
 import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
 import com.swervedrivespecialties.swervelib.MotorType;
@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HeadingController;
 import frc.robot.util.TrajectoryController;
-import java.lang.reflect.Array;
 
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
