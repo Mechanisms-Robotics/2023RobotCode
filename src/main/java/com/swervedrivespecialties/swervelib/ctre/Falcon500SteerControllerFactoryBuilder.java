@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.swervedrivespecialties.swervelib.*;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 
 public final class Falcon500SteerControllerFactoryBuilder {
@@ -194,7 +195,6 @@ public final class Falcon500SteerControllerFactoryBuilder {
 
 		private double resetIteration = 0;
 
-		private boolean isSimulated = false;
 		private double simulatedAngle = 0.0;
 
 		private ControllerImplementation(
@@ -270,7 +270,7 @@ public final class Falcon500SteerControllerFactoryBuilder {
 
 		@Override
 		public double getStateAngle() {
-			if (isSimulated) {
+			if (RobotBase.isSimulation()) {
 				return simulatedAngle;
 			}
 
@@ -286,7 +286,6 @@ public final class Falcon500SteerControllerFactoryBuilder {
 
 		@Override
 		public void setSimulatedAngle(double angle) {
-			isSimulated = true;
 			simulatedAngle = angle;
 		}
 	}

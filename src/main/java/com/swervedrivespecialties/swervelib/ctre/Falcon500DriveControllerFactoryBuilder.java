@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.swervedrivespecialties.swervelib.DriveController;
 import com.swervedrivespecialties.swervelib.DriveControllerFactory;
 import com.swervedrivespecialties.swervelib.MechanicalConfiguration;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants;
 
 public final class Falcon500DriveControllerFactoryBuilder {
@@ -98,7 +99,6 @@ public final class Falcon500DriveControllerFactoryBuilder {
 						? Falcon500DriveControllerFactoryBuilder.this.nominalVoltage
 						: 12.0;
 
-		private boolean isSimulated = false;
 		private double simulatedMPS = 0.0;
 		private double simulatedDistance = 0.0;
 
@@ -119,7 +119,7 @@ public final class Falcon500DriveControllerFactoryBuilder {
 
 		@Override
 		public double getStateVelocity() {
-			if (isSimulated) {
+			if (RobotBase.isSimulation()) {
 				return simulatedMPS;
 			}
 
@@ -129,7 +129,7 @@ public final class Falcon500DriveControllerFactoryBuilder {
 
 		@Override
 		public double getStateDistance() {
-			if (isSimulated) {
+			if (RobotBase.isSimulation()) {
 				simulatedDistance += simulatedMPS * Constants.LOOP_TIME;
 
 				return simulatedDistance;
@@ -140,7 +140,6 @@ public final class Falcon500DriveControllerFactoryBuilder {
 
 		@Override
 		public void setSimulatedMPS(double mps) {
-			isSimulated = true;
 			simulatedMPS = mps;
 		}
 	}
