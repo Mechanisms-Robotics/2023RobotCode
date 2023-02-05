@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.swervedrivespecialties.swervelib.DriveController;
 import com.swervedrivespecialties.swervelib.DriveControllerFactory;
 import com.swervedrivespecialties.swervelib.MechanicalConfiguration;
+import frc.robot.Constants;
 
 public final class Falcon500DriveControllerFactoryBuilder {
 	private static final double TICKS_PER_ROTATION = 2048.0;
@@ -97,6 +98,10 @@ public final class Falcon500DriveControllerFactoryBuilder {
 						? Falcon500DriveControllerFactoryBuilder.this.nominalVoltage
 						: 12.0;
 
+		private boolean isSimulated = false;
+		private double simulatedMPS = 0.0;
+		private double simulatedDistance = 0.0;
+
 		private ControllerImplementation(WPI_TalonFX motor, double sensorPositionCoefficient) {
 			this.motor = motor;
 			this.sensorPositionCoefficient = sensorPositionCoefficient;
@@ -114,13 +119,29 @@ public final class Falcon500DriveControllerFactoryBuilder {
 
 		@Override
 		public double getStateVelocity() {
+			if (isSimulated) {
+				return simulatedMPS;
+			}
+
 			// Multiply to 10 to convert from m/100ms to m/s
 			return motor.getSelectedSensorVelocity() * sensorPositionCoefficient * 10.0;
 		}
 
 		@Override
 		public double getStateDistance() {
+			if (isSimulated) {
+				simulatedDistance += simulatedMPS * Constants.LOOP_TIME;
+
+				return simulatedDistance;
+			}
+
 			return motor.getSelectedSensorPosition() * sensorPositionCoefficient;
+		}
+
+		@Override
+		public void setSimulatedMPS(double mps) {
+			isSimulated = true;
+			simulatedMPS = mps;
 		}
 	}
 }

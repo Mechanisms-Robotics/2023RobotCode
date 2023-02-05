@@ -135,5 +135,11 @@ public class SwerveModuleFactory<DC, SC> {
 			driveController.setReferenceVoltage(driveVoltage);
 			steerController.setReferenceAngle(steerAngle);
 		}
+
+		@Override
+		public void setSim(double mps, double angle) {
+			driveController.setSimulatedMPS(mps);
+			steerController.setSimulatedAngle(angle);
+		}
 	}
 }

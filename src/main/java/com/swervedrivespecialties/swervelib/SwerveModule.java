@@ -46,4 +46,6 @@ public interface SwerveModule {
 	}
 
 	void set(double driveVoltage, double steerAngle);
+
+	void setSim(double mps, double angle);
 }

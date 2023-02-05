@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.swervedrivespecialties.swervelib.GearRatios.GearRatio;
@@ -27,7 +28,7 @@ import frc.robot.util.TrajectoryController;
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
 	private static final double MAX_VOLTAGE = 12.0; // volts
-	public static final double MAX_VELOCITY = 0.5; // m/s
+	public static final double MAX_VELOCITY = 1.0; // m/s
 	public static final double MAX_ANGULAR_VELOCITY = 1.0; // m/s
 
 	private static final double DT_TRACKWIDTH = 0.36195; // m
@@ -215,6 +216,44 @@ public class Swerve extends SubsystemBase {
 				states[2].angle.getRadians());
 		m_backRightModule.set(
 				states[3].speedMetersPerSecond / MAX_VELOCITY * MAX_VOLTAGE,
+				states[3].angle.getRadians());
+
+		m_poseEstimator.update(getGyroHeading(), getModulePositions());
+
+		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
+
+		m_frontLeftModule.offsetEncoder(FRONT_LEFT_MODULE_STEER_OFFSET);
+		m_frontRightModule.offsetEncoder(FRONT_RIGHT_MODULE_STEER_OFFSET);
+		m_backLeftModule.offsetEncoder(BACK_LEFT_MODULE_STEER_OFFSET);
+		m_backRightModule.offsetEncoder(BACK_RIGHT_MODULE_STEER_OFFSET);
+	}
+
+	public void simulationPeriodic() {
+		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY);
+
+		SmartDashboard.putNumber("Gyro", getGyroHeading().getDegrees());
+
+		SmartDashboard.putNumber("Pose X", m_poseEstimator.getEstimatedPosition().getX());
+		SmartDashboard.putNumber("Pose Y", m_poseEstimator.getEstimatedPosition().getY());
+
+		if (m_trajectoryController.isFinished()) {
+			m_headingController.update(m_chassisSpeeds, getGyroHeading());
+		} else {
+			m_chassisSpeeds = m_trajectoryController.calculate(getPose());
+		}
+
+		m_frontLeftModule.setSim(
+				states[0].speedMetersPerSecond / MAX_VELOCITY,
+				states[0].angle.getRadians());
+		m_frontRightModule.setSim(
+				states[1].speedMetersPerSecond / MAX_VELOCITY,
+				states[1].angle.getRadians());
+		m_backLeftModule.setSim(
+				states[2].speedMetersPerSecond / MAX_VELOCITY,
+				states[2].angle.getRadians());
+		m_backRightModule.setSim(
+				states[3].speedMetersPerSecond / MAX_VELOCITY,
 				states[3].angle.getRadians());
 
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());

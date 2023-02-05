@@ -8,4 +8,6 @@ public interface DriveController {
 	double getStateVelocity();
 
 	double getStateDistance();
+
+	void setSimulatedMPS(double mps);
 }

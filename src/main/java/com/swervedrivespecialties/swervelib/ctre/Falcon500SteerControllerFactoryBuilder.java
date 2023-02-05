@@ -194,6 +194,9 @@ public final class Falcon500SteerControllerFactoryBuilder {
 
 		private double resetIteration = 0;
 
+		private boolean isSimulated = false;
+		private double simulatedAngle = 0.0;
+
 		private ControllerImplementation(
 				WPI_TalonFX motor,
 				double motorEncoderPositionCoefficient,
@@ -267,6 +270,10 @@ public final class Falcon500SteerControllerFactoryBuilder {
 
 		@Override
 		public double getStateAngle() {
+			if (isSimulated) {
+				return simulatedAngle;
+			}
+
 			double motorAngleRadians =
 					motor.getSelectedSensorPosition() * motorEncoderPositionCoefficient;
 			motorAngleRadians %= 2.0 * Math.PI;
@@ -275,6 +282,12 @@ public final class Falcon500SteerControllerFactoryBuilder {
 			}
 
 			return motorAngleRadians;
+		}
+
+		@Override
+		public void setSimulatedAngle(double angle) {
+			isSimulated = true;
+			simulatedAngle = angle;
 		}
 	}
 }
