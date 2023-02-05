@@ -8,6 +8,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.auto.MobilityAutoLeft;
 import frc.robot.commands.auto.MobilityAutoRight;
+import frc.robot.commands.auto.OneConeLeft;
+import frc.robot.commands.auto.OneConeOneCubeLeft;
+import frc.robot.commands.auto.OneConeOneCubeRight;
+import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.Swerve;
 import org.photonvision.PhotonCamera;
@@ -30,6 +34,14 @@ public class RobotContainer {
 				"MobilityAutoLeft", MobilityAutoLeft.mobilityAutoLeftCommand(m_swerveSubsystem));
 		autoChooser.addOption(
 				"MobilityAutoRight", MobilityAutoRight.mobilityAutoRightCommand(m_swerveSubsystem));
+		autoChooser.addOption(
+				"1ConeLeft", OneConeLeft.oneConeLeft(m_swerveSubsystem));
+		autoChooser.addOption(
+				"1ConeRight", OneConeRight.oneConeRight(m_swerveSubsystem));
+		autoChooser.addOption(
+				"1Cone1CubeLeft", OneConeOneCubeLeft.oneConeOneCubeLeft(m_swerveSubsystem));
+		autoChooser.addOption(
+				"1Cone1CubeRight", OneConeOneCubeRight.oneConeOneCubeRight(m_swerveSubsystem));
 
 		SmartDashboard.putData(autoChooser);
 	}

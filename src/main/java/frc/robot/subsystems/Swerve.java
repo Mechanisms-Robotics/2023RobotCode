@@ -300,7 +300,12 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void setPose(Pose2d pose, Rotation2d heading) {
-		m_poseEstimator.resetPosition(heading, getModulePositions(), pose);
+		Pose2d poseNoRot = new Pose2d(
+				pose.getTranslation(),
+				new Rotation2d()
+		);
+
+		m_poseEstimator.resetPosition(heading, getModulePositions(), poseNoRot);
 	}
 
 	public void followTrajectory(PathPlannerTrajectory trajectory) {

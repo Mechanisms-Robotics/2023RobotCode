@@ -112,7 +112,7 @@ public class TrajectoryController {
 			isFinished = true;
 		}
 
-		if (timer.hasElapsed(1.0) && controller.atReference()) {
+		if (timer.hasElapsed(trajectory.getTotalTimeSeconds() - 1.0) && controller.atReference()) {
 			return true;
 		}
 
