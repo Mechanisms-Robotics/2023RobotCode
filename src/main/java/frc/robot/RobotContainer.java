@@ -16,13 +16,12 @@ import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.Swerve;
-import frc.robot.util.AprilTags;
-import org.photonvision.PhotonCamera;
+import frc.robot.util.AprilTagTracker;
 import org.photonvision.common.hardware.VisionLEDMode;
 
 public class RobotContainer {
-	private AprilTags aprilTags = new AprilTags();
-	private final Swerve m_swerveSubsystem = new Swerve(aprilTags);
+	private final AprilTagTracker m_aprilTagTracker = new AprilTagTracker();
+	private final Swerve m_swerveSubsystem = new Swerve(m_aprilTagTracker);
 	private final CommandXboxController m_driverController =
 			new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
 
@@ -72,6 +71,6 @@ public class RobotContainer {
 	}
 
 	public void setLimelightLEDMode(VisionLEDMode mode) {
-		aprilTags.getCamera().setLED(mode);
+		m_aprilTagTracker.getCamera().setLED(mode);
 	}
 }

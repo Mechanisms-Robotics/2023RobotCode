@@ -14,13 +14,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-public class AprilTags {
+public class AprilTagTracker {
 
     private final PhotonCamera camera;
     private AprilTagFieldLayout fieldLayout;
     private final PhotonPoseEstimator photonPoseEstimator;
 
-    public AprilTags() {
+    public AprilTagTracker() {
         camera = new PhotonCamera(Constants.CAMERA_NAME);
         photonPoseEstimator = new PhotonPoseEstimator(
                 fieldLayout,

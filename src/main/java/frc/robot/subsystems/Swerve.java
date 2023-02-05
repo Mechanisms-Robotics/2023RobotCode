@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.util.AprilTags;
+import frc.robot.util.AprilTagTracker;
 import frc.robot.util.HeadingController;
 import frc.robot.util.TrajectoryController;
 
@@ -72,7 +72,7 @@ public class Swerve extends SubsystemBase {
 	private static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(190.45); // rads
 	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(326.51); // rads
 
-	private final AprilTags m_aprilTags;
+	private final AprilTagTracker m_aprilTagTracker;
 
 	private final SwerveModule m_frontLeftModule;
 	private final SwerveModule m_frontRightModule;
@@ -105,10 +105,10 @@ public class Swerve extends SubsystemBase {
 		new Pose2d(), new Pose2d(), new Pose2d(), new Pose2d()
 	};
 
-	public Swerve(AprilTags aprilTags) {
+	public Swerve(AprilTagTracker aprilTagTracker) {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
 
-		this.m_aprilTags = aprilTags;
+		m_aprilTagTracker = aprilTagTracker;
 		m_trajectoryController = new TrajectoryController(m_kinematics);
 
 		m_frontLeftModule =
@@ -238,7 +238,7 @@ public class Swerve extends SubsystemBase {
 		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
 		// TODO: Add StdDevs if needed
-		m_aprilTags.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition()).ifPresent(
+		m_aprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition()).ifPresent(
 				estimatedRobotPose -> m_poseEstimator.addVisionMeasurement(
 						estimatedRobotPose.estimatedPose.toPose2d(),
 						estimatedRobotPose.timestampSeconds
