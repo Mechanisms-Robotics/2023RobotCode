@@ -34,16 +34,19 @@ public class Swerve extends SubsystemBase {
 	private static final double DT_TRACKWIDTH = 0.36195; // m
 	private static final double DT_WHEELBASE = 0.76835; // m
 
+	private static final Translation2d[] MODULE_TRANSLATIONS = {
+		// Front left
+		new Translation2d(DT_WHEELBASE / 2.0, DT_TRACKWIDTH / 2.0),
+		// Front right
+		new Translation2d(DT_WHEELBASE / 2.0, -DT_TRACKWIDTH / 2.0),
+		// Back left
+		new Translation2d(-DT_WHEELBASE / 2.0, DT_TRACKWIDTH / 2.0),
+		// Back right
+		new Translation2d(-DT_WHEELBASE / 2.0, -DT_TRACKWIDTH / 2.0)
+	};
+
 	private final SwerveDriveKinematics m_kinematics =
-			new SwerveDriveKinematics(
-					// Front left
-					new Translation2d(DT_TRACKWIDTH / 2.0, DT_WHEELBASE / 2.0),
-					// Front right
-					new Translation2d(DT_TRACKWIDTH / 2.0, -DT_WHEELBASE / 2.0),
-					// Back left
-					new Translation2d(-DT_TRACKWIDTH / 2.0, DT_WHEELBASE / 2.0),
-					// Back right
-					new Translation2d(-DT_TRACKWIDTH / 2.0, -DT_WHEELBASE / 2.0));
+			new SwerveDriveKinematics(MODULE_TRANSLATIONS);
 
 	private static final int GYRO_ID = 0;
 
@@ -94,6 +97,10 @@ public class Swerve extends SubsystemBase {
 	private final TrajectoryController m_trajectoryController;
 	private final SwerveDrivePoseEstimator m_poseEstimator;
 	private final Field2d m_field;
+
+	private final Pose2d[] m_swerveModulePoses = {
+		new Pose2d(), new Pose2d(), new Pose2d(), new Pose2d()
+	};
 
 	public Swerve() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
@@ -226,6 +233,24 @@ public class Swerve extends SubsystemBase {
 
 		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
+		SwerveModule[] modules = {
+			m_frontLeftModule, m_frontRightModule, m_backLeftModule, m_backRightModule
+		};
+
+		for (int i = 0; i < 4; i++) {
+			Translation2d updatedPositions =
+					MODULE_TRANSLATIONS[i]
+							.rotateBy(getPose().getRotation())
+							.plus(getPose().getTranslation());
+
+			m_swerveModulePoses[i] =
+					new Pose2d(
+							updatedPositions,
+							new Rotation2d(modules[i].getSteerAngle()).plus(getGyroHeading()));
+		}
+
+		m_field.getObject("Swerve Modules").setPoses(m_swerveModulePoses);
+
 		m_frontLeftModule.offsetEncoder(FRONT_LEFT_MODULE_STEER_OFFSET);
 		m_frontRightModule.offsetEncoder(FRONT_RIGHT_MODULE_STEER_OFFSET);
 		m_backLeftModule.offsetEncoder(BACK_LEFT_MODULE_STEER_OFFSET);
@@ -252,19 +277,17 @@ public class Swerve extends SubsystemBase {
 		m_backLeftModule.setSim(states[2].speedMetersPerSecond, states[2].angle.getRadians());
 		m_backRightModule.setSim(states[3].speedMetersPerSecond, states[3].angle.getRadians());
 
-		m_simYaw = m_simYaw.plus(
-				new Rotation2d(m_chassisSpeeds.omegaRadiansPerSecond * Constants.LOOP_TIME));
+		m_simYaw =
+				m_simYaw.plus(
+						new Rotation2d(
+								m_chassisSpeeds.omegaRadiansPerSecond * Constants.LOOP_TIME));
 
 		m_gyro.setYaw(m_simYaw.getDegrees());
 
 		m_poseEstimator.update(m_simYaw, getModulePositions());
 
 		m_field.setRobotPose(
-				new Pose2d(
-						m_poseEstimator.getEstimatedPosition().getTranslation(),
-						m_simYaw
-				)
-		);
+				new Pose2d(m_poseEstimator.getEstimatedPosition().getTranslation(), m_simYaw));
 
 		m_frontLeftModule.offsetEncoder(FRONT_LEFT_MODULE_STEER_OFFSET);
 		m_frontRightModule.offsetEncoder(FRONT_RIGHT_MODULE_STEER_OFFSET);

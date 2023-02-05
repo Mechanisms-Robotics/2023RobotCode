@@ -1,10 +1,8 @@
 {
   "HALProvider": {
-    "Other Devices": {
-      "Talon FX[12]": {
-        "header": {
-          "open": true
-        }
+    "Timing": {
+      "window": {
+        "visible": false
       }
     }
   },
@@ -15,6 +13,29 @@
     },
     "windows": {
       "/SmartDashboard/Field": {
+        "Robot": {
+          "arrowColor": [
+            0.0,
+            0.5882353186607361,
+            0.0,
+            255.0
+          ],
+          "arrowSize": 44,
+          "color": [
+            0.5882353186607361,
+            0.0,
+            0.0,
+            255.0
+          ],
+          "length": 1.0499999523162842,
+          "width": 0.7490000128746033
+        },
+        "Swerve Modules": {
+          "image": "C:\\Users\\Jonathan Emery\\The Mechanisms\\2023RobotCode\\swerve_indicator.png",
+          "length": 0.44999998807907104,
+          "width": 0.44999998807907104
+        },
+        "image": "C:\\Users\\Jonathan Emery\\The Mechanisms\\2023RobotCode\\field23.png",
         "window": {
           "visible": true
         }
