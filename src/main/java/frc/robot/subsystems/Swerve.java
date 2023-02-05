@@ -28,7 +28,7 @@ import frc.robot.util.TrajectoryController;
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
 	private static final double MAX_VOLTAGE = 12.0; // volts
-	public static final double MAX_VELOCITY = 1.0; // m/s
+	public static final double MAX_VELOCITY = 2.0; // m/s
 	public static final double MAX_ANGULAR_VELOCITY = 1.5; // m/s
 
 	private static final double DT_TRACKWIDTH = 0.36195; // m
