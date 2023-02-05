@@ -44,16 +44,21 @@
   },
   "NetworkTables": {
     "transitory": {
+      "LiveWindow": {
+        "open": true
+      },
       "Shuffleboard": {
         "Swerve": {
           "Front Left Module": {
             "open": true
           },
           "open": true
-        },
-        "open": true
+        }
       },
       "SmartDashboard": {
+        "Field": {
+          "open": true
+        },
         "open": true
       }
     }
