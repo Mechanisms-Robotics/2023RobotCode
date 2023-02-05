@@ -9,7 +9,8 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/Field": "Field2d"
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/SendableChooser[0]": "String Chooser"
     },
     "windows": {
       "/SmartDashboard/Field": {
@@ -35,7 +36,14 @@
           "length": 0.44999998807907104,
           "width": 0.44999998807907104
         },
+        "height": 7.924799919128418,
         "image": "C:\\Users\\Jonathan Emery\\The Mechanisms\\2023RobotCode\\field23.png",
+        "width": 16.459199905395508,
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/SendableChooser[0]": {
         "window": {
           "visible": true
         }

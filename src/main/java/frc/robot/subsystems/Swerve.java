@@ -29,7 +29,7 @@ import frc.robot.util.TrajectoryController;
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
 	private static final double MAX_VOLTAGE = 12.0; // volts
-	public static final double MAX_VELOCITY = 1.0; // m/s
+	public static final double MAX_VELOCITY = 2.0; // m/s
 	public static final double MAX_ANGULAR_VELOCITY = 1.5; // m/s
 
 	private static final double DT_TRACKWIDTH = 0.36195; // m
@@ -312,7 +312,12 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void setPose(Pose2d pose, Rotation2d heading) {
-		m_poseEstimator.resetPosition(heading, getModulePositions(), pose);
+		Pose2d poseNoRot = new Pose2d(
+				pose.getTranslation(),
+				new Rotation2d()
+		);
+
+		m_poseEstimator.resetPosition(heading, getModulePositions(), poseNoRot);
 	}
 
 	public void followTrajectory(PathPlannerTrajectory trajectory) {

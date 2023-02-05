@@ -5,6 +5,8 @@ import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -13,11 +15,14 @@ import frc.robot.Constants;
 
 /** This class is used for controlling the swerve drive along a predefined trajectory. */
 public class TrajectoryController {
-	private static final double X_GAIN = 0.375;
+	private static final double X_GAIN = 1.25 * 3.0;
 	private static final double Y_GAIN = X_GAIN;
-	private static final double THETA_GAIN = X_GAIN;
+	private static final double THETA_GAIN = 2.0;
 	private static final TrapezoidProfile.Constraints HEADING_PROFILE_CONSTRAINTS =
 			new TrapezoidProfile.Constraints(2 * Math.PI, 4 * Math.PI);
+
+	private static final double ALLOWABLE_POSITION_ERROR = 0.1; // meters
+	private static final double ALLOWABLE_ROTATION_ERROR = 1.0; // degrees
 
 	private final Timer timer = new Timer();
 	private PathPlannerTrajectory trajectory;
@@ -36,12 +41,18 @@ public class TrajectoryController {
 		ProfiledPIDController thetaController =
 				new ProfiledPIDController(THETA_GAIN, 0.0, 0.0, HEADING_PROFILE_CONSTRAINTS);
 		thetaController.enableContinuousInput(-Math.PI, Math.PI); // Thanks mendax1234
+		thetaController.setTolerance(0.25);
 
 		this.controller =
 				new HolonomicDriveController(
 						new PIDController(X_GAIN, 0.0, 0.0, Constants.LOOP_TIME),
 						new PIDController(Y_GAIN, 0.0, 0.0, Constants.LOOP_TIME),
 						thetaController);
+
+		this.controller.setTolerance(
+				new Pose2d(
+						new Translation2d(ALLOWABLE_POSITION_ERROR, ALLOWABLE_POSITION_ERROR),
+						Rotation2d.fromDegrees(ALLOWABLE_ROTATION_ERROR)));
 	}
 
 	/**
@@ -77,6 +88,7 @@ public class TrajectoryController {
 		if (isFinished()) {
 			return new ChassisSpeeds();
 		}
+
 		final double currentTime = timer.get();
 		final var desiredState =
 				(PathPlannerTrajectory.PathPlannerState) trajectory.sample(currentTime);
@@ -95,9 +107,15 @@ public class TrajectoryController {
 		if (trajectory == null) {
 			return true;
 		}
+
 		if (timer.hasElapsed(trajectory.getTotalTimeSeconds())) {
 			isFinished = true;
 		}
+
+		if (timer.hasElapsed(trajectory.getTotalTimeSeconds() - 1.0) && controller.atReference()) {
+			return true;
+		}
+
 		return isFinished;
 	}
 
