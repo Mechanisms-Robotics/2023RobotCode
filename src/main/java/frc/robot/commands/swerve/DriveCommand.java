@@ -34,9 +34,14 @@ public class DriveCommand extends CommandBase {
 	public void execute() {
 		m_swerveSubsystem.drive(
 				ChassisSpeeds.fromFieldRelativeSpeeds(
-						applyExponential(deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT),
-						applyExponential(deadband(m_translationYSupplier.getAsDouble()), TRANSLATION_EXPONENT),
-						applyExponential(deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
+						applyExponential(
+								deadband(m_translationXSupplier.getAsDouble()),
+								TRANSLATION_EXPONENT),
+						applyExponential(
+								deadband(m_translationYSupplier.getAsDouble()),
+								TRANSLATION_EXPONENT),
+						applyExponential(
+								deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
 						m_swerveSubsystem.getGyroHeading()));
 	}
 

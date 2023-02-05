@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper.GearRatio;
 import com.swervedrivespecialties.swervelib.MkModuleConfiguration;
 import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
@@ -20,6 +21,9 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.HeadingController;
+import frc.robot.util.TrajectoryController;
+import java.lang.reflect.Array;
 
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
@@ -73,11 +77,26 @@ public class Swerve extends SubsystemBase {
 
 	private ChassisSpeeds m_chassisSpeeds;
 
+	private final HeadingController m_headingController =
+			new HeadingController(
+					0.005, // Stabilization kP
+					0.0, // Stabilization kD
+					1.75, // Lock kP
+					0.0, // Lock kI
+					0.0, // Lock kD
+					2.0, // Turn in place kP
+					0.0, // Turn in place kI
+					0.0 // Turn in place kD
+					);
+
+	private final TrajectoryController m_trajectoryController;
 	private final SwerveDrivePoseEstimator m_poseEstimator;
 	private final Field2d m_field;
 
 	public Swerve() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
+
+		m_trajectoryController = new TrajectoryController(m_kinematics);
 
 		m_frontLeftModule =
 				new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerFalcon500())
@@ -154,6 +173,11 @@ public class Swerve extends SubsystemBase {
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		m_chassisSpeeds = chassisSpeeds;
+		m_headingController.stabiliseHeading();
+	}
+
+	public void stop() {
+		drive(new ChassisSpeeds(0.0, 0.0, 0.0));
 	}
 
 	private SwerveModulePosition[] getModulePositions() {
@@ -171,6 +195,15 @@ public class Swerve extends SubsystemBase {
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY);
 
 		SmartDashboard.putNumber("Gyro", getGyroHeading().getDegrees());
+
+		SmartDashboard.putNumber("Pose X", m_poseEstimator.getEstimatedPosition().getX());
+		SmartDashboard.putNumber("Pose Y", m_poseEstimator.getEstimatedPosition().getY());
+
+		if (m_trajectoryController.isFinished()) {
+			m_headingController.update(m_chassisSpeeds, getGyroHeading());
+		} else {
+			m_chassisSpeeds = m_trajectoryController.calculate(getPose());
+		}
 
 		m_frontLeftModule.set(
 				states[0].speedMetersPerSecond / MAX_VELOCITY * MAX_VOLTAGE,
@@ -193,5 +226,21 @@ public class Swerve extends SubsystemBase {
 		m_frontRightModule.offsetEncoder(FRONT_RIGHT_MODULE_STEER_OFFSET);
 		m_backLeftModule.offsetEncoder(BACK_LEFT_MODULE_STEER_OFFSET);
 		m_backRightModule.offsetEncoder(BACK_RIGHT_MODULE_STEER_OFFSET);
+	}
+
+	public Pose2d getPose() {
+		return m_poseEstimator.getEstimatedPosition();
+	}
+
+	public void setPose(Pose2d pose, Rotation2d heading) {
+		m_poseEstimator.resetPosition(heading, getModulePositions(), pose);
+	}
+
+	public void followTrajectory(PathPlannerTrajectory trajectory) {
+		m_trajectoryController.startTrajectory(trajectory);
+	}
+
+	public boolean isTrajectoryFinished() {
+		return m_trajectoryController.isFinished();
 	}
 }
