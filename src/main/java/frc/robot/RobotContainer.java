@@ -12,6 +12,8 @@ import frc.robot.commands.auto.OneConeLeft;
 import frc.robot.commands.auto.OneConeOneCubeLeft;
 import frc.robot.commands.auto.OneConeOneCubeRight;
 import frc.robot.commands.auto.OneConeRight;
+import frc.robot.commands.auto.OneConeTwoCubesLeft;
+import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.Swerve;
 import org.photonvision.PhotonCamera;
@@ -42,6 +44,10 @@ public class RobotContainer {
 				"1Cone1CubeLeft", OneConeOneCubeLeft.oneConeOneCubeLeft(m_swerveSubsystem));
 		autoChooser.addOption(
 				"1Cone1CubeRight", OneConeOneCubeRight.oneConeOneCubeRight(m_swerveSubsystem));
+		autoChooser.addOption(
+				"1Cone2CubesLeft", OneConeTwoCubesLeft.oneConeTwoCubesLeft(m_swerveSubsystem));
+		autoChooser.addOption(
+				"1Cone2CubesRight", OneConeTwoCubesRight.oneConeTwoCubesRight(m_swerveSubsystem));
 
 		SmartDashboard.putData(autoChooser);
 	}
