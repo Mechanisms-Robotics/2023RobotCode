@@ -17,12 +17,12 @@ import frc.robot.Constants;
 public class TrajectoryController {
 	private static final double X_GAIN = 1.25 * 3.0;
 	private static final double Y_GAIN = X_GAIN;
-	private static final double THETA_GAIN = 2.0;
+	private static final double THETA_GAIN = 4.0;
 	private static final TrapezoidProfile.Constraints HEADING_PROFILE_CONSTRAINTS =
 			new TrapezoidProfile.Constraints(2 * Math.PI, 4 * Math.PI);
 
-	private static final double ALLOWABLE_POSITION_ERROR = 0.1; // meters
-	private static final double ALLOWABLE_ROTATION_ERROR = 1.0; // degrees
+	private static final double ALLOWABLE_POSITION_ERROR = 0.0; // meters
+	private static final double ALLOWABLE_ROTATION_ERROR = 0.0; // degrees
 
 	private final Timer timer = new Timer();
 	private PathPlannerTrajectory trajectory;
@@ -41,7 +41,6 @@ public class TrajectoryController {
 		ProfiledPIDController thetaController =
 				new ProfiledPIDController(THETA_GAIN, 0.0, 0.0, HEADING_PROFILE_CONSTRAINTS);
 		thetaController.enableContinuousInput(-Math.PI, Math.PI); // Thanks mendax1234
-		thetaController.setTolerance(0.25);
 
 		this.controller =
 				new HolonomicDriveController(
@@ -108,8 +107,14 @@ public class TrajectoryController {
 			return true;
 		}
 
-		if (timer.hasElapsed(trajectory.getTotalTimeSeconds())) {
-			isFinished = true;
+		if (trajectory.getTotalTimeSeconds() < 1.0) {
+			if (timer.hasElapsed(trajectory.getTotalTimeSeconds() + 1.0)) {
+				isFinished = true;
+			}
+		} else {
+			if (timer.hasElapsed(trajectory.getTotalTimeSeconds())) {
+				isFinished = true;
+			}
 		}
 
 		if (timer.hasElapsed(trajectory.getTotalTimeSeconds() - 1.0) && controller.atReference()) {

@@ -18,12 +18,17 @@ import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.commands.swerve.DriveToCommand;
+import frc.robot.commands.swerve.TornadoCommand;
 import frc.robot.commands.tracking.MoveRelativeToFiducial;
 import frc.robot.commands.tracking.ScanForFiducial;
 import frc.robot.subsystems.Swerve;
+import frc.robot.util.GoalTracker;
 
 public class RobotContainer {
 	private final Swerve m_swerveSubsystem = new Swerve();
+	private final GoalTracker m_goalTracker =
+			new GoalTracker(m_swerveSubsystem.getField(), m_swerveSubsystem::getPose);
+
 	private final CommandXboxController m_driverController =
 			new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
 
@@ -58,7 +63,12 @@ public class RobotContainer {
 
 		m_driverController
 				.a()
-				.onTrue(new DriveToCommand(m_swerveSubsystem, Constants.CENTER_OF_FIELD, 2.0, 1.0));
+				.onTrue(
+						new DriveToCommand(
+								m_swerveSubsystem,
+								() -> m_goalTracker.getClosestGoal().plus(Constants.SCORING_OFFSET),
+								2.0,
+								2.0));
 
 		m_driverController.start().onTrue(new ScanForFiducial(m_swerveSubsystem));
 		m_driverController.y().onTrue(new MoveRelativeToFiducial(m_swerveSubsystem));

@@ -25,6 +25,6 @@ public final class Constants {
 	public static final Transform3d ROBOT_TO_CAMERA =
 			new Transform3d(new Translation3d(0.0, 0.0, 0.8), new Rotation3d(new Quaternion()));
 
-	public static final Pose2d CENTER_OF_FIELD =
-			new Pose2d(new Translation2d(16.459 / 2.0, 7.925 / 2.0), new Rotation2d());
+	public static final Transform2d SCORING_OFFSET =
+			new Transform2d(new Translation2d(1.0, 0.0), new Rotation2d());
 }

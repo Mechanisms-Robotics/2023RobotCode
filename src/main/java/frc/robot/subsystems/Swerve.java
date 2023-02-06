@@ -325,6 +325,10 @@ public class Swerve extends SubsystemBase {
 		return m_chassisSpeeds;
 	}
 
+	public Field2d getField() {
+		return m_field;
+	}
+
 	public void followTrajectory(PathPlannerTrajectory trajectory) {
 		m_trajectoryController.startTrajectory(trajectory);
 	}
