@@ -1,12 +1,10 @@
 package frc.robot.commands.auto;
 
-import static frc.robot.commands.auto.AutoCommands.followPathCommand;
-import static frc.robot.commands.auto.AutoCommands.resetPoseCommand;
+import static frc.robot.commands.auto.AutoCommands.followTrajectoryCommand;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Swerve;
 
 public class OneConeOneCubeRight {
@@ -17,8 +15,6 @@ public class OneConeOneCubeRight {
 			PathPlanner.loadPath("1Cone1CubeRight", MAX_VEL, MAX_ACCEL);
 
 	public static CommandBase oneConeOneCubeRight(Swerve swerveSubsystem) {
-		return Commands.parallel(
-				resetPoseCommand(ONE_CONE_ONE_CUBE_RIGHT, swerveSubsystem),
-				followPathCommand(ONE_CONE_ONE_CUBE_RIGHT, swerveSubsystem));
+		return followTrajectoryCommand(ONE_CONE_ONE_CUBE_RIGHT, true, swerveSubsystem);
 	}
 }

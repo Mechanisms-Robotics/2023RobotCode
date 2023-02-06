@@ -24,12 +24,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.AprilTagTracker;
 import frc.robot.util.HeadingController;
-import frc.robot.util.TrajectoryController;
 
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
 	private static final double MAX_VOLTAGE = 12.0; // volts
-	public static final double MAX_VELOCITY = 2.0; // m/s
+	public static final double MAX_VELOCITY = 1.5; // m/s
 	public static final double MAX_ANGULAR_VELOCITY = 1.5; // m/s
 
 	private static final double DT_TRACKWIDTH = 0.36195; // m
@@ -97,7 +96,6 @@ public class Swerve extends SubsystemBase {
 					0.0 // Turn in place kD
 					);
 
-	private final TrajectoryController m_trajectoryController;
 	private final SwerveDrivePoseEstimator m_poseEstimator;
 	private final Field2d m_field;
 
@@ -105,12 +103,13 @@ public class Swerve extends SubsystemBase {
 		new Pose2d(), new Pose2d(), new Pose2d(), new Pose2d()
 	};
 
+	private PathPlannerTrajectory m_currentTrajectory;
+	private boolean m_isRunningTrajectory;
+
 	public Swerve() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
 
 		m_cameraSim = new AprilTagTracker.CameraSim();
-
-		m_trajectoryController = new TrajectoryController(m_kinematics);
 
 		m_frontLeftModule =
 				new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerFalcon500())
@@ -215,10 +214,8 @@ public class Swerve extends SubsystemBase {
 		SmartDashboard.putNumber("Pose X", m_poseEstimator.getEstimatedPosition().getX());
 		SmartDashboard.putNumber("Pose Y", m_poseEstimator.getEstimatedPosition().getY());
 
-		if (m_trajectoryController.isFinished()) {
+		if (!m_isRunningTrajectory) {
 			m_headingController.update(m_chassisSpeeds, getGyroHeading());
-		} else {
-			m_chassisSpeeds = m_trajectoryController.calculate(getPose());
 		}
 
 		m_frontLeftModule.set(
@@ -279,10 +276,8 @@ public class Swerve extends SubsystemBase {
 		SmartDashboard.putNumber("Pose X", m_poseEstimator.getEstimatedPosition().getX());
 		SmartDashboard.putNumber("Pose Y", m_poseEstimator.getEstimatedPosition().getY());
 
-		if (m_trajectoryController.isFinished()) {
+		if (!m_isRunningTrajectory) {
 			m_headingController.update(m_chassisSpeeds, getGyroHeading());
-		} else {
-			m_chassisSpeeds = m_trajectoryController.calculate(getPose());
 		}
 
 		m_frontLeftModule.setSim(states[0].speedMetersPerSecond, states[0].angle.getRadians());
@@ -329,11 +324,15 @@ public class Swerve extends SubsystemBase {
 		return m_field;
 	}
 
-	public void followTrajectory(PathPlannerTrajectory trajectory) {
-		m_trajectoryController.startTrajectory(trajectory);
+	public void setRunningTrajectory(boolean isRunningTrajectory) {
+		m_isRunningTrajectory = isRunningTrajectory;
 	}
 
-	public boolean isTrajectoryFinished() {
-		return m_trajectoryController.isFinished();
+	public PathPlannerTrajectory getTrajectory() {
+		return m_currentTrajectory;
+	}
+
+	public void setTrajectory(PathPlannerTrajectory trajectory) {
+		m_currentTrajectory = trajectory;
 	}
 }

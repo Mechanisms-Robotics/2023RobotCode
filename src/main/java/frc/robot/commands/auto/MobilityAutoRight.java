@@ -5,7 +5,6 @@ import static frc.robot.commands.auto.AutoCommands.*;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Swerve;
 
 public class MobilityAutoRight {
@@ -16,8 +15,6 @@ public class MobilityAutoRight {
 			PathPlanner.loadPath("MobilityAutoRight", MAX_VEL, MAX_ACCEL);
 
 	public static CommandBase mobilityAutoRightCommand(Swerve swerveSubsystem) {
-		return Commands.parallel(
-				resetPoseCommand(MOBILITY_AUTO_RIGHT, swerveSubsystem),
-				followPathCommand(MOBILITY_AUTO_RIGHT, swerveSubsystem));
+		return followTrajectoryCommand(MOBILITY_AUTO_RIGHT, true, swerveSubsystem);
 	}
 }

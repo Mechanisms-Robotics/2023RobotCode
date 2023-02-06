@@ -17,7 +17,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class AprilTagTracker {
 
 	private static final PhotonCamera camera = new PhotonCamera(Constants.CAMERA_NAME);
-	private static AprilTagFieldLayout fieldLayout;
+	private static final AprilTagFieldLayout fieldLayout;
 	private static final PhotonPoseEstimator photonPoseEstimator;
 
 	static {

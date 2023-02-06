@@ -6,8 +6,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.auto.AutoCommands;
 import frc.robot.commands.auto.MobilityAutoLeft;
 import frc.robot.commands.auto.MobilityAutoRight;
 import frc.robot.commands.auto.OneConeLeft;
@@ -17,7 +20,6 @@ import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.swerve.DriveCommand;
-import frc.robot.commands.swerve.DriveToCommand;
 import frc.robot.commands.tracking.MoveRelativeToFiducial;
 import frc.robot.commands.tracking.ScanForFiducial;
 import frc.robot.subsystems.Swerve;
@@ -63,11 +65,20 @@ public class RobotContainer {
 		m_driverController
 				.a()
 				.onTrue(
-						new DriveToCommand(
-								m_swerveSubsystem,
-								() -> m_goalTracker.getClosestGoal().plus(Constants.SCORING_OFFSET),
-								2.0,
-								2.0));
+						new FunctionalCommand(
+								() -> {
+									CommandScheduler.getInstance()
+											.schedule(
+													AutoCommands.driveToAvoidObstaclesCommand(
+															m_goalTracker
+																	.getClosestGoal()
+																	.plus(Constants.SCORING_OFFSET),
+															m_swerveSubsystem));
+								},
+								() -> {},
+								(interrupted) -> {},
+								() -> true,
+								m_swerveSubsystem));
 
 		m_driverController.start().onTrue(new ScanForFiducial(m_swerveSubsystem));
 		m_driverController.y().onTrue(new MoveRelativeToFiducial(m_swerveSubsystem));

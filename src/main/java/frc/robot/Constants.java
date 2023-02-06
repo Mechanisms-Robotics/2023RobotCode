@@ -27,4 +27,16 @@ public final class Constants {
 
 	public static final Transform2d SCORING_OFFSET =
 			new Transform2d(new Translation2d(1.0, 0.0), new Rotation2d());
+
+	public static final double SWERVE_X_KP = 10.0;
+	public static final double SWERVE_X_KI = 0.0;
+	public static final double SWERVE_X_KD = 0.0;
+
+	public static final double SWERVE_Y_KP = 10.0;
+	public static final double SWERVE_Y_KI = 0.0;
+	public static final double SWERVE_Y_KD = 0.0;
+
+	public static final double SWERVE_ROT_KP = 5.0;
+	public static final double SWERVE_ROT_KI = 0.0;
+	public static final double SWERVE_ROT_KD = 0.0;
 }
