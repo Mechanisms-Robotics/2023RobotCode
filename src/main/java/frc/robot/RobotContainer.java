@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,14 +17,16 @@ import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.swerve.DriveCommand;
+<<<<<<< HEAD
 import frc.robot.commands.swerve.DriveToCommand;
+=======
+import frc.robot.commands.tracking.MoveRelativeToFiducial;
+import frc.robot.commands.tracking.ScanForFiducial;
+>>>>>>> 895590b8941091e7294f877349078ad6c12446eb
 import frc.robot.subsystems.Swerve;
-import frc.robot.util.AprilTagTracker;
-import org.photonvision.common.hardware.VisionLEDMode;
 
 public class RobotContainer {
-	private final AprilTagTracker m_aprilTagTracker = new AprilTagTracker();
-	private final Swerve m_swerveSubsystem = new Swerve(m_aprilTagTracker);
+	private final Swerve m_swerveSubsystem = new Swerve();
 	private final CommandXboxController m_driverController =
 			new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
 
@@ -58,6 +62,17 @@ public class RobotContainer {
 		m_driverController
 				.a()
 				.onTrue(new DriveToCommand(m_swerveSubsystem, Constants.CENTER_OF_FIELD, 2.0, 1.0));
+
+		m_driverController.start().onTrue(new ScanForFiducial(m_swerveSubsystem));
+		m_driverController.y().onTrue(new MoveRelativeToFiducial(m_swerveSubsystem));
+		m_driverController
+				.x()
+				.toggleOnTrue(
+						new InstantCommand(
+								() ->
+										m_swerveSubsystem.setPose(
+												new Pose2d(), Rotation2d.fromDegrees(0)),
+								m_swerveSubsystem));
 	}
 
 	private void configureDefaultCommands() {
@@ -71,9 +86,5 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		return autoChooser.getSelected();
-	}
-
-	public void setLimelightLEDMode(VisionLEDMode mode) {
-		m_aprilTagTracker.getCamera().setLED(mode);
 	}
 }

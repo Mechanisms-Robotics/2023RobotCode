@@ -72,7 +72,7 @@ public class Swerve extends SubsystemBase {
 	private static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(190.45); // rads
 	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(326.51); // rads
 
-	private final AprilTagTracker m_aprilTagTracker;
+	private final AprilTagTracker.CameraSim m_cameraSim;
 
 	private final SwerveModule m_frontLeftModule;
 	private final SwerveModule m_frontRightModule;
@@ -105,10 +105,11 @@ public class Swerve extends SubsystemBase {
 		new Pose2d(), new Pose2d(), new Pose2d(), new Pose2d()
 	};
 
-	public Swerve(AprilTagTracker aprilTagTracker) {
+	public Swerve() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
 
-		m_aprilTagTracker = aprilTagTracker;
+		m_cameraSim = new AprilTagTracker.CameraSim();
+
 		m_trajectoryController = new TrajectoryController(m_kinematics);
 
 		m_frontLeftModule =
@@ -238,8 +239,7 @@ public class Swerve extends SubsystemBase {
 		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
 		// TODO: Add StdDevs if needed
-		m_aprilTagTracker
-				.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition())
+		AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition())
 				.ifPresent(
 						estimatedRobotPose ->
 								m_poseEstimator.addVisionMeasurement(
@@ -298,6 +298,9 @@ public class Swerve extends SubsystemBase {
 		m_gyro.setYaw(m_simYaw.getDegrees());
 
 		m_poseEstimator.update(m_simYaw, getModulePositions());
+
+		m_cameraSim.updateSimulation(getPose());
+		m_cameraSim.putInField(m_field);
 
 		m_field.setRobotPose(
 				new Pose2d(m_poseEstimator.getEstimatedPosition().getTranslation(), m_simYaw));

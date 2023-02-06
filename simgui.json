@@ -9,12 +9,22 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+<<<<<<< HEAD
+=======
+      "/LiveWindow/Swerve": "Subsystem",
+>>>>>>> 895590b8941091e7294f877349078ad6c12446eb
       "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[2]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[3]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[4]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[5]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[6]": "PIDController",
+<<<<<<< HEAD
+=======
+      "/LiveWindow/Ungrouped/PIDController[7]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[8]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[9]": "PIDController",
+>>>>>>> 895590b8941091e7294f877349078ad6c12446eb
       "/LiveWindow/Ungrouped/Pigeon 2 [0]": "Gyro",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/LiveWindow/Ungrouped/Talon FX [10]": "Motor Controller",
@@ -26,10 +36,15 @@
       "/LiveWindow/Ungrouped/Talon FX [16]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [17]": "Motor Controller",
       "/SmartDashboard/Field": "Field2d",
-      "/SmartDashboard/SendableChooser[0]": "String Chooser"
+      "/SmartDashboard/SendableChooser[0]": "String Chooser",
+      "/SmartDashboard/limelight Sim Field": "Field2d"
     },
     "windows": {
       "/SmartDashboard/Field": {
+        "Camera": {
+          "image": "C:\\Robotics\\2023RobotCode\\swerve_indicator.png",
+          "style": "Box/Image"
+        },
         "Robot": {
           "arrowColor": [
             0.0,
@@ -48,12 +63,15 @@
           "width": 0.7490000128746033
         },
         "Swerve Modules": {
-          "image": "C:\\Users\\Jonathan Emery\\The Mechanisms\\2023RobotCode\\swerve_indicator.png",
+          "image": "C:\\Robotics\\2023RobotCode\\swerve_indicator.png",
           "length": 0.44999998807907104,
           "width": 0.44999998807907104
         },
+        "Tags": {
+          "image": "C:\\Robotics\\2023RobotCode\\id1.png"
+        },
         "height": 7.924799919128418,
-        "image": "C:\\Users\\Jonathan Emery\\The Mechanisms\\2023RobotCode\\field23.png",
+        "image": "C:\\Robotics\\2023RobotCode\\field23.png",
         "width": 16.459199905395508,
         "window": {
           "visible": true
@@ -75,14 +93,10 @@
         "Swerve": {
           "Front Left Module": {
             "open": true
-          },
-          "open": true
+          }
         }
       },
       "SmartDashboard": {
-        "Field": {
-          "open": true
-        },
         "open": true
       }
     }
