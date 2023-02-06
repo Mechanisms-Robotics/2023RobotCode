@@ -1,6 +1,7 @@
 package frc.robot.commands.auto;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -18,6 +19,13 @@ public final class AutoCommands {
 						swerve.setPose(
 								trajectory.getInitialPose(),
 								trajectory.getInitialState().holonomicRotation));
+	}
+
+	public static CommandBase resetPoseCommand(Pose2d pose, Swerve swerve) {
+		SmartDashboard.putNumber("Initial X", pose.getX());
+		SmartDashboard.putNumber("Initial Y", pose.getY());
+
+		return new InstantCommand(() -> swerve.setPose(pose, pose.getRotation()));
 	}
 
 	public static CommandBase followPathCommand(PathPlannerTrajectory trajectory, Swerve swerve) {

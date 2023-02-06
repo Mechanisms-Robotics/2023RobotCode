@@ -10,15 +10,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Swerve;
 
 public class OneConeOneCubeRight {
-  public static final double MAX_VEL = 2.0; // m/s
-  public static final double MAX_ACCEL = 1.0; // m/s^2
+	public static final double MAX_VEL = 2.0; // m/s
+	public static final double MAX_ACCEL = 1.0; // m/s^2
 
-  private static final PathPlannerTrajectory ONE_CONE_ONE_CUBE_RIGHT =
-      PathPlanner.loadPath("1Cone1CubeRight", MAX_VEL, MAX_ACCEL);
+	private static final PathPlannerTrajectory ONE_CONE_ONE_CUBE_RIGHT =
+			PathPlanner.loadPath("1Cone1CubeRight", MAX_VEL, MAX_ACCEL);
 
-  public static CommandBase oneConeOneCubeRight(Swerve swerveSubsystem) {
-    return Commands.parallel(
-        resetPoseCommand(ONE_CONE_ONE_CUBE_RIGHT, swerveSubsystem),
-        followPathCommand(ONE_CONE_ONE_CUBE_RIGHT, swerveSubsystem));
-  }
+	public static CommandBase oneConeOneCubeRight(Swerve swerveSubsystem) {
+		return Commands.parallel(
+				resetPoseCommand(ONE_CONE_ONE_CUBE_RIGHT, swerveSubsystem),
+				followPathCommand(ONE_CONE_ONE_CUBE_RIGHT, swerveSubsystem));
+	}
 }

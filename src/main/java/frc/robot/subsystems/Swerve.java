@@ -238,12 +238,13 @@ public class Swerve extends SubsystemBase {
 		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
 		// TODO: Add StdDevs if needed
-		m_aprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition()).ifPresent(
-				estimatedRobotPose -> m_poseEstimator.addVisionMeasurement(
-						estimatedRobotPose.estimatedPose.toPose2d(),
-						estimatedRobotPose.timestampSeconds
-				)
-		);
+		m_aprilTagTracker
+				.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition())
+				.ifPresent(
+						estimatedRobotPose ->
+								m_poseEstimator.addVisionMeasurement(
+										estimatedRobotPose.estimatedPose.toPose2d(),
+										estimatedRobotPose.timestampSeconds));
 
 		SwerveModule[] modules = {
 			m_frontLeftModule, m_frontRightModule, m_backLeftModule, m_backRightModule
@@ -312,12 +313,13 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void setPose(Pose2d pose, Rotation2d heading) {
-		Pose2d poseNoRot = new Pose2d(
-				pose.getTranslation(),
-				new Rotation2d()
-		);
+		Pose2d poseNoRot = new Pose2d(pose.getTranslation(), new Rotation2d());
 
 		m_poseEstimator.resetPosition(heading, getModulePositions(), poseNoRot);
+	}
+
+	public ChassisSpeeds getVelocity() {
+		return m_chassisSpeeds;
 	}
 
 	public void followTrajectory(PathPlannerTrajectory trajectory) {

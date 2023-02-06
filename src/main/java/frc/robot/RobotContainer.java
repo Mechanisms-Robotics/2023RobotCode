@@ -15,6 +15,7 @@ import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.swerve.DriveCommand;
+import frc.robot.commands.swerve.DriveToCommand;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.AprilTagTracker;
 import org.photonvision.common.hardware.VisionLEDMode;
@@ -37,10 +38,8 @@ public class RobotContainer {
 				"MobilityAutoLeft", MobilityAutoLeft.mobilityAutoLeftCommand(m_swerveSubsystem));
 		autoChooser.addOption(
 				"MobilityAutoRight", MobilityAutoRight.mobilityAutoRightCommand(m_swerveSubsystem));
-		autoChooser.addOption(
-				"1ConeLeft", OneConeLeft.oneConeLeft(m_swerveSubsystem));
-		autoChooser.addOption(
-				"1ConeRight", OneConeRight.oneConeRight(m_swerveSubsystem));
+		autoChooser.addOption("1ConeLeft", OneConeLeft.oneConeLeft(m_swerveSubsystem));
+		autoChooser.addOption("1ConeRight", OneConeRight.oneConeRight(m_swerveSubsystem));
 		autoChooser.addOption(
 				"1Cone1CubeLeft", OneConeOneCubeLeft.oneConeOneCubeLeft(m_swerveSubsystem));
 		autoChooser.addOption(
@@ -55,6 +54,10 @@ public class RobotContainer {
 
 	private void configureBindings() {
 		m_driverController.back().onTrue(new InstantCommand(m_swerveSubsystem::zeroGyro));
+
+		m_driverController
+				.a()
+				.onTrue(new DriveToCommand(m_swerveSubsystem, Constants.CENTER_OF_FIELD, 2.0, 1.0));
 	}
 
 	private void configureDefaultCommands() {
