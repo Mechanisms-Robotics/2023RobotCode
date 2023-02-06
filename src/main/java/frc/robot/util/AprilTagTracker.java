@@ -102,8 +102,8 @@ public class AprilTagTracker {
 					fieldLayout.getTags().stream()
 							.map(tag -> tag.pose.toPose2d())
 							.collect(Collectors.toList());
-			field.getObject("Camera").setPose(cameraPose);
-			field.getObject("Tags").setPoses(tagPoses);
+			field.getObject("bCamera").setPose(cameraPose);
+			field.getObject("cTags").setPoses(tagPoses);
 		}
 	}
 }

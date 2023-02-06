@@ -259,7 +259,7 @@ public class Swerve extends SubsystemBase {
 							new Rotation2d(modules[i].getSteerAngle()).plus(getGyroHeading()));
 		}
 
-		m_field.getObject("Swerve Modules").setPoses(m_swerveModulePoses);
+		m_field.getObject("aSwerve Modules").setPoses(m_swerveModulePoses);
 
 		m_frontLeftModule.offsetEncoder(FRONT_LEFT_MODULE_STEER_OFFSET);
 		m_frontRightModule.offsetEncoder(FRONT_RIGHT_MODULE_STEER_OFFSET);
