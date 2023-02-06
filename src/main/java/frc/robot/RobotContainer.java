@@ -17,12 +17,9 @@ import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.swerve.DriveCommand;
-<<<<<<< HEAD
 import frc.robot.commands.swerve.DriveToCommand;
-=======
 import frc.robot.commands.tracking.MoveRelativeToFiducial;
 import frc.robot.commands.tracking.ScanForFiducial;
->>>>>>> 895590b8941091e7294f877349078ad6c12446eb
 import frc.robot.subsystems.Swerve;
 
 public class RobotContainer {

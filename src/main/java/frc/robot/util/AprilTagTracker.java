@@ -13,9 +13,7 @@ import org.photonvision.*;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-/**
- * Wrapper class for PhotonLib's AprilTag support
- */
+/** Wrapper class for PhotonLib's AprilTag support */
 public class AprilTagTracker {
 
 	private static final PhotonCamera camera = new PhotonCamera(Constants.CAMERA_NAME);
