@@ -5,11 +5,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import org.photonvision.PhotonCamera;
+import frc.robot.util.AprilTagTracker;
 import org.photonvision.common.hardware.VisionLEDMode;
 
 public class Robot extends TimedRobot {
@@ -22,7 +21,7 @@ public class Robot extends TimedRobot {
 		// Instantiate our RobotContainer.  This will perform all our button bindings, and put our
 		// autonomous chooser on the dashboard.
 		m_robotContainer = new RobotContainer();
-		m_robotContainer.setLimelightLEDMode(VisionLEDMode.kOff);
+		AprilTagTracker.getCamera().setLED(VisionLEDMode.kOff);
 	}
 
 	@Override
