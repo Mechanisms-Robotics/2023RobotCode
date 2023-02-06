@@ -34,7 +34,9 @@ public class ObstacleAvoidance {
 		double curX = swerve.getPose().getX();
 		double curY = swerve.getPose().getY();
 
-		if (BORDER_2_X < curX) {
+		double goalX = goalPose.getX();
+
+		if (goalX < BORDER_2_X && BORDER_2_X < curX) {
 			if (BORDER_Y < curY) {
 				points.add(
 						new PathPoint(
@@ -50,7 +52,7 @@ public class ObstacleAvoidance {
 			}
 		}
 
-		if (BORDER_1_X < curX) {
+		if (goalX < BORDER_1_X && BORDER_1_X < curX) {
 			if (BORDER_Y < curY) {
 				points.add(
 						new PathPoint(
