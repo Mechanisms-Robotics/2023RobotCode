@@ -40,6 +40,20 @@ public final class AutoCommands {
 
 	public static CommandBase generateTrajectoryCommand(
 			Pose2d goalPose, double translationVelocity, double rotationVelocity, Swerve swerve) {
+		return generateTrajectoryCommand(
+				goalPose,
+				Rotation2d.fromDegrees(180.0),
+				translationVelocity,
+				rotationVelocity,
+				swerve);
+	}
+
+	public static CommandBase generateTrajectoryCommand(
+			Pose2d goalPose,
+			Rotation2d goalHeading,
+			double translationVelocity,
+			double rotationVelocity,
+			Swerve swerve) {
 		return new InstantCommand(
 				() -> {
 					PathPlannerTrajectory trajectory =
@@ -49,7 +63,7 @@ public final class AutoCommands {
 											swerve.getPose(), swerve.getVelocity()),
 									new PathPoint(
 											goalPose.getTranslation(),
-											Rotation2d.fromDegrees(180.0),
+											goalHeading,
 											goalPose.getRotation()));
 
 					swerve.setTrajectory(trajectory);

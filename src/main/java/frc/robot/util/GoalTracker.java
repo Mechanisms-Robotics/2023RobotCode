@@ -21,7 +21,7 @@ public class GoalTracker extends SubsystemBase {
 
 	public GoalTracker(Field2d field, Supplier<Pose2d> poseSupplier) {
 		initGoalPositions();
-		field.getObject("Goals").setPoses(m_goalPoses);
+		field.getObject("dGoals").setPoses(m_goalPoses);
 
 		m_field = field;
 		m_poseSupplier = poseSupplier;
@@ -51,10 +51,6 @@ public class GoalTracker extends SubsystemBase {
 			}
 		}
 
-		ArrayList<Pose2d> tempGoalPoses = (ArrayList<Pose2d>) m_goalPoses.clone();
-		tempGoalPoses.remove(m_closestGoalPosition);
-
-		m_field.getObject("Goals").setPoses(tempGoalPoses);
-		m_field.getObject("Closest Goal").setPose(m_closestGoalPosition);
+		m_field.getObject("eClosest Goal").setPose(m_closestGoalPosition);
 	}
 }
