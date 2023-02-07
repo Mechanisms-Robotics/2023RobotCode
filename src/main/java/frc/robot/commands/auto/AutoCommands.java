@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.ObstacleAvoidance;
-import java.util.function.BooleanSupplier;
 
 public final class AutoCommands {
 	public static CommandBase resetPoseCommand(PathPlannerTrajectory trajectory, Swerve swerve) {
@@ -112,8 +111,7 @@ public final class AutoCommands {
 				});
 	}
 
-	public static CommandBase driveToAvoidObstaclesCommand(
-			Pose2d goalPose, Swerve swerve) {
+	public static CommandBase driveToAvoidObstaclesCommand(Pose2d goalPose, Swerve swerve) {
 		return new InstantCommand(
 						() -> {
 							PathPlannerTrajectory trajectory =
@@ -123,17 +121,15 @@ public final class AutoCommands {
 						})
 				.andThen(
 						new FunctionalCommand(
-										() -> {
-											CommandScheduler.getInstance()
-													.schedule(
-															followTrajectoryCommand(
-																	swerve.getTrajectory(),
-																	false,
-																	swerve));
-										},
-										() -> {},
-										(interrupted) -> {},
-										() -> true,
-										swerve));
+								() -> {
+									CommandScheduler.getInstance()
+											.schedule(
+													followTrajectoryCommand(
+															swerve.getTrajectory(), false, swerve));
+								},
+								() -> {},
+								(interrupted) -> {},
+								() -> true,
+								swerve));
 	}
 }

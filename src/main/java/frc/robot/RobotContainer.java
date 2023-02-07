@@ -80,11 +80,15 @@ public class RobotContainer {
 								() -> true,
 								m_swerveSubsystem));
 
-		m_driverController.b().onTrue(new InstantCommand(
-			() -> {
-				CommandScheduler.getInstance().requiring(m_swerveSubsystem).cancel();
-			}
-		));
+		m_driverController
+				.b()
+				.onTrue(
+						new InstantCommand(
+								() -> {
+									CommandScheduler.getInstance()
+											.requiring(m_swerveSubsystem)
+											.cancel();
+								}));
 
 		m_driverController.start().onTrue(new ScanForFiducial(m_swerveSubsystem));
 		m_driverController.y().onTrue(new MoveRelativeToFiducial(m_swerveSubsystem));

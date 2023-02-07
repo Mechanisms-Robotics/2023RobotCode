@@ -22,8 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.util.AprilTagTracker;
-import frc.robot.util.HeadingController;
+import frc.robot.util.*;
 
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
@@ -71,8 +70,6 @@ public class Swerve extends SubsystemBase {
 	private static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(190.45); // rads
 	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(326.51); // rads
 
-	private final AprilTagTracker.CameraSim m_cameraSim;
-
 	private final SwerveModule m_frontLeftModule;
 	private final SwerveModule m_frontRightModule;
 	private final SwerveModule m_backLeftModule;
@@ -97,7 +94,7 @@ public class Swerve extends SubsystemBase {
 					);
 
 	private final SwerveDrivePoseEstimator m_poseEstimator;
-	private final Field2d m_field;
+	private final Field2dWrapper m_field;
 
 	private final Pose2d[] m_swerveModulePoses = {
 		new Pose2d(), new Pose2d(), new Pose2d(), new Pose2d()
@@ -108,8 +105,6 @@ public class Swerve extends SubsystemBase {
 
 	public Swerve() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
-
-		m_cameraSim = new AprilTagTracker.CameraSim();
 
 		m_frontLeftModule =
 				new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerFalcon500())
@@ -173,9 +168,11 @@ public class Swerve extends SubsystemBase {
 				new SwerveDrivePoseEstimator(
 						m_kinematics, getGyroHeading(), getModulePositions(), new Pose2d());
 
-		m_field = new Field2d();
+		m_field = new Field2dWrapper();
 
 		SmartDashboard.putData("Field", m_field);
+
+		m_field.getObject("Control Points").setPoses(ObstacleAvoidance.getControlPoints());
 	}
 
 	public void zeroGyro() {
@@ -294,11 +291,10 @@ public class Swerve extends SubsystemBase {
 
 		m_poseEstimator.update(m_simYaw, getModulePositions());
 
-		m_cameraSim.updateSimulation(getPose());
-		m_cameraSim.putInField(m_field);
-
 		m_field.setRobotPose(
 				new Pose2d(m_poseEstimator.getEstimatedPosition().getTranslation(), m_simYaw));
+
+		m_field.updateSims(getPose());
 
 		m_frontLeftModule.offsetEncoder(FRONT_LEFT_MODULE_STEER_OFFSET);
 		m_frontRightModule.offsetEncoder(FRONT_RIGHT_MODULE_STEER_OFFSET);

@@ -41,14 +41,14 @@ public class AprilTagTracker {
 		photonPoseEstimator.setStrategy(strategy);
 	}
 
-	public static Optional<PhotonTrackedTarget> getBestTarget() {
+	public static PhotonTrackedTarget getBestTarget() {
 		final PhotonPipelineResult result = camera.getLatestResult();
 
 		if (result.hasTargets()) {
-			return Optional.of(result.getBestTarget());
+			return result.getBestTarget();
 		}
 
-		return Optional.empty();
+		return null;
 	}
 
 	public static List<PhotonTrackedTarget> getTargets() {

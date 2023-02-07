@@ -25,7 +25,7 @@ public class ScanForFiducial extends CommandBase {
 	@Override
 	public void execute() {
 		boolean idExist = fiduicialId.isPresent();
-		foundTag = AprilTagTracker.getBestTarget().isPresent();
+		foundTag = AprilTagTracker.getBestTarget() != null;
 
 		if (!foundTag) {
 			swerve.drive(

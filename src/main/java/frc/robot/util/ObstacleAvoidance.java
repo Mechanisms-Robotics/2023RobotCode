@@ -26,6 +26,13 @@ public class ObstacleAvoidance {
 	private static final Pose2d LOWER_LEFT_CONTROL_POINT =
 			new Pose2d(new Translation2d(2.25, 0.75), Rotation2d.fromDegrees(180.0));
 
+	private static final Pose2d[] CONTROL_POINTS = {
+		UPPER_LEFT_CONTROL_POINT,
+		UPPER_RIGHT_CONTROL_POINT,
+		LOWER_RIGHT_CONTROL_POINT,
+		LOWER_LEFT_CONTROL_POINT
+	};
+
 	public static PathPlannerTrajectory generateTrajectoryAvoidObstacles(
 			Pose2d goalPose, double translationVelocity, double rotationVelocity, Swerve swerve) {
 		ArrayList<PathPoint> points = new ArrayList<>();
@@ -79,5 +86,9 @@ public class ObstacleAvoidance {
 						new PathConstraints(translationVelocity, rotationVelocity), true, points);
 
 		return trajectory;
+	}
+
+	public static Pose2d[] getControlPoints() {
+		return CONTROL_POINTS;
 	}
 }

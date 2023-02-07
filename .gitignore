@@ -333,3 +333,8 @@ sim*.json
 
 # End entries from WPI Lib team
 
+# Start 8736 entries
+# # SimGui
+simgui-ds.json
+simgui.json
+simgui-window.json
