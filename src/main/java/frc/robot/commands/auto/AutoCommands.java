@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.ObstacleAvoidance;
-import java.util.function.BooleanSupplier;
 
 public final class AutoCommands {
 	public static CommandBase resetPoseCommand(PathPlannerTrajectory trajectory, Swerve swerve) {
@@ -41,6 +40,20 @@ public final class AutoCommands {
 
 	public static CommandBase generateTrajectoryCommand(
 			Pose2d goalPose, double translationVelocity, double rotationVelocity, Swerve swerve) {
+		return generateTrajectoryCommand(
+				goalPose,
+				Rotation2d.fromDegrees(180.0),
+				translationVelocity,
+				rotationVelocity,
+				swerve);
+	}
+
+	public static CommandBase generateTrajectoryCommand(
+			Pose2d goalPose,
+			Rotation2d goalHeading,
+			double translationVelocity,
+			double rotationVelocity,
+			Swerve swerve) {
 		return new InstantCommand(
 				() -> {
 					PathPlannerTrajectory trajectory =
@@ -50,7 +63,7 @@ public final class AutoCommands {
 											swerve.getPose(), swerve.getVelocity()),
 									new PathPoint(
 											goalPose.getTranslation(),
-											Rotation2d.fromDegrees(180.0),
+											goalHeading,
 											goalPose.getRotation()));
 
 					swerve.setTrajectory(trajectory);
@@ -112,8 +125,7 @@ public final class AutoCommands {
 				});
 	}
 
-	public static CommandBase driveToAvoidObstaclesCommand(
-			Pose2d goalPose, Swerve swerve) {
+	public static CommandBase driveToAvoidObstaclesCommand(Pose2d goalPose, Swerve swerve) {
 		return new InstantCommand(
 						() -> {
 							PathPlannerTrajectory trajectory =
@@ -123,17 +135,15 @@ public final class AutoCommands {
 						})
 				.andThen(
 						new FunctionalCommand(
-										() -> {
-											CommandScheduler.getInstance()
-													.schedule(
-															followTrajectoryCommand(
-																	swerve.getTrajectory(),
-																	false,
-																	swerve));
-										},
-										() -> {},
-										(interrupted) -> {},
-										() -> true,
-										swerve));
+								() -> {
+									CommandScheduler.getInstance()
+											.schedule(
+													followTrajectoryCommand(
+															swerve.getTrajectory(), false, swerve));
+								},
+								() -> {},
+								(interrupted) -> {},
+								() -> true,
+								swerve));
 	}
 }

@@ -27,6 +27,8 @@ public final class Constants {
 
 	public static final Transform2d SCORING_OFFSET =
 			new Transform2d(new Translation2d(1.0, 0.0), new Rotation2d());
+	public static final Pose2d PICKUP_POSE =
+			new Pose2d(new Translation2d(13.5, 7.0), Rotation2d.fromDegrees(45.0));
 
 	public static final double SWERVE_X_KP = 10.0;
 	public static final double SWERVE_X_KI = 0.0;

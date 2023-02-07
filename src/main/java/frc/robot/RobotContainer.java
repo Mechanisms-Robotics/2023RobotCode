@@ -1,7 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,8 +18,7 @@ import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.swerve.DriveCommand;
-import frc.robot.commands.tracking.MoveRelativeToFiducial;
-import frc.robot.commands.tracking.ScanForFiducial;
+import frc.robot.commands.swerve.TornadoCommand;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.GoalTracker;
@@ -82,23 +79,45 @@ public class RobotContainer {
 								() -> true,
 								m_swerveSubsystem));
 
-		m_driverController.b().onTrue(new InstantCommand(
-			() -> {
-				CommandScheduler.getInstance().requiring(m_swerveSubsystem).cancel();
-			}
-		));
+		m_driverController
+				.y()
+				.onTrue(
+						new FunctionalCommand(
+								() -> {
+									CommandScheduler.getInstance()
+											.schedule(
+													AutoCommands.driveToAvoidObstaclesCommand(
+															Constants.PICKUP_POSE,
+															m_swerveSubsystem));
+								},
+								() -> {},
+								(interrupted) -> {},
+								() -> true,
+								m_swerveSubsystem));
 
-		m_driverController.x().whileTrue(
-				new FunctionalCommand(
-						m_intakeSubsystem::intake,
-						() -> {},
-						(interrupted) -> {
-							m_intakeSubsystem.stop();
-						},
-						() -> false,
-						m_intakeSubsystem
-				)
-		);
+		m_driverController
+				.b()
+				.onTrue(
+						new InstantCommand(
+								() -> {
+									CommandScheduler.getInstance()
+											.requiring(m_swerveSubsystem)
+											.cancel();
+								}));
+
+		m_driverController
+				.x()
+				.whileTrue(
+						new FunctionalCommand(
+								m_intakeSubsystem::intake,
+								() -> {},
+								(interrupted) -> {
+									m_intakeSubsystem.stop();
+								},
+								() -> false,
+								m_intakeSubsystem));
+
+		m_driverController.rightBumper().onTrue(new TornadoCommand(m_swerveSubsystem));
 	}
 
 	private void configureDefaultCommands() {
