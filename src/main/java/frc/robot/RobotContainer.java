@@ -22,11 +22,13 @@ import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.commands.tracking.MoveRelativeToFiducial;
 import frc.robot.commands.tracking.ScanForFiducial;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.GoalTracker;
 
 public class RobotContainer {
 	private final Swerve m_swerveSubsystem = new Swerve();
+	private final Intake m_intakeSubsystem = new Intake();
 	private final GoalTracker m_goalTracker =
 			new GoalTracker(m_swerveSubsystem.getField(), m_swerveSubsystem::getPose);
 
@@ -86,16 +88,17 @@ public class RobotContainer {
 			}
 		));
 
-		m_driverController.start().onTrue(new ScanForFiducial(m_swerveSubsystem));
-		m_driverController.y().onTrue(new MoveRelativeToFiducial(m_swerveSubsystem));
-		m_driverController
-				.x()
-				.toggleOnTrue(
-						new InstantCommand(
-								() ->
-										m_swerveSubsystem.setPose(
-												new Pose2d(), Rotation2d.fromDegrees(0)),
-								m_swerveSubsystem));
+		m_driverController.x().whileTrue(
+				new FunctionalCommand(
+						m_intakeSubsystem::intake,
+						() -> {},
+						(interrupted) -> {
+							m_intakeSubsystem.stop();
+						},
+						() -> false,
+						m_intakeSubsystem
+				)
+		);
 	}
 
 	private void configureDefaultCommands() {
