@@ -118,7 +118,7 @@ public class ObstacleAvoidance {
 						new PathPoint(
 								HP_CONTROL_POINT.getTranslation(),
 								HP_CONTROL_POINT.getRotation(),
-								new Rotation2d()));
+								goalPose.getRotation()));
 			}
 		}
 
