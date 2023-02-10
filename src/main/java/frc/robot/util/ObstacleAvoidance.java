@@ -31,11 +31,11 @@ public class ObstacleAvoidance {
 			new Pose2d(new Translation2d(10.5, 6.0), Rotation2d.fromDegrees(20.0));
 
 	private static final Pose2d[] CONTROL_POINTS = {
-			UPPER_LEFT_CONTROL_POINT,
-			UPPER_RIGHT_CONTROL_POINT,
-			LOWER_RIGHT_CONTROL_POINT,
-			LOWER_LEFT_CONTROL_POINT,
-			HP_CONTROL_POINT
+		UPPER_LEFT_CONTROL_POINT,
+		UPPER_RIGHT_CONTROL_POINT,
+		LOWER_RIGHT_CONTROL_POINT,
+		LOWER_LEFT_CONTROL_POINT,
+		HP_CONTROL_POINT
 	};
 
 	public static PathPlannerTrajectory generateTrajectoryAvoidObstacles(
@@ -86,13 +86,17 @@ public class ObstacleAvoidance {
 					points.add(
 							new PathPoint(
 									UPPER_LEFT_CONTROL_POINT.getTranslation(),
-									UPPER_LEFT_CONTROL_POINT.getRotation().rotateBy(Rotation2d.fromDegrees(180.0)),
+									UPPER_LEFT_CONTROL_POINT
+											.getRotation()
+											.rotateBy(Rotation2d.fromDegrees(180.0)),
 									new Rotation2d()));
 				} else {
 					points.add(
 							new PathPoint(
 									LOWER_LEFT_CONTROL_POINT.getTranslation(),
-									LOWER_LEFT_CONTROL_POINT.getRotation().rotateBy(Rotation2d.fromDegrees(180.0)),
+									LOWER_LEFT_CONTROL_POINT
+											.getRotation()
+											.rotateBy(Rotation2d.fromDegrees(180.0)),
 									new Rotation2d()));
 				}
 			}
@@ -102,13 +106,17 @@ public class ObstacleAvoidance {
 					points.add(
 							new PathPoint(
 									UPPER_RIGHT_CONTROL_POINT.getTranslation(),
-									UPPER_RIGHT_CONTROL_POINT.getRotation().rotateBy(Rotation2d.fromDegrees(180.0)),
+									UPPER_RIGHT_CONTROL_POINT
+											.getRotation()
+											.rotateBy(Rotation2d.fromDegrees(180.0)),
 									new Rotation2d()));
 				} else {
 					points.add(
 							new PathPoint(
 									LOWER_RIGHT_CONTROL_POINT.getTranslation(),
-									LOWER_RIGHT_CONTROL_POINT.getRotation().rotateBy(Rotation2d.fromDegrees(180.0)),
+									LOWER_RIGHT_CONTROL_POINT
+											.getRotation()
+											.rotateBy(Rotation2d.fromDegrees(180.0)),
 									new Rotation2d()));
 				}
 			}
