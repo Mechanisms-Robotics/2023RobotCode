@@ -8,19 +8,15 @@ import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.function.Supplier;
 
 /** This class contains all the code that controls the feeder functionality */
 public class Feeder extends SubsystemBase {
 	// Feeder speeds
-	private static final double FEEDER_INTAKE_SPEED = -0.3;
-	private static final double FEEDER_SHOOT_SPEED = -0.5;
-	private static final double FEEDER_EJECT_SPEED = -0.15;
-	private static final double FEEDER_UNJAM_SPEED = 0.3;
+	private static final double FEEDER_INTAKE_SPEED = 0.3;
 
 	// Feeder motor
-	private final WPI_TalonFX feederMotor = new WPI_TalonFX(40);
-
+	private final WPI_TalonFX feederMotor = new WPI_TalonFX(30);
+	private final WPI_TalonFX feederMotorFollower = new WPI_TalonFX(32);
 	// Feeder motor configuration
 	private static final TalonFXConfiguration FEEDER_MOTOR_CONFIGURATION =
 			new TalonFXConfiguration();
@@ -43,13 +39,14 @@ public class Feeder extends SubsystemBase {
 	}
 
 	/** Constructor for the Feeder class */
-	public Feeder(
-			Supplier<Boolean> processorSensorSupplier,
-			Supplier<Boolean> feederBottomSensorSupplier,
-			Supplier<Boolean> feederTopSensorSupplier) {
+	public Feeder() {
 		// Configure feeder motor
 		feederMotor.setInverted(TalonFXInvertType.Clockwise);
-		feederMotor.setNeutralMode(NeutralMode.Brake);
+		feederMotor.setNeutralMode(NeutralMode.Coast);
+
+		feederMotorFollower.setInverted(TalonFXInvertType.CounterClockwise);
+		feederMotorFollower.setNeutralMode(NeutralMode.Coast);
+		feederMotorFollower.follow(feederMotor);
 
 		// CAN bus utilization optimization
 		feederMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
@@ -59,23 +56,6 @@ public class Feeder extends SubsystemBase {
 	/** Runs the feeder differently depending on which proximity sensors are triggered */
 	public void intake() {
 		feederMotor.set(ControlMode.PercentOutput, FEEDER_INTAKE_SPEED);
-	}
-
-	/** Runs the feeder at it's shooting speed */
-	public void shoot() {
-		// Set the feeder motor to run at FEEDER_SHOOT_SPEED
-		feederMotor.set(ControlMode.PercentOutput, FEEDER_SHOOT_SPEED);
-	}
-
-	/** Runs the feeder ar it's eject speed */
-	public void eject() {
-		// Set the feeder motor to run at FEEDER_EJECT_SPEED
-		feederMotor.set(ControlMode.PercentOutput, FEEDER_EJECT_SPEED);
-	}
-
-	/** Unjams the feeder */
-	public void unjam() {
-		feederMotor.set(ControlMode.PercentOutput, FEEDER_UNJAM_SPEED);
 	}
 
 	/** Stops the feeder */
