@@ -102,7 +102,7 @@ public class HeadingController {
 	 * @return A double to add to the rotation velocity to PID to a heading.
 	 */
 	private double updateLock(ChassisSpeeds desiredSpeeds, Rotation2d heading) {
-		final double inPlaceTurnZone = Swerve.MAX_ANGULAR_VELOCITY * 0.025;
+		final double inPlaceTurnZone = Swerve.ANGULAR_VELOCITY_RANGE * 0.025;
 		if (Math.hypot(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond)
 				< inPlaceTurnZone) {
 			if (!inPlace) {

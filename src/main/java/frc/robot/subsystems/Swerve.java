@@ -27,8 +27,9 @@ import frc.robot.util.*;
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
 	private static final double MAX_VOLTAGE = 12.0; // volts
-	public static final double MAX_VELOCITY = 1.5; // m/s
-	public static final double MAX_ANGULAR_VELOCITY = 1.5; // m/s
+	public static final double VELOCITY_RANGE = 2.5; // 1.5 m/s
+	private static final double MAX_VELOCITY = 4.5; // m/s
+	public static final double ANGULAR_VELOCITY_RANGE = Math.PI / 2; // rad/s
 
 	private static final double DT_TRACKWIDTH = 0.36195; // m
 	private static final double DT_WHEELBASE = 0.76835; // m
@@ -65,9 +66,9 @@ public class Swerve extends SubsystemBase {
 	private static final int BACK_RIGHT_MODULE_STEER_MOTOR_ID = 14;
 	private static final int BACK_RIGHT_MODULE_ENCODER_ID = 14;
 
-	private static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(288.8); // rads
+	private static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(281.95); // rads 288.8
 	private static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(26.63); // rads
-	private static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(190.45); // rads
+	private static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(265.957); //190.45 rads
 	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(326.51); // rads
 
 	private final SwerveModule m_frontLeftModule;
@@ -83,7 +84,7 @@ public class Swerve extends SubsystemBase {
 
 	private final HeadingController m_headingController =
 			new HeadingController(
-					0.005, // Stabilization kP
+					0.08, // Stabilization kP
 					0.0, // Stabilization kD
 					1.75, // Lock kP
 					0.0, // Lock kI
@@ -95,6 +96,8 @@ public class Swerve extends SubsystemBase {
 
 	private final SwerveDrivePoseEstimator m_poseEstimator;
 	private final Field2dWrapper m_field;
+
+//	private final RobotDetection m_robotDetection;
 
 	private final Pose2d[] m_swerveModulePoses = {
 		new Pose2d(), new Pose2d(), new Pose2d(), new Pose2d()
@@ -170,6 +173,8 @@ public class Swerve extends SubsystemBase {
 
 		m_field = new Field2dWrapper();
 
+//		m_robotDetection = new RobotDetection(m_gyro);
+
 		SmartDashboard.putData("Field", m_field);
 
 		m_field.getObject("Control Points").setPoses(ObstacleAvoidance.getControlPoints());
@@ -204,7 +209,7 @@ public class Swerve extends SubsystemBase {
 	@Override
 	public void periodic() {
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
-		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY);
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, VELOCITY_RANGE);
 
 		SmartDashboard.putNumber("Gyro", getGyroHeading().getDegrees());
 
@@ -216,17 +221,19 @@ public class Swerve extends SubsystemBase {
 		}
 
 		m_frontLeftModule.set(
-				states[0].speedMetersPerSecond / MAX_VELOCITY * MAX_VOLTAGE,
+				(states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
 				states[0].angle.getRadians());
 		m_frontRightModule.set(
-				states[1].speedMetersPerSecond / MAX_VELOCITY * MAX_VOLTAGE,
+				(states[1].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
 				states[1].angle.getRadians());
 		m_backLeftModule.set(
-				states[2].speedMetersPerSecond / MAX_VELOCITY * MAX_VOLTAGE,
+				(states[2].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
 				states[2].angle.getRadians());
 		m_backRightModule.set(
-				states[3].speedMetersPerSecond / MAX_VELOCITY * MAX_VOLTAGE,
+				(states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
 				states[3].angle.getRadians());
+
+		System.out.println(states[0].speedMetersPerSecond);
 
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());
 
@@ -258,6 +265,8 @@ public class Swerve extends SubsystemBase {
 
 		m_field.getObject("aSwerve Modules").setPoses(m_swerveModulePoses);
 
+//		m_robotDetection.update();
+
 		m_frontLeftModule.offsetEncoder(FRONT_LEFT_MODULE_STEER_OFFSET);
 		m_frontRightModule.offsetEncoder(FRONT_RIGHT_MODULE_STEER_OFFSET);
 		m_backLeftModule.offsetEncoder(BACK_LEFT_MODULE_STEER_OFFSET);
@@ -266,7 +275,7 @@ public class Swerve extends SubsystemBase {
 
 	public void simulationPeriodic() {
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
-		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY);
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, VELOCITY_RANGE);
 
 		SmartDashboard.putNumber("Gyro", getGyroHeading().getDegrees());
 

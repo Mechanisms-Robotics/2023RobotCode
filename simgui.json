@@ -1,4 +1,13 @@
 {
+  "HALProvider": {
+    "Other Devices": {
+      "Talon FX[13]/Integrated Sensor": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
@@ -8,6 +17,11 @@
     },
     "windows": {
       "/SmartDashboard/Field": {
+        "Balls": {
+          "image": "C:\\Robotics\\2023RobotCode\\closest_goal.png",
+          "length": 1.100000023841858,
+          "width": 1.100000023841858
+        },
         "Boids": {
           "image": "C:\\Robotics\\2023RobotCode\\small_boid.png",
           "length": -0.6000000238418579,
@@ -17,10 +31,17 @@
           "image": "C:\\Robotics\\2023RobotCode\\closest_goal.png"
         },
         "Control Points": {
-          "image": "C:\\Robotics\\2023RobotCode\\control_point.png"
+          "image": "C:\\Robotics\\2023RobotCode\\control_point.png",
+          "length": 0.30000001192092896,
+          "width": 0.30000001192092896
         },
         "Goals": {
           "image": "C:\\Robotics\\2023RobotCode\\goal.png"
+        },
+        "Physics Objects": {
+          "image": "C:\\Robotics\\2023RobotCode\\control_point.png",
+          "length": 1.0,
+          "width": 1.0
         },
         "Swerve Modules": {
           "image": "C:\\Robotics\\2023RobotCode\\swerve_indicator.png",
@@ -29,6 +50,29 @@
         },
         "Tags": {
           "image": "C:\\Users\\nickb\\Downloads\\transparent.png"
+        },
+        "aSwerve Modules": {
+          "image": "C:\\Robotics\\2023RobotCode\\swerve_indicator.png",
+          "length": 0.5,
+          "width": 0.5
+        },
+        "bCamera": {
+          "image": "C:\\Users\\nickb\\Downloads\\transparent.png"
+        },
+        "cTags": {
+          "image": "C:\\Robotics\\2023RobotCode\\id1.png",
+          "length": 0.4000000059604645,
+          "width": 0.4000000059604645
+        },
+        "dGoals": {
+          "image": "C:\\Robotics\\2023RobotCode\\goal.png",
+          "length": 0.800000011920929,
+          "width": 0.800000011920929
+        },
+        "eClosest Goal": {
+          "image": "C:\\Robotics\\2023RobotCode\\closest_goal.png",
+          "length": 0.800000011920929,
+          "width": 0.800000011920929
         },
         "image": "C:\\Robotics\\2023RobotCode\\field23.png",
         "robot": {

@@ -6,7 +6,7 @@ import frc.robot.subsystems.Swerve;
 import java.util.function.DoubleSupplier;
 
 public class DriveCommand extends CommandBase {
-	private static final double DEADBAND = 0.05;
+	private static final double DEADBAND = 0.1;
 	private static final double TRANSLATION_EXPONENT = 1.5;
 	private static final double ROTATION_EXPONENT = 2.0;
 
@@ -43,6 +43,10 @@ public class DriveCommand extends CommandBase {
 						applyExponential(
 								deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
 						m_swerveSubsystem.getGyroHeading()));
+
+//		System.out.println(applyExponential(
+//				deadband(m_translationXSupplier.getAsDouble()),
+//				TRANSLATION_EXPONENT));
 	}
 
 	@Override

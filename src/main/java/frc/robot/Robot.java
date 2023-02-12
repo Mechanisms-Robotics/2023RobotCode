@@ -43,6 +43,8 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
+		m_robotContainer.m_intakeSubsystem.zeroEncoders();
+
 		// schedule the autonomous command (example)
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.schedule();
@@ -72,6 +74,9 @@ public class Robot extends TimedRobot {
 	public void testInit() {
 		// Cancels all running commands at the start of test mode.
 		CommandScheduler.getInstance().cancelAll();
+
+//		m_robotContainer.m_intakeSubsystem.zeroEncoders();
+		m_robotContainer.m_intakeSubsystem.retract();
 	}
 
 	/** This method is called periodically during test mode. */

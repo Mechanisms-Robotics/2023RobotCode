@@ -3,6 +3,7 @@ package frc.robot.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.sim.BoidsSim;
+import frc.robot.sim.Rigidbody2dPhysicsSim;
 import frc.robot.sim.RobotSim;
 
 /** Wrapper for Field2d to add and separate various simulation capabilities. */
@@ -20,11 +21,13 @@ public class Field2dWrapper extends Field2d {
 
 	private final RobotSim robotSim;
 	private final BoidsSim boidsSim;
+	private final Rigidbody2dPhysicsSim physicsSim;
 	private final AprilTagTracker.CameraSim cameraSim;
 
 	private boolean robotSimActive = false;
 	private boolean boidsSimActive = false;
 	private boolean cameraSimActive = true;
+	private boolean physicsSimActive = false;
 
 	public Field2dWrapper() {
 		robotSim = new RobotSim("Robot", this);
@@ -41,6 +44,7 @@ public class Field2dWrapper extends Field2d {
 						BOIDS_MATCHING_FACTOR,
 						BOIDS_SPEED_LIMIT);
 		cameraSim = new AprilTagTracker.CameraSim();
+		physicsSim = new Rigidbody2dPhysicsSim(this);
 	}
 
 	public void updateSims(Pose2d robotPose) {
@@ -51,6 +55,10 @@ public class Field2dWrapper extends Field2d {
 		if (cameraSimActive) {
 			cameraSim.updateSimulation(robotPose);
 			cameraSim.putInField(this);
+		}
+
+		if (physicsSimActive) {
+			physicsSim.update();
 		}
 	}
 
