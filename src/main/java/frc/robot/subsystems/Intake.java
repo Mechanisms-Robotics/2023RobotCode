@@ -14,6 +14,11 @@ public class Intake extends SubsystemBase {
 	private static final double DEPLOYED_SENSOR_POSITION = -40392;
 	private static final double RETRACTED_SENSOR_POSITION = -200;
 
+	private static final double RIGHT_MOTOR_HORIZONTAL_POSITION = -34359;
+	private static final double TICKS_PER_DEGREE = (2048.0 / 360.0) * 60.6814;
+
+	private static final double MAX_GRAVITY_FF = 0.05;
+
 	static {
 		final var intakeCurrentLimit = new SupplyCurrentLimitConfiguration();
 		intakeCurrentLimit.currentLimit = 15; // Amps
@@ -24,13 +29,16 @@ public class Intake extends SubsystemBase {
 		INTAKE_MOTOR_CONFIG.supplyCurrLimit = intakeCurrentLimit;
 		INTAKE_MOTOR_CONFIG.reverseSoftLimitEnable = false;
 		INTAKE_MOTOR_CONFIG.forwardSoftLimitEnable = false;
+		INTAKE_MOTOR_CONFIG.motionAcceleration = 2000;
+		INTAKE_MOTOR_CONFIG.motionCruiseVelocity = 2000;
 	}
 
 	private final WPI_TalonFX intakeMotor = new WPI_TalonFX(20);
 	private final WPI_TalonFX intakePivotLeft = new WPI_TalonFX(21);
 	private final WPI_TalonFX intakePivotRight = new WPI_TalonFX(22);
 
-	private static final double kP = 0.0; // 0.01
+	private static final double kP = 0.0; // 0.4
+	private static final double kF = 0.0;
 
 	private boolean isBrakeMode = false;
 
@@ -42,7 +50,6 @@ public class Intake extends SubsystemBase {
 		intakeMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
 		intakeMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
 
-//		intakePivotLeft.follow(intakePivotRight);
 		intakePivotRight.setNeutralMode(NeutralMode.Brake);
 		intakePivotLeft.setNeutralMode(NeutralMode.Brake);
 
@@ -52,7 +59,7 @@ public class Intake extends SubsystemBase {
 		intakePivotRight.config_kP(0, kP);
 		intakePivotRight.config_kI(0, 0.0);
 		intakePivotRight.config_kD(0, 0.0);
-		intakePivotRight.config_kF(0, 0.02);
+//		intakePivotRight.config_kF(0, kF);
 //		intakePivotRight.config_IntegralZone(0, );
 
 
@@ -60,11 +67,22 @@ public class Intake extends SubsystemBase {
 		intakePivotLeft.config_kP(0, kP);
 		intakePivotLeft.config_kI(0, 0.0);
 		intakePivotLeft.config_kD(0, 0.0);
-		intakePivotLeft.config_kF(0, 0.04);
+//		intakePivotLeft.config_kF(0, kF);
 	}
+
 
 	private void setOpenLoop(double percentOutput) {
 		intakeMotor.set(ControlMode.PercentOutput, percentOutput);
+	}
+
+	private void setClosedLoop(double position) {
+		double radians = Math.toRadians((intakePivotRight.getSelectedSensorPosition() - RIGHT_MOTOR_HORIZONTAL_POSITION) / TICKS_PER_DEGREE);
+		double cosRadians = Math.cos(radians);
+		double demandFF = MAX_GRAVITY_FF * cosRadians;
+		System.out.println(Math.toDegrees(radians));
+		intakePivotRight.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, demandFF);
+		intakePivotLeft.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, -demandFF);
+		intakePivotLeft.follow(intakePivotRight);
 	}
 
 	public void intake() {
@@ -72,14 +90,14 @@ public class Intake extends SubsystemBase {
 	}
 
 	public void retract() {
-		intakePivotRight.set(ControlMode.Position, RETRACTED_SENSOR_POSITION);
-		intakePivotLeft.set(ControlMode.Position, RETRACTED_SENSOR_POSITION);
+//		intakePivotRight.set(ControlMode.PercentOutput, 0.07);
+//		intakePivotLeft.set(ControlMode.PercentOutput, 0.07);
+//		intakePivotLeft.follow(intakePivotRight);
+		setClosedLoop(intakePivotRight.getSelectedSensorPosition());
 	}
 
 	public void deploy() {
-		intakePivotRight.set(ControlMode.Position, DEPLOYED_SENSOR_POSITION);
-		intakePivotLeft.set(ControlMode.Position, DEPLOYED_SENSOR_POSITION);
-
+		setClosedLoop(DEPLOYED_SENSOR_POSITION);
 	}
 
 	public void toggleBrakeMode() {

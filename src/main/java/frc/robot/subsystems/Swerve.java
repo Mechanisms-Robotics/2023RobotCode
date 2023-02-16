@@ -233,8 +233,6 @@ public class Swerve extends SubsystemBase {
 				(states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
 				states[3].angle.getRadians());
 
-		System.out.println(states[0].speedMetersPerSecond);
-
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());
 
 		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
