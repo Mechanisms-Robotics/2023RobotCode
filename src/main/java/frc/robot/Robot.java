@@ -81,8 +81,6 @@ public class Robot extends TimedRobot {
 	/** This method is called periodically during test mode. */
 	@Override
 	public void testPeriodic() {
-		m_robotContainer.m_intakeSubsystem.retract();
-
 	}
 
 	/** This method is called once when the robot is first started up. */

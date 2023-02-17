@@ -117,7 +117,12 @@ public class RobotContainer {
 
 //		m_driverController.leftBumper().toggleOnTrue(new InstantCommand(m_intakeSubsystem::toggleBrakeMode));
 
-//		m_driverController.rightBumper().onTrue(new TornadoCommand(m_swerveSubsystem));
+//		m_driverController.rightBumper().toggleOnTrue(new InstantCommand(m_intakeSubsystem::intake));
+
+
+		m_driverController.rightBumper().onTrue(new InstantCommand(m_intakeSubsystem::retract));
+		m_driverController.leftBumper().onTrue(new InstantCommand(m_intakeSubsystem::deploy));
+
 	}
 
 	private void configureDefaultCommands() {

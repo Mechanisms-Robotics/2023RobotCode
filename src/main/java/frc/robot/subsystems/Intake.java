@@ -3,21 +3,22 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
 	private static final double INTAKE_SPEED = 0.5; // percent
 
 	private static final TalonFXConfiguration INTAKE_MOTOR_CONFIG = new TalonFXConfiguration();
-	private static final TalonFXConfiguration INTAKE_RETRACT_MOTOR_CONFIG = new TalonFXConfiguration();
+	private static final TalonFXConfiguration INTAKE_PIVOT_MOTOR_CONFIG = new TalonFXConfiguration();
 
-	private static final double DEPLOYED_SENSOR_POSITION = -40392;
-	private static final double RETRACTED_SENSOR_POSITION = -200;
+	private static final double RETRACTED_SENSOR_POSITION = -5000; // -5000
+	private static final double DEPLOYED_SENSOR_POSITION = -40000; // -40392
 
-	private static final double RIGHT_MOTOR_HORIZONTAL_POSITION = -34359;
+	private static final double RIGHT_MOTOR_HORIZONTAL_POSITION = -37000; // -34359
 	private static final double TICKS_PER_DEGREE = (2048.0 / 360.0) * 60.6814;
 
-	private static final double MAX_GRAVITY_FF = 0.05;
+	private static final double MAX_GRAVITY_FF = 0.07; // 0.07
 
 	static {
 		final var intakeCurrentLimit = new SupplyCurrentLimitConfiguration();
@@ -29,20 +30,25 @@ public class Intake extends SubsystemBase {
 		INTAKE_MOTOR_CONFIG.supplyCurrLimit = intakeCurrentLimit;
 		INTAKE_MOTOR_CONFIG.reverseSoftLimitEnable = false;
 		INTAKE_MOTOR_CONFIG.forwardSoftLimitEnable = false;
-		INTAKE_MOTOR_CONFIG.motionAcceleration = 2000;
-		INTAKE_MOTOR_CONFIG.motionCruiseVelocity = 2000;
+
+		INTAKE_PIVOT_MOTOR_CONFIG.motionAcceleration = 4000;
+		INTAKE_PIVOT_MOTOR_CONFIG.motionCruiseVelocity = 8000;
 	}
 
 	private final WPI_TalonFX intakeMotor = new WPI_TalonFX(20);
 	private final WPI_TalonFX intakePivotLeft = new WPI_TalonFX(21);
 	private final WPI_TalonFX intakePivotRight = new WPI_TalonFX(22);
 
-	private static final double kP = 0.0; // 0.4
 	private static final double kF = 0.0;
+	private static final double kD = 0.0; // 0.04
+	private static final double kP = 0.8; // 0.4
 
 	private boolean isBrakeMode = false;
 
 	public Intake() {
+		intakePivotRight.configFactoryDefault();
+		intakePivotLeft.configFactoryDefault();
+
 		intakeMotor.configAllSettings(INTAKE_MOTOR_CONFIG, 255);
 		intakeMotor.setInverted(TalonFXInvertType.Clockwise);
 		intakeMotor.setNeutralMode(NeutralMode.Coast);
@@ -50,6 +56,8 @@ public class Intake extends SubsystemBase {
 		intakeMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
 		intakeMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
 
+		intakePivotRight.configAllSettings(INTAKE_PIVOT_MOTOR_CONFIG);
+		intakePivotLeft.configAllSettings(INTAKE_PIVOT_MOTOR_CONFIG);
 		intakePivotRight.setNeutralMode(NeutralMode.Brake);
 		intakePivotLeft.setNeutralMode(NeutralMode.Brake);
 
@@ -58,16 +66,19 @@ public class Intake extends SubsystemBase {
 
 		intakePivotRight.config_kP(0, kP);
 		intakePivotRight.config_kI(0, 0.0);
-		intakePivotRight.config_kD(0, 0.0);
-//		intakePivotRight.config_kF(0, kF);
+		intakePivotRight.config_kD(0, kD);
+		intakePivotRight.config_kF(0, kF);
 //		intakePivotRight.config_IntegralZone(0, );
 
 
 
 		intakePivotLeft.config_kP(0, kP);
 		intakePivotLeft.config_kI(0, 0.0);
-		intakePivotLeft.config_kD(0, 0.0);
-//		intakePivotLeft.config_kF(0, kF);
+		intakePivotLeft.config_kD(0, kD);
+		intakePivotLeft.config_kF(0, kF);
+
+		intakePivotRight.selectProfileSlot(0, 0);
+		intakePivotLeft.selectProfileSlot(0, 0);
 	}
 
 
@@ -80,8 +91,8 @@ public class Intake extends SubsystemBase {
 		double cosRadians = Math.cos(radians);
 		double demandFF = MAX_GRAVITY_FF * cosRadians;
 		System.out.println(Math.toDegrees(radians));
-		intakePivotRight.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, demandFF);
-		intakePivotLeft.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, -demandFF);
+		intakePivotRight.set(ControlMode.MotionMagic, position);
+		intakePivotLeft.set(ControlMode.MotionMagic, position);
 		intakePivotLeft.follow(intakePivotRight);
 	}
 
@@ -89,11 +100,19 @@ public class Intake extends SubsystemBase {
 		setOpenLoop(INTAKE_SPEED);
 	}
 
+	@Override
+	public void periodic() {
+		double radians = Math.toRadians((intakePivotRight.getSelectedSensorPosition() - RIGHT_MOTOR_HORIZONTAL_POSITION) / TICKS_PER_DEGREE);
+		SmartDashboard.putNumber("Right Pivot Pos", intakePivotRight.getSelectedSensorPosition());
+		SmartDashboard.putNumber("Left Pivot Pos", intakePivotLeft.getSelectedSensorPosition());
+		SmartDashboard.putNumber("Intake Angle", Math.toDegrees(radians));
+	}
+
 	public void retract() {
 //		intakePivotRight.set(ControlMode.PercentOutput, 0.07);
 //		intakePivotLeft.set(ControlMode.PercentOutput, 0.07);
 //		intakePivotLeft.follow(intakePivotRight);
-		setClosedLoop(intakePivotRight.getSelectedSensorPosition());
+		setClosedLoop(RETRACTED_SENSOR_POSITION);
 	}
 
 	public void deploy() {
@@ -116,7 +135,7 @@ public class Intake extends SubsystemBase {
 	public void zeroEncoders() {
 		intakePivotLeft.setSelectedSensorPosition(0.0);
 		intakePivotRight.setSelectedSensorPosition(0.0);
-		System.out.println("WEE WOPOO");
+		System.out.println("---Intake encoders zeroed---");
 	}
 
 	public void stop() {
