@@ -44,9 +44,9 @@ public class DriveCommand extends CommandBase {
 								deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
 						m_swerveSubsystem.getGyroHeading()));
 
-//		System.out.println(applyExponential(
-//				deadband(m_translationXSupplier.getAsDouble()),
-//				TRANSLATION_EXPONENT));
+		//		System.out.println(applyExponential(
+		//				deadband(m_translationXSupplier.getAsDouble()),
+		//				TRANSLATION_EXPONENT));
 	}
 
 	@Override

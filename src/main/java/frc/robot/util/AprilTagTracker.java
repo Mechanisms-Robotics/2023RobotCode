@@ -32,13 +32,15 @@ public class AprilTagTracker {
 		photonPoseEstimator =
 				new PhotonPoseEstimator(
 						fieldLayout,
-						PhotonPoseEstimator.PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+						PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP,
 						camera,
 						Constants.ROBOT_TO_CAMERA);
+
+		photonPoseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
 	}
 
 	public static void setEstimatorStrategy(PhotonPoseEstimator.PoseStrategy strategy) {
-		photonPoseEstimator.setStrategy(strategy);
+		photonPoseEstimator.setPrimaryStrategy(strategy);
 	}
 
 	public static PhotonTrackedTarget getBestTarget() {
@@ -61,8 +63,7 @@ public class AprilTagTracker {
 		return null;
 	}
 
-	public static Optional<EstimatedRobotPose> getEstimatedGlobalPose(
-			Pose2d prevEstimatedRobotPose) {
+	public static Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
 		photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
 		return photonPoseEstimator.update();
 	}

@@ -75,13 +75,12 @@ public class Robot extends TimedRobot {
 		// Cancels all running commands at the start of test mode.
 		CommandScheduler.getInstance().cancelAll();
 
-//		m_robotContainer.m_intakeSubsystem.zeroEncoders();
+		m_robotContainer.m_intakeSubsystem.zeroEncoders();
 	}
 
 	/** This method is called periodically during test mode. */
 	@Override
-	public void testPeriodic() {
-	}
+	public void testPeriodic() {}
 
 	/** This method is called once when the robot is first started up. */
 	@Override

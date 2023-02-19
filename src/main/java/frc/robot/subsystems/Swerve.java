@@ -23,6 +23,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.*;
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.RobotPoseEstimator;
+
+import java.util.Optional;
 
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
@@ -66,10 +70,12 @@ public class Swerve extends SubsystemBase {
 	private static final int BACK_RIGHT_MODULE_STEER_MOTOR_ID = 14;
 	private static final int BACK_RIGHT_MODULE_ENCODER_ID = 14;
 
-	private static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(281.95); // rads 288.8
-	private static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(26.63); // rads
-	private static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(265.957); //190.45 rads
-	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(326.51); // rads
+	private static final double FRONT_LEFT_MODULE_STEER_OFFSET =
+			-Math.toRadians(285.38); // rads 288.8
+	private static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(23.29); // rads
+	private static final double BACK_LEFT_MODULE_STEER_OFFSET =
+			-Math.toRadians(192.04); // 190.45 rads
+	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(329.67); // rads
 
 	private final SwerveModule m_frontLeftModule;
 	private final SwerveModule m_frontRightModule;
@@ -97,7 +103,7 @@ public class Swerve extends SubsystemBase {
 	private final SwerveDrivePoseEstimator m_poseEstimator;
 	private final Field2dWrapper m_field;
 
-//	private final RobotDetection m_robotDetection;
+	//	private final RobotDetection m_robotDetection;
 
 	private final Pose2d[] m_swerveModulePoses = {
 		new Pose2d(), new Pose2d(), new Pose2d(), new Pose2d()
@@ -173,7 +179,7 @@ public class Swerve extends SubsystemBase {
 
 		m_field = new Field2dWrapper();
 
-//		m_robotDetection = new RobotDetection(m_gyro);
+		//		m_robotDetection = new RobotDetection(m_gyro);
 
 		SmartDashboard.putData("Field", m_field);
 
@@ -235,15 +241,29 @@ public class Swerve extends SubsystemBase {
 
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());
 
-		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
 		// TODO: Add StdDevs if needed
 		AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition())
-				.ifPresent(
-						estimatedRobotPose ->
+				.ifPresentOrElse(
+						estimatedRobotPose -> {
 								m_poseEstimator.addVisionMeasurement(
 										estimatedRobotPose.estimatedPose.toPose2d(),
-										estimatedRobotPose.timestampSeconds));
+										estimatedRobotPose.timestampSeconds);
+								m_field.getObject("Cam Est Pos").setPose(estimatedRobotPose.estimatedPose.toPose2d());
+						},
+						() -> System.out.println("NULL")
+				);
+//
+//		Optional<EstimatedRobotPose> estimatedRobotVisionPose = AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
+//			m_poseEstimator.addVisionMeasurement(estimatedRobotVisionPose.estimatedPose.toPose2d(), estimatedRobotVisionPose.timestampSeconds);
+//			m_field.getObject("Cam Est Pos").setPose(estimatedRobotVisionPose.estimatedPose.toPose2d());
+
+		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
+		// Display vision pose to shuffleboard
+//		var pose = AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
+//		double x = pose.isEmpty() ? 0.0 : pose.get().estimatedPose.getX();
+//		double y = pose.isEmpty() ? 0.0 : pose.get().estimatedPose.getY();
+//		SmartDashboard.putString("Vision Mode", "" + x + " : " + y);
 
 		SwerveModule[] modules = {
 			m_frontLeftModule, m_frontRightModule, m_backLeftModule, m_backRightModule
@@ -263,7 +283,7 @@ public class Swerve extends SubsystemBase {
 
 		m_field.getObject("aSwerve Modules").setPoses(m_swerveModulePoses);
 
-//		m_robotDetection.update();
+		//		m_robotDetection.update();
 
 		m_frontLeftModule.offsetEncoder(FRONT_LEFT_MODULE_STEER_OFFSET);
 		m_frontRightModule.offsetEncoder(FRONT_RIGHT_MODULE_STEER_OFFSET);
