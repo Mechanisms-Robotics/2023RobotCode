@@ -139,10 +139,16 @@ public class RobotContainer {
 								m_feederSubsystem,
 								m_intakeSubsystem));
 
-		m_driverController.a().onTrue(new InstantCommand(() -> {
-			m_intakeSubsystem.unjam();
-			m_feederSubsystem.unjam();
-		}, m_intakeSubsystem, m_feederSubsystem));
+		m_driverController
+				.a()
+				.onTrue(
+						new InstantCommand(
+								() -> {
+									m_intakeSubsystem.unjam();
+									m_feederSubsystem.unjam();
+								},
+								m_intakeSubsystem,
+								m_feederSubsystem));
 	}
 
 	private void configureDefaultCommands() {

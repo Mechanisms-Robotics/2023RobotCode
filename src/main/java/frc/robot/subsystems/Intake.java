@@ -100,6 +100,7 @@ public class Intake extends SubsystemBase {
 		// For Position, CTRE recommends setting kF to 0 and passing in ArbFF
 		// CTRE says that kF needs to be calculated.
 		// For MotionMagic: kF is multiplied by the runtime-calculated target and added to output.
+		// NOTE: Update motor firmware
 		/**
 		 * The kF feature and arbitrary feed-forward feature are not the same. Arbitrary
 		 * feed-forward is a supplemental term [-1,1] the robot application can provide to add to
@@ -129,7 +130,9 @@ public class Intake extends SubsystemBase {
 		SmartDashboard.putNumber("Left Pivot Pos", intakePivotLeft.getSelectedSensorPosition());
 		SmartDashboard.putNumber("Intake Angle", Math.toDegrees(radians));
 
-		SmartDashboard.putNumber("Intake Roller Rot/Sec", (intakeMotor.getSelectedSensorVelocity() / (2048 * 4)) * 10);
+		SmartDashboard.putNumber(
+				"Intake Roller Rot/Sec",
+				(intakeMotor.getSelectedSensorVelocity() / (2048 * 4)) * 10);
 	}
 
 	public void retract() {

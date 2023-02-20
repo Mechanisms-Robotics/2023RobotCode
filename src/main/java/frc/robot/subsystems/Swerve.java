@@ -23,10 +23,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.*;
-import org.photonvision.EstimatedRobotPose;
-import org.photonvision.RobotPoseEstimator;
-
-import java.util.Optional;
 
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
@@ -34,6 +30,8 @@ public class Swerve extends SubsystemBase {
 	public static final double VELOCITY_RANGE = 2.5; // 1.5 m/s
 	private static final double MAX_VELOCITY = 4.5; // m/s
 	public static final double ANGULAR_VELOCITY_RANGE = Math.PI / 2; // rad/s
+
+	private static final boolean IS_PITCH_AND_ROLL_INVERTED = false;
 
 	private static final double DT_TRACKWIDTH = 0.36195; // m
 	private static final double DT_WHEELBASE = 0.76835; // m
@@ -194,6 +192,26 @@ public class Swerve extends SubsystemBase {
 		return Rotation2d.fromDegrees(m_gyro.getYaw());
 	}
 
+	/**
+	 * Get the pitch relative to the robot
+	 *
+	 * @return
+	 */
+	public Rotation2d getGyroPitch() {
+		double angle = IS_PITCH_AND_ROLL_INVERTED ? m_gyro.getRoll() : m_gyro.getPitch();
+		return Rotation2d.fromDegrees(angle);
+	}
+
+	/**
+	 * Get the roll relative to the robot
+	 *
+	 * @return
+	 */
+	public Rotation2d getGyroRoll() {
+		double angle = IS_PITCH_AND_ROLL_INVERTED ? m_gyro.getPitch() : m_gyro.getRoll();
+		return Rotation2d.fromDegrees(angle);
+	}
+
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		m_chassisSpeeds = chassisSpeeds;
 		m_headingController.stabiliseHeading();
@@ -241,29 +259,32 @@ public class Swerve extends SubsystemBase {
 
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());
 
-
 		// TODO: Add StdDevs if needed
 		AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition())
 				.ifPresentOrElse(
 						estimatedRobotPose -> {
-								m_poseEstimator.addVisionMeasurement(
-										estimatedRobotPose.estimatedPose.toPose2d(),
-										estimatedRobotPose.timestampSeconds);
-								m_field.getObject("Cam Est Pos").setPose(estimatedRobotPose.estimatedPose.toPose2d());
+							m_poseEstimator.addVisionMeasurement(
+									estimatedRobotPose.estimatedPose.toPose2d(),
+									estimatedRobotPose.timestampSeconds);
+							m_field.getObject("Cam Est Pos")
+									.setPose(estimatedRobotPose.estimatedPose.toPose2d());
 						},
-						() -> System.out.println("NULL")
-				);
-//
-//		Optional<EstimatedRobotPose> estimatedRobotVisionPose = AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
-//			m_poseEstimator.addVisionMeasurement(estimatedRobotVisionPose.estimatedPose.toPose2d(), estimatedRobotVisionPose.timestampSeconds);
-//			m_field.getObject("Cam Est Pos").setPose(estimatedRobotVisionPose.estimatedPose.toPose2d());
+						() -> System.out.println("NULL"));
+		//
+		//		Optional<EstimatedRobotPose> estimatedRobotVisionPose =
+		// AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
+		//			m_poseEstimator.addVisionMeasurement(estimatedRobotVisionPose.estimatedPose.toPose2d(),
+		// estimatedRobotVisionPose.timestampSeconds);
+		//			m_field.getObject("Cam Est
+		// Pos").setPose(estimatedRobotVisionPose.estimatedPose.toPose2d());
 
 		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 		// Display vision pose to shuffleboard
-//		var pose = AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
-//		double x = pose.isEmpty() ? 0.0 : pose.get().estimatedPose.getX();
-//		double y = pose.isEmpty() ? 0.0 : pose.get().estimatedPose.getY();
-//		SmartDashboard.putString("Vision Mode", "" + x + " : " + y);
+		//		var pose =
+		// AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
+		//		double x = pose.isEmpty() ? 0.0 : pose.get().estimatedPose.getX();
+		//		double y = pose.isEmpty() ? 0.0 : pose.get().estimatedPose.getY();
+		//		SmartDashboard.putString("Vision Mode", "" + x + " : " + y);
 
 		SwerveModule[] modules = {
 			m_frontLeftModule, m_frontRightModule, m_backLeftModule, m_backRightModule

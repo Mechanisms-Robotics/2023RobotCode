@@ -36,7 +36,8 @@ public class AprilTagTracker {
 						camera,
 						Constants.ROBOT_TO_CAMERA);
 
-		photonPoseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+		photonPoseEstimator.setMultiTagFallbackStrategy(
+				PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
 	}
 
 	public static void setEstimatorStrategy(PhotonPoseEstimator.PoseStrategy strategy) {
@@ -63,7 +64,8 @@ public class AprilTagTracker {
 		return null;
 	}
 
-	public static Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+	public static Optional<EstimatedRobotPose> getEstimatedGlobalPose(
+			Pose2d prevEstimatedRobotPose) {
 		photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
 		return photonPoseEstimator.update();
 	}
