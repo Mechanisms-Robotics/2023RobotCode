@@ -269,22 +269,9 @@ public class Swerve extends SubsystemBase {
 							m_field.getObject("Cam Est Pos")
 									.setPose(estimatedRobotPose.estimatedPose.toPose2d());
 						},
-						() -> System.out.println("NULL"));
-		//
-		//		Optional<EstimatedRobotPose> estimatedRobotVisionPose =
-		// AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
-		//			m_poseEstimator.addVisionMeasurement(estimatedRobotVisionPose.estimatedPose.toPose2d(),
-		// estimatedRobotVisionPose.timestampSeconds);
-		//			m_field.getObject("Cam Est
-		// Pos").setPose(estimatedRobotVisionPose.estimatedPose.toPose2d());
+						() -> System.out.println("BALLS"));
 
 		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
-		// Display vision pose to shuffleboard
-		//		var pose =
-		// AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
-		//		double x = pose.isEmpty() ? 0.0 : pose.get().estimatedPose.getX();
-		//		double y = pose.isEmpty() ? 0.0 : pose.get().estimatedPose.getY();
-		//		SmartDashboard.putString("Vision Mode", "" + x + " : " + y);
 
 		SwerveModule[] modules = {
 			m_frontLeftModule, m_frontRightModule, m_backLeftModule, m_backRightModule
