@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.swervedrivespecialties.swervelib.GearRatios.GearRatio;
@@ -7,6 +8,8 @@ import com.swervedrivespecialties.swervelib.MkModuleConfiguration;
 import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
 import com.swervedrivespecialties.swervelib.MotorType;
 import com.swervedrivespecialties.swervelib.SwerveModule;
+import com.swervedrivespecialties.swervelib.ctre.CtreUtils;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -69,7 +72,7 @@ public class Swerve extends SubsystemBase {
 	private static final int BACK_RIGHT_MODULE_ENCODER_ID = 14;
 
 	private static final double FRONT_LEFT_MODULE_STEER_OFFSET =
-			-Math.toRadians(285.38); // rads 288.8
+			-Math.toRadians(99.49 - 180.0); // rads 288.8
 	private static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(23.29); // rads
 	private static final double BACK_LEFT_MODULE_STEER_OFFSET =
 			-Math.toRadians(192.04); // 190.45 rads
@@ -166,6 +169,8 @@ public class Swerve extends SubsystemBase {
 						.build();
 
 		m_gyro = new WPI_Pigeon2(GYRO_ID);
+		m_gyro.configFactoryDefault();
+
 
 		m_simYaw = new Rotation2d();
 
@@ -185,31 +190,11 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void zeroGyro() {
-		m_gyro.setYaw(0.0);
+		CtreUtils.checkCtreError(m_gyro.setYaw(0.0), "PIGEON2 HAS EERROR");
 	}
 
 	public Rotation2d getGyroHeading() {
 		return Rotation2d.fromDegrees(m_gyro.getYaw());
-	}
-
-	/**
-	 * Get the pitch relative to the robot
-	 *
-	 * @return
-	 */
-	public Rotation2d getGyroPitch() {
-		double angle = IS_PITCH_AND_ROLL_INVERTED ? m_gyro.getRoll() : m_gyro.getPitch();
-		return Rotation2d.fromDegrees(angle);
-	}
-
-	/**
-	 * Get the roll relative to the robot
-	 *
-	 * @return
-	 */
-	public Rotation2d getGyroRoll() {
-		double angle = IS_PITCH_AND_ROLL_INVERTED ? m_gyro.getPitch() : m_gyro.getRoll();
-		return Rotation2d.fromDegrees(angle);
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
@@ -244,18 +229,18 @@ public class Swerve extends SubsystemBase {
 			m_headingController.update(m_chassisSpeeds, getGyroHeading());
 		}
 
-		m_frontLeftModule.set(
-				(states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-				states[0].angle.getRadians());
-		m_frontRightModule.set(
-				(states[1].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-				states[1].angle.getRadians());
-		m_backLeftModule.set(
-				(states[2].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-				states[2].angle.getRadians());
-		m_backRightModule.set(
-				(states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-				states[3].angle.getRadians());
+//		m_frontLeftModule.set(
+//				(states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+//				states[0].angle.getRadians());
+//		m_frontRightModule.set(
+//				(states[1].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+//				states[1].angle.getRadians());
+//		m_backLeftModule.set(
+//				(states[2].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+//				states[2].angle.getRadians());
+//		m_backRightModule.set(
+//				(states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+//				states[3].angle.getRadians());
 
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());
 
@@ -269,7 +254,9 @@ public class Swerve extends SubsystemBase {
 							m_field.getObject("Cam Est Pos")
 									.setPose(estimatedRobotPose.estimatedPose.toPose2d());
 						},
-						() -> System.out.println("BALLS"));
+						() -> {
+//							System.out.println("NO APRIL TAGS");
+						});
 
 		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 

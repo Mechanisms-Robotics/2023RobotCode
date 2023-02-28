@@ -76,6 +76,8 @@ public class Robot extends TimedRobot {
 		CommandScheduler.getInstance().cancelAll();
 
 		m_robotContainer.m_intakeSubsystem.zeroEncoders();
+		m_robotContainer.m_armSubsystem.zeroEncoder();
+		m_robotContainer.m_swerveSubsystem.zeroGyro();
 	}
 
 	/** This method is called periodically during test mode. */

@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /** This class contains all the code that controls the feeder functionality */
 public class Feeder extends SubsystemBase {
 	// Feeder speeds
-	private static final double FEEDER_INTAKE_SPEED = 0.4;
-	private static final double UNJAM_SPEED = -0.3;
+	private static final double FEEDER_INTAKE_SPEED = -0.15;
+	private static final double UNJAM_SPEED = 0.1;
 
 	// Feeder motor
 	private final WPI_TalonFX rightFeederMotor = new WPI_TalonFX(30);
@@ -60,8 +60,8 @@ public class Feeder extends SubsystemBase {
 
 	/** Runs the feeder differently depending on which proximity sensors are triggered */
 	public void feed() {
-		rightFeederMotor.set(ControlMode.PercentOutput, -FEEDER_INTAKE_SPEED);
-		leftFeederMotor.set(ControlMode.PercentOutput, -FEEDER_INTAKE_SPEED);
+		rightFeederMotor.set(ControlMode.PercentOutput, FEEDER_INTAKE_SPEED);
+		leftFeederMotor.set(ControlMode.PercentOutput, FEEDER_INTAKE_SPEED);
 		System.out.println("FEED");
 	}
 

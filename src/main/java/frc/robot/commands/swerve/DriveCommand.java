@@ -32,17 +32,23 @@ public class DriveCommand extends CommandBase {
 
 	@Override
 	public void execute() {
-		m_swerveSubsystem.drive(
-				ChassisSpeeds.fromFieldRelativeSpeeds(
-						applyExponential(
-								deadband(m_translationXSupplier.getAsDouble()),
-								TRANSLATION_EXPONENT),
-						applyExponential(
-								deadband(m_translationYSupplier.getAsDouble()),
-								TRANSLATION_EXPONENT),
-						applyExponential(
-								deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
-						m_swerveSubsystem.getGyroHeading()));
+		m_swerveSubsystem.drive(new ChassisSpeeds(applyExponential(deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT),
+				applyExponential(
+						deadband(m_translationYSupplier.getAsDouble()),
+						TRANSLATION_EXPONENT) / 2,
+				applyExponential(
+						deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT)));
+//		m_swerveSubsystem.drive(
+//				ChassisSpeeds.fromFieldRelativeSpeeds(
+//						applyExponential(
+//								deadband(m_translationXSupplier.getAsDouble()),
+//								TRANSLATION_EXPONENT),
+//						applyExponential(
+//								deadband(m_translationYSupplier.getAsDouble()),
+//								TRANSLATION_EXPONENT),
+//						applyExponential(
+//								deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
+//						m_swerveSubsystem.getGyroHeading()));
 
 		//		System.out.println(applyExponential(
 		//				deadband(m_translationXSupplier.getAsDouble()),
@@ -62,4 +68,8 @@ public class DriveCommand extends CommandBase {
 		double product = Math.pow(Math.abs(input), exponent);
 		return input > 0 ? product : -product;
 	}
+
+//	private double desaturateXSpeeds(double xSpeed) {
+//		return 1 / m_swerveSubsystem.getGyroHeading().getCos() * XSPEED_DESATURATION;
+//	}
 }

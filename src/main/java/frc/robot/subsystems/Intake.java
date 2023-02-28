@@ -7,20 +7,40 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
-	private static final double INTAKE_SPEED = 0.7; // percent
-	private static final double UNJAM_SPEED = -0.3;
+
+	private enum Position {
+		GamePieceStation(-16387, 0.2, 0.7),
+		Deploy(-37000, INTAKE_SPEED, OUTTAKE_SPEED),
+		Retract(-3000, INTAKE_SPEED, OUTTAKE_SPEED);
+
+		private final double intakeSpeed;
+		private final double outtakeSpeed;
+		private final double position;
+
+		Position(double position, double intakeSpeed, double outtakeSpeed) {
+			this.position = position;
+			this.intakeSpeed = intakeSpeed;
+			this.outtakeSpeed = outtakeSpeed;
+		}
+	}
+
+	private static final double INTAKE_SPEED = 0.5; // 0.7 percent
+	private static final double OUTTAKE_SPEED = -0.3;
 
 	private static final TalonFXConfiguration INTAKE_MOTOR_CONFIG = new TalonFXConfiguration();
 	private static final TalonFXConfiguration INTAKE_PIVOT_MOTOR_CONFIG =
 			new TalonFXConfiguration();
+	private static final TalonFXConfiguration LEFT_PIVOT_CONFIG;
+	private static final TalonFXConfiguration RIGHT_PIVOT_CONFIG;
 
-	private static final double RETRACTED_SENSOR_POSITION = -5000; // -5000
-	private static final double DEPLOYED_SENSOR_POSITION = -38500; // -40392
+//	private static final double RETRACTED_SENSOR_POSITION = -3000; // -5000
+//	private static final double DEPLOYED_SENSOR_POSITION = -37000; // -34500
+//	private static final double GAME_PIECE_STATION_POSITION = -16387;
 
 	private static final double RIGHT_MOTOR_HORIZONTAL_POSITION = -37000; // -34359
 	private static final double TICKS_PER_DEGREE = (2048.0 / 360.0) * 60.6814;
 
-	private static final double MAX_GRAVITY_FF = 0.07; // 0.07
+	private static final double MAX_GRAVITY_FF = 0.03; // 0.07
 
 	static {
 		final var intakeCurrentLimit = new SupplyCurrentLimitConfiguration();
@@ -34,63 +54,99 @@ public class Intake extends SubsystemBase {
 		INTAKE_MOTOR_CONFIG.forwardSoftLimitEnable = false;
 		INTAKE_MOTOR_CONFIG.voltageCompSaturation = 10;
 
-		INTAKE_PIVOT_MOTOR_CONFIG.motionAcceleration = 4000;
-		INTAKE_PIVOT_MOTOR_CONFIG.motionCruiseVelocity = 8000;
+		// TODO: set amp limits for pivots
+
+		INTAKE_PIVOT_MOTOR_CONFIG.motionAcceleration = 18000;
+		INTAKE_PIVOT_MOTOR_CONFIG.motionCruiseVelocity = 18000;
+		INTAKE_PIVOT_MOTOR_CONFIG.forwardSoftLimitEnable = true;
+		INTAKE_PIVOT_MOTOR_CONFIG.reverseSoftLimitEnable = true;
+
+		INTAKE_PIVOT_MOTOR_CONFIG.neutralDeadband = 0.001;
+
+		LEFT_PIVOT_CONFIG = INTAKE_PIVOT_MOTOR_CONFIG;
+		RIGHT_PIVOT_CONFIG = INTAKE_PIVOT_MOTOR_CONFIG;
+
+		LEFT_PIVOT_CONFIG.forwardSoftLimitThreshold = 0;
+		LEFT_PIVOT_CONFIG.reverseSoftLimitThreshold = -450000;
+
+		RIGHT_PIVOT_CONFIG.forwardSoftLimitThreshold = 0;
+		RIGHT_PIVOT_CONFIG.reverseSoftLimitThreshold = -450000;
 	}
 
-	private final WPI_TalonFX intakeMotor = new WPI_TalonFX(20);
-	private final WPI_TalonFX intakePivotLeft = new WPI_TalonFX(21);
-	private final WPI_TalonFX intakePivotRight = new WPI_TalonFX(22);
+	private final WPI_TalonFX pivotRight = new WPI_TalonFX(20);
+	private final WPI_TalonFX pivotLeft = new WPI_TalonFX(21);
+	private final WPI_TalonFX spinRight = new WPI_TalonFX(22);
+	private final WPI_TalonFX spinLeft = new WPI_TalonFX(23);
 
 	private static final double kF = 0.0;
 	private static final double kD = 0.0; // 0.04
-	private static final double kP = 0.8; // 0.4
+	private static final double kP = 0.04; // 0.8
 
 	private boolean isBrakeMode = false;
+	private boolean isZeroed = false;
+
+	private Position currentMode = Position.Retract;
 
 	public Intake() {
-		intakePivotRight.configFactoryDefault();
-		intakePivotLeft.configFactoryDefault();
+		pivotRight.configFactoryDefault();
+		pivotLeft.configFactoryDefault();
+		spinRight.configFactoryDefault();
+		spinLeft.configFactoryDefault();
 
-		intakeMotor.configAllSettings(INTAKE_MOTOR_CONFIG, 255);
-		intakeMotor.setInverted(TalonFXInvertType.Clockwise);
-		intakeMotor.setNeutralMode(NeutralMode.Coast);
+		// --- Spin right ---
+		spinRight.configAllSettings(INTAKE_MOTOR_CONFIG, 255);
+		spinRight.setInverted(TalonFXInvertType.Clockwise);
+		spinRight.setNeutralMode(NeutralMode.Coast);
 
-		intakeMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
-		intakeMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
-		intakeMotor.enableVoltageCompensation(true);
+		spinRight.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
+		spinRight.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
+		spinRight.enableVoltageCompensation(true);
+		// ------------
 
-		intakePivotRight.configAllSettings(INTAKE_PIVOT_MOTOR_CONFIG);
-		intakePivotLeft.configAllSettings(INTAKE_PIVOT_MOTOR_CONFIG);
-		intakePivotRight.setNeutralMode(NeutralMode.Brake);
-		intakePivotLeft.setNeutralMode(NeutralMode.Brake);
+		// --- Spin left ---
+		spinLeft.configAllSettings(INTAKE_MOTOR_CONFIG, 255);
+		spinLeft.setInverted(InvertType.OpposeMaster);
+		spinLeft.setNeutralMode(NeutralMode.Coast);
 
-		intakePivotRight.setInverted(TalonFXInvertType.CounterClockwise);
-		intakePivotLeft.setInverted(InvertType.OpposeMaster);
+		spinLeft.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
+		spinLeft.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
+		spinLeft.enableVoltageCompensation(true);
+		// -------------
 
-		intakePivotRight.config_kP(0, kP);
-		intakePivotRight.config_kI(0, 0.0);
-		intakePivotRight.config_kD(0, kD);
-		intakePivotRight.config_kF(0, kF);
+
+		// --- Pivot ---
+		pivotRight.configAllSettings(RIGHT_PIVOT_CONFIG);
+		pivotLeft.configAllSettings(LEFT_PIVOT_CONFIG);
+		pivotRight.setNeutralMode(NeutralMode.Brake);
+		pivotLeft.setNeutralMode(NeutralMode.Brake);
+
+		pivotRight.setInverted(TalonFXInvertType.CounterClockwise);
+		pivotLeft.setInverted(InvertType.OpposeMaster);
+
+		pivotRight.config_kP(0, kP);
+		pivotRight.config_kI(0, 0.0);
+		pivotRight.config_kD(0, kD);
+		pivotRight.config_kF(0, kF);
 		//		intakePivotRight.config_IntegralZone(0, );
 
-		intakePivotLeft.config_kP(0, kP);
-		intakePivotLeft.config_kI(0, 0.0);
-		intakePivotLeft.config_kD(0, kD);
-		intakePivotLeft.config_kF(0, kF);
+		pivotLeft.config_kP(0, kP);
+		pivotLeft.config_kI(0, 0.0);
+		pivotLeft.config_kD(0, kD);
+		pivotLeft.config_kF(0, kF);
 
-		intakePivotRight.selectProfileSlot(0, 0);
-		intakePivotLeft.selectProfileSlot(0, 0);
+		pivotRight.selectProfileSlot(0, 0);
+		pivotLeft.selectProfileSlot(0, 0);
 	}
 
 	private void setOpenLoop(double percentOutput) {
-		intakeMotor.set(ControlMode.PercentOutput, percentOutput);
+		spinRight.set(ControlMode.PercentOutput, percentOutput);
+		spinLeft.follow(spinRight);
 	}
 
 	private void setClosedLoop(double position) {
 		double radians =
 				Math.toRadians(
-						(intakePivotRight.getSelectedSensorPosition()
+						(pivotRight.getSelectedSensorPosition()
 										- RIGHT_MOTOR_HORIZONTAL_POSITION)
 								/ TICKS_PER_DEGREE);
 		double cosRadians = Math.cos(radians);
@@ -106,67 +162,74 @@ public class Intake extends SubsystemBase {
 		 * feed-forward is a supplemental term [-1,1] the robot application can provide to add to
 		 * the output via the set() routine/VI.
 		 */
-		intakePivotRight.set(ControlMode.MotionMagic, position);
-		intakePivotLeft.set(ControlMode.MotionMagic, position);
-		intakePivotLeft.follow(intakePivotRight);
+			pivotRight.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, demandFF);
+			pivotLeft.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, demandFF);
+			pivotLeft.follow(pivotRight);
 	}
 
 	public void intake() {
-		setOpenLoop(INTAKE_SPEED);
+		setOpenLoop(currentMode.intakeSpeed);
 	}
 
-	public void unjam() {
-		setOpenLoop(UNJAM_SPEED);
+	public void outtake() {
+		setOpenLoop(currentMode.outtakeSpeed);
 	}
 
 	@Override
 	public void periodic() {
 		double radians =
 				Math.toRadians(
-						(intakePivotRight.getSelectedSensorPosition()
+						(pivotRight.getSelectedSensorPosition()
 										- RIGHT_MOTOR_HORIZONTAL_POSITION)
 								/ TICKS_PER_DEGREE);
-		SmartDashboard.putNumber("Right Pivot Pos", intakePivotRight.getSelectedSensorPosition());
-		SmartDashboard.putNumber("Left Pivot Pos", intakePivotLeft.getSelectedSensorPosition());
+		SmartDashboard.putNumber("Right Pivot Pos", pivotRight.getSelectedSensorPosition());
+		SmartDashboard.putNumber("Left Pivot Pos", pivotLeft.getSelectedSensorPosition());
 		SmartDashboard.putNumber("Intake Angle", Math.toDegrees(radians));
 
 		SmartDashboard.putNumber(
 				"Intake Roller Rot/Sec",
-				(intakeMotor.getSelectedSensorVelocity() / (2048 * 4)) * 10);
+				(spinRight.getSelectedSensorVelocity() / (2048 * 4)) * 10);
 	}
 
 	public void retract() {
-		//		intakePivotRight.set(ControlMode.PercentOutput, 0.07);
-		//		intakePivotLeft.set(ControlMode.PercentOutput, 0.07);
-		//		intakePivotLeft.follow(intakePivotRight);
-		setClosedLoop(RETRACTED_SENSOR_POSITION);
-		System.out.println("RETRAC");
+		currentMode = Position.Retract;
+		setClosedLoop(Position.Retract.position);
 	}
 
 	public void deploy() {
-		setClosedLoop(DEPLOYED_SENSOR_POSITION);
-		System.out.println("DEPLOY");
+		currentMode = Position.Deploy;
+		setClosedLoop(Position.Deploy.position);
+	}
+
+	public void setToGamePieceStation() {
+		currentMode = Position.GamePieceStation;
+		setClosedLoop(Position.GamePieceStation.position);
 	}
 
 	public void toggleBrakeMode() {
 		isBrakeMode = !isBrakeMode;
 		if (isBrakeMode) {
-			intakePivotRight.setNeutralMode(NeutralMode.Brake);
-			intakePivotLeft.setNeutralMode(NeutralMode.Brake);
+			pivotRight.setNeutralMode(NeutralMode.Brake);
+			pivotLeft.setNeutralMode(NeutralMode.Brake);
 
 		} else {
-			intakePivotRight.setNeutralMode(NeutralMode.Coast);
-			intakePivotLeft.setNeutralMode(NeutralMode.Coast);
+			pivotRight.setNeutralMode(NeutralMode.Coast);
+			pivotLeft.setNeutralMode(NeutralMode.Coast);
 		}
 	}
 
 	public void zeroEncoders() {
-		intakePivotLeft.setSelectedSensorPosition(0.0);
-		intakePivotRight.setSelectedSensorPosition(0.0);
+		pivotLeft.setSelectedSensorPosition(0.0);
+		pivotRight.setSelectedSensorPosition(0.0);
+		isZeroed = true;
 		System.out.println("---Intake encoders zeroed---");
 	}
 
 	public void stop() {
 		setOpenLoop(0.0);
+	}
+
+	public static double ticksPer100ms(double degPerSec) {
+		return (degPerSec / 10) * TICKS_PER_DEGREE;
 	}
 }
