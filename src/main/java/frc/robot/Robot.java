@@ -31,7 +31,10 @@ public class Robot extends TimedRobot {
 
 	/** This method is called once each time the robot enters Disabled mode. */
 	@Override
-	public void disabledInit() {}
+	public void disabledInit() {
+		m_robotContainer.m_intakeSubsystem.stopPivot();
+		m_robotContainer.m_armSubsystem.stop();
+	}
 
 	@Override
 	public void disabledPeriodic() {}
@@ -61,6 +64,8 @@ public class Robot extends TimedRobot {
 		// teleop starts running. If you want the autonomous to
 		// continue until interrupted by another command, remove
 		// this line or comment it out.
+
+		m_robotContainer.m_armSubsystem.stow();
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}

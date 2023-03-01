@@ -13,7 +13,8 @@ public final class CtreUtils {
 			DriverStation.reportError(
 					String.format("%s: %s", message, errorCode.toString()), false);
 
-			SmartDashboard.putString("pigeon error", String.format("%s: %s", message, errorCode.toString()));
+			SmartDashboard.putString(
+					"pigeon error", String.format("%s: %s", message, errorCode.toString()));
 		}
 	}
 }

@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.swervedrivespecialties.swervelib.GearRatios.GearRatio;
@@ -9,7 +8,6 @@ import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
 import com.swervedrivespecialties.swervelib.MotorType;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import com.swervedrivespecialties.swervelib.ctre.CtreUtils;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -171,7 +169,6 @@ public class Swerve extends SubsystemBase {
 		m_gyro = new WPI_Pigeon2(GYRO_ID);
 		m_gyro.configFactoryDefault();
 
-
 		m_simYaw = new Rotation2d();
 
 		m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
@@ -229,18 +226,18 @@ public class Swerve extends SubsystemBase {
 			m_headingController.update(m_chassisSpeeds, getGyroHeading());
 		}
 
-//		m_frontLeftModule.set(
-//				(states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-//				states[0].angle.getRadians());
-//		m_frontRightModule.set(
-//				(states[1].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-//				states[1].angle.getRadians());
-//		m_backLeftModule.set(
-//				(states[2].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-//				states[2].angle.getRadians());
-//		m_backRightModule.set(
-//				(states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-//				states[3].angle.getRadians());
+		//		m_frontLeftModule.set(
+		//				(states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+		//				states[0].angle.getRadians());
+		//		m_frontRightModule.set(
+		//				(states[1].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+		//				states[1].angle.getRadians());
+		//		m_backLeftModule.set(
+		//				(states[2].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+		//				states[2].angle.getRadians());
+		//		m_backRightModule.set(
+		//				(states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+		//				states[3].angle.getRadians());
 
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());
 
@@ -255,7 +252,7 @@ public class Swerve extends SubsystemBase {
 									.setPose(estimatedRobotPose.estimatedPose.toPose2d());
 						},
 						() -> {
-//							System.out.println("NO APRIL TAGS");
+							//							System.out.println("NO APRIL TAGS");
 						});
 
 		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());

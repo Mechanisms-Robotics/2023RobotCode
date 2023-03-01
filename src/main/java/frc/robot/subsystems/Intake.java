@@ -33,9 +33,9 @@ public class Intake extends SubsystemBase {
 	private static final TalonFXConfiguration LEFT_PIVOT_CONFIG;
 	private static final TalonFXConfiguration RIGHT_PIVOT_CONFIG;
 
-//	private static final double RETRACTED_SENSOR_POSITION = -3000; // -5000
-//	private static final double DEPLOYED_SENSOR_POSITION = -37000; // -34500
-//	private static final double GAME_PIECE_STATION_POSITION = -16387;
+	//	private static final double RETRACTED_SENSOR_POSITION = -3000; // -5000
+	//	private static final double DEPLOYED_SENSOR_POSITION = -37000; // -34500
+	//	private static final double GAME_PIECE_STATION_POSITION = -16387;
 
 	private static final double RIGHT_MOTOR_HORIZONTAL_POSITION = -37000; // -34359
 	private static final double TICKS_PER_DEGREE = (2048.0 / 360.0) * 60.6814;
@@ -83,7 +83,7 @@ public class Intake extends SubsystemBase {
 	private static final double kP = 0.04; // 0.8
 
 	private boolean isBrakeMode = false;
-	private boolean isZeroed = false;
+	private boolean zeroed = false;
 
 	private Position currentMode = Position.Retract;
 
@@ -113,7 +113,6 @@ public class Intake extends SubsystemBase {
 		spinLeft.enableVoltageCompensation(true);
 		// -------------
 
-
 		// --- Pivot ---
 		pivotRight.configAllSettings(RIGHT_PIVOT_CONFIG);
 		pivotLeft.configAllSettings(LEFT_PIVOT_CONFIG);
@@ -139,15 +138,22 @@ public class Intake extends SubsystemBase {
 	}
 
 	private void setOpenLoop(double percentOutput) {
+		if (!zeroed) {
+			return;
+		}
+
 		spinRight.set(ControlMode.PercentOutput, percentOutput);
 		spinLeft.follow(spinRight);
 	}
 
 	private void setClosedLoop(double position) {
+		if (!zeroed) {
+			return;
+		}
+
 		double radians =
 				Math.toRadians(
-						(pivotRight.getSelectedSensorPosition()
-										- RIGHT_MOTOR_HORIZONTAL_POSITION)
+						(pivotRight.getSelectedSensorPosition() - RIGHT_MOTOR_HORIZONTAL_POSITION)
 								/ TICKS_PER_DEGREE);
 		double cosRadians = Math.cos(radians);
 		double demandFF = MAX_GRAVITY_FF * cosRadians;
@@ -162,9 +168,10 @@ public class Intake extends SubsystemBase {
 		 * feed-forward is a supplemental term [-1,1] the robot application can provide to add to
 		 * the output via the set() routine/VI.
 		 */
-			pivotRight.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, demandFF);
-			pivotLeft.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, demandFF);
-			pivotLeft.follow(pivotRight);
+		pivotRight.set(
+				ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, demandFF);
+		pivotLeft.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, demandFF);
+		pivotLeft.follow(pivotRight);
 	}
 
 	public void intake() {
@@ -179,16 +186,14 @@ public class Intake extends SubsystemBase {
 	public void periodic() {
 		double radians =
 				Math.toRadians(
-						(pivotRight.getSelectedSensorPosition()
-										- RIGHT_MOTOR_HORIZONTAL_POSITION)
+						(pivotRight.getSelectedSensorPosition() - RIGHT_MOTOR_HORIZONTAL_POSITION)
 								/ TICKS_PER_DEGREE);
 		SmartDashboard.putNumber("Right Pivot Pos", pivotRight.getSelectedSensorPosition());
 		SmartDashboard.putNumber("Left Pivot Pos", pivotLeft.getSelectedSensorPosition());
 		SmartDashboard.putNumber("Intake Angle", Math.toDegrees(radians));
 
 		SmartDashboard.putNumber(
-				"Intake Roller Rot/Sec",
-				(spinRight.getSelectedSensorVelocity() / (2048 * 4)) * 10);
+				"Intake Roller Rot/Sec", (spinRight.getSelectedSensorVelocity() / (2048 * 4)) * 10);
 	}
 
 	public void retract() {
@@ -219,14 +224,23 @@ public class Intake extends SubsystemBase {
 	}
 
 	public void zeroEncoders() {
+		if (zeroed) {
+			return;
+		}
+
 		pivotLeft.setSelectedSensorPosition(0.0);
 		pivotRight.setSelectedSensorPosition(0.0);
-		isZeroed = true;
+		zeroed = true;
 		System.out.println("---Intake encoders zeroed---");
 	}
 
 	public void stop() {
 		setOpenLoop(0.0);
+	}
+
+	public void stopPivot() {
+		pivotLeft.set(ControlMode.PercentOutput, 0.0);
+		pivotRight.set(ControlMode.PercentOutput, 0.0);
 	}
 
 	public static double ticksPer100ms(double degPerSec) {
