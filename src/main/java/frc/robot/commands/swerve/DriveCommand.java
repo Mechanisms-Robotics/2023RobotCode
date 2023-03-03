@@ -32,32 +32,32 @@ public class DriveCommand extends CommandBase {
 
 	@Override
 	public void execute() {
-//		m_swerveSubsystem.drive(
-//				new ChassisSpeeds(
-//						applyExponential(
-//								deadband(m_translationXSupplier.getAsDouble()),
-//								TRANSLATION_EXPONENT),
-//						applyExponential(
-//										deadband(m_translationYSupplier.getAsDouble()),
-//										TRANSLATION_EXPONENT)
-//								/ 2,
-//						applyExponential(
-//								deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT)));
-				m_swerveSubsystem.drive(
-						ChassisSpeeds.fromFieldRelativeSpeeds(
-								applyExponential(
-										deadband(m_translationXSupplier.getAsDouble()),
-										TRANSLATION_EXPONENT),
-								applyExponential(
-										deadband(m_translationYSupplier.getAsDouble()),
-										TRANSLATION_EXPONENT),
-								applyExponential(
-										deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
-								m_swerveSubsystem.getGyroHeading()));
+		//		m_swerveSubsystem.drive(
+		//				new ChassisSpeeds(
+		//						applyExponential(
+		//								deadband(m_translationXSupplier.getAsDouble()),
+		//								TRANSLATION_EXPONENT),
+		//						applyExponential(
+		//										deadband(m_translationYSupplier.getAsDouble()),
+		//										TRANSLATION_EXPONENT)
+		//								/ 2,
+		//						applyExponential(
+		//								deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT)));
+		m_swerveSubsystem.drive(
+				ChassisSpeeds.fromFieldRelativeSpeeds(
+						applyExponential(
+								deadband(m_translationXSupplier.getAsDouble()),
+								TRANSLATION_EXPONENT),
+						applyExponential(
+								deadband(m_translationYSupplier.getAsDouble()),
+								TRANSLATION_EXPONENT),
+						applyExponential(
+								deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
+						m_swerveSubsystem.getGyroHeading()));
 
-				System.out.println(applyExponential(
-						deadband(m_translationXSupplier.getAsDouble()),
-						TRANSLATION_EXPONENT));
+		System.out.println(
+				applyExponential(
+						deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT));
 	}
 
 	@Override

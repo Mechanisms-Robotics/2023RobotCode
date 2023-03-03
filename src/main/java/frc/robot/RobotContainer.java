@@ -12,7 +12,6 @@ import frc.robot.commands.auto.OneConeOneCubeRight;
 import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
-import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
 import frc.robot.util.GoalTracker;
 
@@ -28,7 +27,8 @@ public class RobotContainer {
 
 	private final CommandXboxController m_driverController =
 			new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
-	private final CommandXboxController m_secondDriverController = new CommandXboxController(Constants.SECOND_DRIVER_CONTROLLER_PORT);
+	private final CommandXboxController m_secondDriverController =
+			new CommandXboxController(Constants.SECOND_DRIVER_CONTROLLER_PORT);
 
 	private final SendableChooser<CommandBase> autoChooser;
 
@@ -109,49 +109,54 @@ public class RobotContainer {
 		//		m_driverController.rightBumper().toggleOnTrue(new
 		// InstantCommand(m_intakeSubsystem::intake));
 
-//		m_driverController.rightBumper().onTrue(new InstantCommand(m_intakeSubsystem::retract));
-//		m_driverController.leftBumper().onTrue(new InstantCommand(m_intakeSubsystem::deploy));
-//		m_driverController.x().onTrue(new InstantCommand(m_intakeSubsystem::setToGamePieceStation));
-//		m_driverController.b().onTrue(new InstantCommand(m_gripperSubsystem::toggle));
+		//		m_driverController.rightBumper().onTrue(new InstantCommand(m_intakeSubsystem::retract));
+		//		m_driverController.leftBumper().onTrue(new InstantCommand(m_intakeSubsystem::deploy));
+		//		m_driverController.x().onTrue(new
+		// InstantCommand(m_intakeSubsystem::setToGamePieceStation));
+		//		m_driverController.b().onTrue(new InstantCommand(m_gripperSubsystem::toggle));
 
 		m_driverController.rightBumper().onTrue(new InstantCommand(m_intakeSubsystem::deploy));
 		m_driverController.leftBumper().onTrue(new InstantCommand(m_intakeSubsystem::retract));
 
-		m_driverController.rightTrigger().toggleOnTrue(new FunctionalCommand(
-				() -> {
-					m_intakeSubsystem.intake();
-					m_feederSubsystem.feed();
-					m_conveyorSubsystem.convey();
-				},
-				() -> {},
-				(interrupted) -> {
-					m_intakeSubsystem.stop();
-					m_feederSubsystem.stop();
-					m_conveyorSubsystem.stop();
-				},
-				() -> false,
-				m_intakeSubsystem,
-				m_feederSubsystem,
-				m_conveyorSubsystem
-		));
+		m_driverController
+				.rightTrigger()
+				.toggleOnTrue(
+						new FunctionalCommand(
+								() -> {
+									m_intakeSubsystem.intake();
+									m_feederSubsystem.feed();
+									m_conveyorSubsystem.convey();
+								},
+								() -> {},
+								(interrupted) -> {
+									m_intakeSubsystem.stop();
+									m_feederSubsystem.stop();
+									m_conveyorSubsystem.stop();
+								},
+								() -> false,
+								m_intakeSubsystem,
+								m_feederSubsystem,
+								m_conveyorSubsystem));
 
-		m_secondDriverController.a().toggleOnTrue(new FunctionalCommand(
-				() -> {
-					m_intakeSubsystem.outtake();
-					m_feederSubsystem.unjam();
-					m_conveyorSubsystem.unjam();
-				},
-				() -> {},
-				(interrupted) -> {
-					m_intakeSubsystem.stop();
-					m_feederSubsystem.stop();
-					m_conveyorSubsystem.stop();
-				},
-				() -> false,
-				m_intakeSubsystem,
-				m_feederSubsystem,
-				m_conveyorSubsystem
-		));
+		m_secondDriverController
+				.a()
+				.toggleOnTrue(
+						new FunctionalCommand(
+								() -> {
+									m_intakeSubsystem.outtake();
+									m_feederSubsystem.unjam();
+									m_conveyorSubsystem.unjam();
+								},
+								() -> {},
+								(interrupted) -> {
+									m_intakeSubsystem.stop();
+									m_feederSubsystem.stop();
+									m_conveyorSubsystem.stop();
+								},
+								() -> false,
+								m_intakeSubsystem,
+								m_feederSubsystem,
+								m_conveyorSubsystem));
 
 		m_secondDriverController.b().onTrue(new InstantCommand(m_gripperSubsystem::toggle));
 
@@ -176,55 +181,55 @@ public class RobotContainer {
 		//				m_intakeSubsystem
 		//		));
 
-//		m_driverController
-//				.y()
-//				.toggleOnTrue(
-//						new FunctionalCommand(
-//								() -> {
-//									m_intakeSubsystem.intake();
-//																		m_conveyorSubsystem.convey();
-//									m_feederSubsystem.feed();
-//								},
-//								() -> {},
-//								interrupted -> {
-//									m_feederSubsystem.stop();
-//																		m_conveyorSubsystem.stop();
-//									m_intakeSubsystem.stop();
-//								},
-//								() -> false,
-//								m_feederSubsystem,
-//								m_intakeSubsystem,
-//								m_conveyorSubsystem));
+		//		m_driverController
+		//				.y()
+		//				.toggleOnTrue(
+		//						new FunctionalCommand(
+		//								() -> {
+		//									m_intakeSubsystem.intake();
+		//																		m_conveyorSubsystem.convey();
+		//									m_feederSubsystem.feed();
+		//								},
+		//								() -> {},
+		//								interrupted -> {
+		//									m_feederSubsystem.stop();
+		//																		m_conveyorSubsystem.stop();
+		//									m_intakeSubsystem.stop();
+		//								},
+		//								() -> false,
+		//								m_feederSubsystem,
+		//								m_intakeSubsystem,
+		//								m_conveyorSubsystem));
 
-//		m_driverController
-//				.a()
-//				.toggleOnFalse(
-//						new FunctionalCommand(
-//								() -> {
-//																		m_intakeSubsystem.unjam();
-//									m_feederSubsystem.unjam();
-//									m_intakeSubsystem.outtake();
-//																		m_conveyorSubsystem.unjam();
-//								},
-//								() -> {},
-//								interrupted -> {
-//									m_feederSubsystem.stop();
-//									m_intakeSubsystem.stop();
-//																		m_conveyorSubsystem.stop();
-//								},
-//								() -> false,
-//																m_intakeSubsystem,
-//								m_feederSubsystem,
-//								m_conveyorSubsystem));
+		//		m_driverController
+		//				.a()
+		//				.toggleOnFalse(
+		//						new FunctionalCommand(
+		//								() -> {
+		//																		m_intakeSubsystem.unjam();
+		//									m_feederSubsystem.unjam();
+		//									m_intakeSubsystem.outtake();
+		//																		m_conveyorSubsystem.unjam();
+		//								},
+		//								() -> {},
+		//								interrupted -> {
+		//									m_feederSubsystem.stop();
+		//									m_intakeSubsystem.stop();
+		//																		m_conveyorSubsystem.stop();
+		//								},
+		//								() -> false,
+		//																m_intakeSubsystem,
+		//								m_feederSubsystem,
+		//								m_conveyorSubsystem));
 	}
 
 	private void configureDefaultCommands() {
-//				m_swerveSubsystem.setDefaultCommand(
-//						new DriveCommand(
-//								m_swerveSubsystem,
-//								() -> -m_driverController.getLeftY() * Swerve.VELOCITY_RANGE,
-//								() -> -m_driverController.getLeftX() * Swerve.VELOCITY_RANGE,
-//								() -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
+		//				m_swerveSubsystem.setDefaultCommand(
+		//						new DriveCommand(
+		//								m_swerveSubsystem,
+		//								() -> -m_driverController.getLeftY() * Swerve.VELOCITY_RANGE,
+		//								() -> -m_driverController.getLeftX() * Swerve.VELOCITY_RANGE,
+		//								() -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
 	}
 
 	public Command getAutonomousCommand() {
