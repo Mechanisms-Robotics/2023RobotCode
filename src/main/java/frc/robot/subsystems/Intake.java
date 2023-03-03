@@ -24,7 +24,7 @@ public class Intake extends SubsystemBase {
 		}
 	}
 
-	private static final double INTAKE_SPEED = 0.5; // 0.7 percent
+	private static final double INTAKE_SPEED = 0.2; // 0.7 percent
 	private static final double OUTTAKE_SPEED = -0.3;
 
 	private static final TalonFXConfiguration INTAKE_MOTOR_CONFIG = new TalonFXConfiguration();

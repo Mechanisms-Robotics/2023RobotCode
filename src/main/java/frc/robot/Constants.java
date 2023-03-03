@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 
 public final class Constants {
 	public static final int DRIVER_CONTROLLER_PORT = 0;
+	public static final int SECOND_DRIVER_CONTROLLER_PORT = 1;
 
 	public static final double LOOP_TIME = TimedRobot.kDefaultPeriod;
 

@@ -20,7 +20,7 @@ public class Gripper extends SubsystemBase {
 		GRIPPER_MOTOR_CONFIG.motionCruiseVelocity = 2000;
 		GRIPPER_MOTOR_CONFIG.neutralDeadband = 0.001;
 
-		GRIPPER_MOTOR_CONFIG.reverseSoftLimitEnable = true;
+		GRIPPER_MOTOR_CONFIG.reverseSoftLimitEnable = false;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitEnable = true;
 		// TODO: Find soft limits
 		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = 0;
@@ -31,6 +31,8 @@ public class Gripper extends SubsystemBase {
 
 	private static final double kP = 0.0;
 	private static final double kD = 0.0;
+
+	private boolean isOpen = true;
 
 	public Gripper() {
 		gripperMotor.configAllSettings(GRIPPER_MOTOR_CONFIG);
@@ -47,23 +49,29 @@ public class Gripper extends SubsystemBase {
 		gripperMotor.set(ControlMode.MotionMagic, position);
 	}
 
+	public void toggle() {
+		if (isOpen) {
+			isOpen = false;
+			close();
+		} else {
+			isOpen = true;
+			open();
+		}
+	}
+
 	public void open() {
-		setClosedLoop(OPEN_POSITION);
+		setOpenLoop(0.2);
 	}
 
 	public void close() {
-		setClosedLoop(CLOSED_POSITION);
-	}
-
-	public void cone() {
-		setClosedLoop(CONE_POSITION);
-	}
-
-	public void cube() {
-		setClosedLoop(CUBE_POSITION);
+		setOpenLoop(-0.2);
 	}
 
 	public void stop() {
 		setOpenLoop(0.0);
+	}
+
+	public void zeroEncoder() {
+		gripperMotor.setSelectedSensorPosition(0.0);
 	}
 }

@@ -83,6 +83,7 @@ public class Robot extends TimedRobot {
 		m_robotContainer.m_intakeSubsystem.zeroEncoders();
 		m_robotContainer.m_armSubsystem.zeroEncoder();
 		m_robotContainer.m_swerveSubsystem.zeroGyro();
+		m_robotContainer.m_gripperSubsystem.zeroEncoder();
 	}
 
 	/** This method is called periodically during test mode. */
