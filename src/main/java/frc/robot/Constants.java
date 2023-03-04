@@ -14,7 +14,7 @@ public final class Constants {
 
 	public static final double LOOP_TIME = TimedRobot.kDefaultPeriod;
 
-	public static final String CAMERA_NAME = "limelight";
+	public static final String CAMERA_NAME = "blacklight";
 
 	// Used to correct any weird odometry rotations
 	public static final Transform2d FIELD_ROBOT =

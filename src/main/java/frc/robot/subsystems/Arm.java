@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.ParamEnum;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -71,7 +72,7 @@ public class Arm extends SubsystemBase {
 		ARM_EXTENDER_MOTOR_CONFIG.forwardSoftLimitThreshold = 17500;
 
 		ARM_EXTENDER_MOTOR_CONFIG.motionCruiseVelocity = 10000;
-		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 10000;
+		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 7000;
 		ARM_EXTENDER_MOTOR_CONFIG.motionCurveStrength = 2;
 	}
 
@@ -102,6 +103,8 @@ public class Arm extends SubsystemBase {
 		armMotorRight.config_kP(0, kP);
 		armMotorRight.config_kD(0, kD);
 		armMotorRight.config_kF(0, kF);
+
+		armMotorRight.setSensorPhase(true);
 
 		armMotorLeft.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(
 				true,
@@ -144,6 +147,8 @@ public class Arm extends SubsystemBase {
 				1.0
 		));
 
+		extenderMotor.configSetParameter(ParamEnum.eContinuousCurrentLimitAmps, 30, 30, 0);
+
 		armMotorLeft.selectProfileSlot(0, 0);
 		armMotorRight.selectProfileSlot(0, 0);
 		extenderMotor.selectProfileSlot(0, 0);
@@ -176,6 +181,9 @@ public class Arm extends SubsystemBase {
 			double cosRadians = Math.cos(radians);
 			double demandFF =
 					MAX_GRAVITY_FF * cosRadians;
+
+//			System.out.println((extenderMotor.configGetParameter(ParamEnum.eContinuousCurrentLimitAmps, 0)));
+
 
 //			setOpenLoop(demandFF);
 		}
@@ -225,7 +233,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void retract() {
-		System.out.println("RETRACTING");
+//		System.out.println("RETRACTING");
 
 		if (armState == ArmState.Retracting) {
 			if (Math.abs(extenderMotor.getSelectedSensorPosition() - STOWED_POSITION) <= ALLOWABLE_EXTENSION_ERROR) {
@@ -241,7 +249,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void pivot() {
-		System.out.println("PIBOTING");
+//		System.out.println("PIBOTING");
 
 		if (armState == ArmState.Pivoting) {
 			if (Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition.armPosition) <= ALLOWABLE_PIVOT_ERROR) {
@@ -276,7 +284,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void deploy() {
-		System.out.println("DEPLOTIG");
+//		System.out.println("DEPLOTIG");
 
 		if (armState == ArmState.Deploying) {
 			if (Math.abs(extenderMotor.getSelectedSensorPosition() - desiredPosition.extendPosition) <= ALLOWABLE_EXTENSION_ERROR) {
@@ -292,7 +300,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void idle() {
-		System.out.println("IDJLING");
+//		System.out.println("IDJLING");
 
 		armState = ArmState.Idle;
 	}
