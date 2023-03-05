@@ -12,7 +12,9 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/Pigeon 2 [0]": "Gyro",
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
+      "/SmartDashboard/USB_Camera Sim Field": "Field2d",
       "/SmartDashboard/limelight Sim Field": "Field2d"
     },
     "windows": {
@@ -50,6 +52,9 @@
         },
         "Tags": {
           "image": "C:\\Users\\nickb\\Downloads\\transparent.png"
+        },
+        "XModules": {
+          "image": "C:\\Robotics\\2023RobotCode\\swerve_indicator.png"
         },
         "aSwerve Modules": {
           "image": "C:\\Robotics\\2023RobotCode\\swerve_indicator.png",

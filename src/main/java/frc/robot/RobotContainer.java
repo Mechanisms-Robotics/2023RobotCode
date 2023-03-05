@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -246,10 +247,10 @@ public class RobotContainer {
 											? m_driverController.getLeftX()
 											: 0,
 							m_driverController::getLeftX,
-							false));
+							true));
 		}
 
-
+//		m_swerveSubsystem.setDefaultCommand(new FunctionalCommand(() -> {}, () -> m_swerveSubsystem.drive(new Translation2d(m_driverController.getLeftX(), m_driverController.getLeftY()), m_driverController.getRightX(), true, true)));
 	}
 
 	public Command getAutonomousCommand() {
