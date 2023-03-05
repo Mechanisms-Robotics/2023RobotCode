@@ -1,80 +1,92 @@
 package frc.robot.commands.swerve;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
+import java.util.List;
 import java.util.function.DoubleSupplier;
+import swervelib.SwerveController;
+import swervelib.math.SwerveMath;
 
 public class DriveCommand extends CommandBase {
-	private static final double DEADBAND = 0.1;
-	private static final double TRANSLATION_EXPONENT = 1.5;
-	private static final double ROTATION_EXPONENT = 2.0;
+	private final Swerve swerve;
+	private final DoubleSupplier vX, vY, heading;
+	private final boolean isOpenLoop;
 
-	private final Swerve m_swerveSubsystem;
-
-	private final DoubleSupplier m_translationXSupplier;
-	private final DoubleSupplier m_translationYSupplier;
-	private final DoubleSupplier m_rotationSupplier;
-
+	/**
+	 * Used to drive a swerve robot in full field-centric mode. vX and vY supply translation inputs,
+	 * where x is torwards/away from alliance wall and y is left/right. headingHorzontal and
+	 * headingVertical are the Cartesian coordinates from which the robot's angle will be derived—
+	 * they will be converted to a polar angle, which the robot will rotate to.
+	 *
+	 * @param swerve The swerve drivebase subsystem.
+	 * @param vX DoubleSupplier that supplies the x-translation joystick input. Should be in the
+	 *     range -1 to 1 with deadband already accounted for. Positive X is away from the alliance
+	 *     wall.
+	 * @param vY DoubleSupplier that supplies the y-translation joystick input. Should be in the
+	 *     range -1 to 1 with deadband already accounted for. Positive Y is towards the left wall
+	 *     when looking through the driver station glass.
+	 * @param heading DoubleSupplier that supplies the robot's heading angle.
+	 */
 	public DriveCommand(
-			Swerve swerveSubsystem,
-			DoubleSupplier translationXSupplier,
-			DoubleSupplier translationYSupplier,
-			DoubleSupplier rotationSupplier) {
-		m_swerveSubsystem = swerveSubsystem;
+			Swerve swerve,
+			DoubleSupplier vX,
+			DoubleSupplier vY,
+			DoubleSupplier heading,
+			boolean isOpenLoop) {
+		this.swerve = swerve;
+		this.vX = vX;
+		this.vY = vY;
+		this.heading = heading;
+		this.isOpenLoop = isOpenLoop;
 
-		m_translationXSupplier = translationXSupplier;
-		m_translationYSupplier = translationYSupplier;
-		m_rotationSupplier = rotationSupplier;
-
-		addRequirements(swerveSubsystem);
+		addRequirements(swerve);
 	}
 
+	@Override
+	public void initialize() {}
+
+	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		//				m_swerveSubsystem.drive(
-		//						new ChassisSpeeds(
-		//								applyExponential(
-		//										deadband(m_translationXSupplier.getAsDouble()),
-		//										TRANSLATION_EXPONENT),
-		//								applyExponential(
-		//												deadband(m_translationYSupplier.getAsDouble()),
-		//												TRANSLATION_EXPONENT)
-		//										/ 2,
-		//								applyExponential(
-		//										deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT)));
-		m_swerveSubsystem.drive(
-				ChassisSpeeds.fromFieldRelativeSpeeds(
-						applyExponential(
-								deadband(m_translationXSupplier.getAsDouble()),
-								TRANSLATION_EXPONENT),
-						applyExponential(
-								deadband(m_translationYSupplier.getAsDouble()),
-								TRANSLATION_EXPONENT),
-						applyExponential(
-								deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
-						m_swerveSubsystem.getGyroHeading()));
 
-//		System.out.println(
-//				applyExponential(
-//						deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT));
+		// Get the desired chassis speeds based on a 2 joystick module.
+
+		ChassisSpeeds desiredSpeeds =
+				swerve.getTargetSpeeds(
+						vX.getAsDouble(),
+						vY.getAsDouble(),
+						new Rotation2d(heading.getAsDouble() * Math.PI));
+
+		// Limit velocity to prevent tippy
+		Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
+		translation =
+				SwerveMath.limitVelocity(
+						translation,
+						swerve.getFieldVelocity(),
+						swerve.getPose(),
+						Constants.LOOP_TIME,
+						Constants.ROBOT_MASS,
+						List.of(Constants.CHASSIS),
+						swerve.getSwerveDriveConfiguration());
+		SmartDashboard.putNumber("LimitedTranslation", translation.getX());
+		SmartDashboard.putString("Translation", translation.toString());
+
+		// Make the robot move
+		swerve.drive(translation, desiredSpeeds.omegaRadiansPerSecond, true, isOpenLoop);
 	}
 
+	// Called once the command ends or is interrupted.
 	@Override
-	public void end(boolean interrupted) {
-		m_swerveSubsystem.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
-	}
+	public void end(boolean interrupted) {}
 
-	private double deadband(double input) {
-		return Math.abs(input) >= DEADBAND ? input : 0.0;
+	// Returns true when the command should end.
+	@Override
+	public boolean isFinished() {
+		return false;
 	}
-
-	private double applyExponential(double input, double exponent) {
-		double product = Math.pow(Math.abs(input), exponent);
-		return input > 0 ? product : -product;
-	}
-
-	//	private double desaturateXSpeeds(double xSpeed) {
-	//		return 1 / m_swerveSubsystem.getGyroHeading().getCos() * XSPEED_DESATURATION;
-	//	}
 }

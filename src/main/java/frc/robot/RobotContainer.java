@@ -5,14 +5,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.auto.MobilityAutoLeft;
-import frc.robot.commands.auto.MobilityAutoRight;
-import frc.robot.commands.auto.OneConeLeft;
-import frc.robot.commands.auto.OneConeOneCubeLeft;
-import frc.robot.commands.auto.OneConeOneCubeRight;
-import frc.robot.commands.auto.OneConeRight;
-import frc.robot.commands.auto.OneConeTwoCubesLeft;
-import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.conveyor.ConveyCommand;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
@@ -42,20 +34,20 @@ public class RobotContainer {
 
 		autoChooser = new SendableChooser<CommandBase>();
 
-		autoChooser.addOption(
-				"MobilityAutoLeft", MobilityAutoLeft.mobilityAutoLeftCommand(m_swerveSubsystem));
-		autoChooser.addOption(
-				"MobilityAutoRight", MobilityAutoRight.mobilityAutoRightCommand(m_swerveSubsystem));
-		autoChooser.addOption("1ConeLeft", OneConeLeft.oneConeLeft(m_swerveSubsystem));
-		autoChooser.addOption("1ConeRight", OneConeRight.oneConeRight(m_swerveSubsystem));
-		autoChooser.addOption(
-				"1Cone1CubeLeft", OneConeOneCubeLeft.oneConeOneCubeLeft(m_swerveSubsystem));
-		autoChooser.addOption(
-				"1Cone1CubeRight", OneConeOneCubeRight.oneConeOneCubeRight(m_swerveSubsystem));
-		autoChooser.addOption(
-				"1Cone2CubesLeft", OneConeTwoCubesLeft.oneConeTwoCubesLeft(m_swerveSubsystem));
-		autoChooser.addOption(
-				"1Cone2CubesRight", OneConeTwoCubesRight.oneConeTwoCubesRight(m_swerveSubsystem));
+		//		autoChooser.addOption(
+		//				"MobilityAutoLeft", MobilityAutoLeft.mobilityAutoLeftCommand(m_swerveSubsystem));
+		//		autoChooser.addOption(
+		//				"MobilityAutoRight", MobilityAutoRight.mobilityAutoRightCommand(m_swerveSubsystem));
+		//		autoChooser.addOption("1ConeLeft", OneConeLeft.oneConeLeft(m_swerveSubsystem));
+		//		autoChooser.addOption("1ConeRight", OneConeRight.oneConeRight(m_swerveSubsystem));
+		//		autoChooser.addOption(
+		//				"1Cone1CubeLeft", OneConeOneCubeLeft.oneConeOneCubeLeft(m_swerveSubsystem));
+		//		autoChooser.addOption(
+		//				"1Cone1CubeRight", OneConeOneCubeRight.oneConeOneCubeRight(m_swerveSubsystem));
+		//		autoChooser.addOption(
+		//				"1Cone2CubesLeft", OneConeTwoCubesLeft.oneConeTwoCubesLeft(m_swerveSubsystem));
+		//		autoChooser.addOption(
+		//				"1Cone2CubesRight", OneConeTwoCubesRight.oneConeTwoCubesRight(m_swerveSubsystem));
 
 		SmartDashboard.putData(autoChooser);
 	}
@@ -128,21 +120,23 @@ public class RobotContainer {
 		m_driverController
 				.rightTrigger()
 				.toggleOnTrue(
-						Commands.parallel(new FunctionalCommand(
-								() -> {
-									m_intakeSubsystem.intake();
-									m_feederSubsystem.feed();
-								},
-								() -> {},
-								(interrupted) -> {
-									m_intakeSubsystem.stop();
-									m_feederSubsystem.stop();
-								},
-								() -> false,
-								m_intakeSubsystem,
-								m_feederSubsystem),
-								new ConveyCommand(m_conveyorSubsystem.conveyorSensor::get, m_conveyorSubsystem))
-						);
+						Commands.parallel(
+								new FunctionalCommand(
+										() -> {
+											m_intakeSubsystem.intake();
+											m_feederSubsystem.feed();
+										},
+										() -> {},
+										(interrupted) -> {
+											m_intakeSubsystem.stop();
+											m_feederSubsystem.stop();
+										},
+										() -> false,
+										m_intakeSubsystem,
+										m_feederSubsystem),
+								new ConveyCommand(
+										m_conveyorSubsystem.conveyorSensor::get,
+										m_conveyorSubsystem)));
 
 		m_driverController
 				.a()
@@ -231,7 +225,8 @@ public class RobotContainer {
 		//								m_feederSubsystem,
 		//								m_conveyorSubsystem));
 
-		AprilTagTracker.setAllianceSide(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+		AprilTagTracker.setAllianceSide(
+				AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
 	}
 
 	private void configureDefaultCommands() {
@@ -239,11 +234,21 @@ public class RobotContainer {
 			m_swerveSubsystem.setDefaultCommand(
 					new DriveCommand(
 							m_swerveSubsystem,
-							() -> -m_driverController.getLeftY() * Swerve.VELOCITY_RANGE,
-							() -> -m_driverController.getLeftX() * Swerve.VELOCITY_RANGE,
-							() -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
-
+							() -> m_driverController.getLeftY(),
+							() -> m_driverController.getLeftX(),
+							() -> m_driverController.getRightX(),
+//							() ->
+//									(Math.abs(m_driverController.getLeftY()) > 0.1)
+//											? m_driverController.getLeftY()
+//											: 0,
+//							() ->
+//									(Math.abs(m_driverController.getLeftX()) > 0.1)
+//											? m_driverController.getLeftX()
+//											: 0,
+//							() -> m_driverController.getRawAxis(2),
+							false));
 		}
+
 
 	}
 

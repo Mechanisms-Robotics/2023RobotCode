@@ -6,7 +6,11 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
+import java.io.File;
+import swervelib.math.Matter;
 
 public final class Constants {
 	public static final int DRIVER_CONTROLLER_PORT = 0;
@@ -14,7 +18,13 @@ public final class Constants {
 
 	public static final double LOOP_TIME = TimedRobot.kDefaultPeriod;
 
+	public static final double ROBOT_MASS = 52.6167; // kg
+	public static final Matter CHASSIS =
+			new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
+
 	public static final String CAMERA_NAME = "USB_Camera";
+
+	public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve");
 
 	// Used to correct any weird odometry rotations
 	public static final Transform2d FIELD_ROBOT =
@@ -24,7 +34,8 @@ public final class Constants {
 
 	// TODO: Measure height of limelight
 	public static final Transform3d ROBOT_TO_CAMERA =
-			new Transform3d(new Translation3d(0.0, -0.088, 1.067), new Rotation3d(new Quaternion()));
+			new Transform3d(
+					new Translation3d(0.0, -0.088, 1.067), new Rotation3d(new Quaternion()));
 
 	public static final Transform2d SCORING_OFFSET =
 			new Transform2d(new Translation2d(1.0, 0.0), new Rotation2d());
@@ -43,5 +54,5 @@ public final class Constants {
 	public static final double SWERVE_ROT_KI = 0.0;
 	public static final double SWERVE_ROT_KD = 0.0;
 
-	public static final boolean SWERVE_DISABLED = true;
+	public static final boolean SWERVE_DISABLED = false;
 }
