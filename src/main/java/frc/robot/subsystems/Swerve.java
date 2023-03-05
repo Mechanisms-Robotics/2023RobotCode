@@ -8,11 +8,9 @@ import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
 import com.swervedrivespecialties.swervelib.MotorType;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import com.swervedrivespecialties.swervelib.ctre.CtreUtils;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -30,8 +28,8 @@ import frc.robot.util.*;
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
 	private static final double MAX_VOLTAGE = 12.0; // volts
-	public static final double VELOCITY_RANGE = 2.5; // 1.5 m/s
-	private static final double MAX_VELOCITY = 4.5; // m/s
+	public static final double MAX_VELOCITY_RANGE = 2.5; // 1.5 m/s
+	private static final double MAX_VELOCITY = 4.5;
 	public static final double ANGULAR_VELOCITY_RANGE = Math.PI / 2; // rad/s
 
 	private static final boolean IS_PITCH_AND_ROLL_INVERTED = false;
@@ -89,6 +87,8 @@ public class Swerve extends SubsystemBase {
 
 	private ChassisSpeeds m_chassisSpeeds;
 
+	private Rotation2d upAngle;
+
 	private final HeadingController m_headingController =
 			new HeadingController(
 					0.08, // Stabilization kP
@@ -112,6 +112,9 @@ public class Swerve extends SubsystemBase {
 
 	private PathPlannerTrajectory m_currentTrajectory;
 	private boolean m_isRunningTrajectory;
+
+	private double m_maxVelocityRange = 4.5; // m/s
+	private Rotation2d m_swerveRobotRelativeHeading = new Rotation2d();
 
 	public Swerve() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
@@ -169,7 +172,9 @@ public class Swerve extends SubsystemBase {
 						.build();
 
 		m_gyro = new WPI_Pigeon2(GYRO_ID);
-		m_gyro.configFactoryDefault();
+//		m_gyro.configFactoryDefault();
+
+		upAngle = Rotation2d.fromDegrees(m_gyro.getRoll());
 
 		m_simYaw = new Rotation2d();
 
@@ -197,6 +202,18 @@ public class Swerve extends SubsystemBase {
 //		return Rotation2d.fromDegrees(m_gyro.getYaw()).minus(Rotation2d.fromDegrees(180.0));
 	}
 
+	public Rotation2d getRoll() {
+		return Rotation2d.fromDegrees(m_gyro.getRoll());
+	}
+
+	public Rotation2d getPitch() {
+		return Rotation2d.fromDegrees(m_gyro.getPitch());
+	}
+
+	public Rotation2d getUpAngle() {
+		return upAngle;
+	}
+
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		m_chassisSpeeds = chassisSpeeds;
 		m_headingController.stabiliseHeading();
@@ -218,12 +235,21 @@ public class Swerve extends SubsystemBase {
 	@Override
 	public void periodic() {
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
-		SwerveDriveKinematics.desaturateWheelSpeeds(states, VELOCITY_RANGE);
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY);
+
+    m_swerveRobotRelativeHeading =
+        new Rotation2d(m_chassisSpeeds.vxMetersPerSecond, m_chassisSpeeds.vyMetersPerSecond);
 
 		SmartDashboard.putNumber("Gyro", getGyroHeading().getDegrees());
 
 		SmartDashboard.putNumber("Pose X", m_poseEstimator.getEstimatedPosition().getX());
 		SmartDashboard.putNumber("Pose Y", m_poseEstimator.getEstimatedPosition().getY());
+
+		SmartDashboard.putNumber("Robot Relative Heading", m_swerveRobotRelativeHeading.getDegrees());
+
+		m_maxVelocityRange = MAX_VELOCITY_RANGE * (0.25 * Math.cos(2 * m_swerveRobotRelativeHeading.getRadians()) + 0.75);
+
+		SmartDashboard.putNumber("Max Velocity Range", m_maxVelocityRange);
 
 		if (!m_isRunningTrajectory) {
 			m_headingController.update(m_chassisSpeeds, getGyroHeading());
@@ -290,7 +316,7 @@ public class Swerve extends SubsystemBase {
 
 	public void simulationPeriodic() {
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
-		SwerveDriveKinematics.desaturateWheelSpeeds(states, VELOCITY_RANGE);
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY);
 
 		SmartDashboard.putNumber("Gyro", getGyroHeading().getDegrees());
 
@@ -334,6 +360,10 @@ public class Swerve extends SubsystemBase {
 		Pose2d poseNoRot = new Pose2d(pose.getTranslation(), new Rotation2d());
 
 		m_poseEstimator.resetPosition(heading, getModulePositions(), poseNoRot);
+	}
+
+	public double getMaxVelocity() {
+		return m_maxVelocityRange;
 	}
 
 	public ChassisSpeeds getVelocity() {

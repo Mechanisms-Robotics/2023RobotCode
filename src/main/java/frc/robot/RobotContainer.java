@@ -13,7 +13,6 @@ import frc.robot.commands.auto.OneConeOneCubeRight;
 import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
-import frc.robot.commands.conveyor.ConveyCommand;
 import frc.robot.commands.feeder.CubeFeedCommand;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
@@ -23,8 +22,8 @@ import frc.robot.util.GoalTracker;
 public class RobotContainer {
 	public final Swerve m_swerveSubsystem = new Swerve();
 	public final Intake m_intakeSubsystem = new Intake();
-	//	public final Arm m_armSubsystem = new Arm();
-	//	public final Gripper m_gripperSubsystem = new Gripper();
+	public final Arm m_armSubsystem = new Arm();
+	public final Gripper m_gripperSubsystem = new Gripper();
 	public final Feeder m_feederSubsystem = new Feeder();
 	public final Conveyor m_conveyorSubsystem = new Conveyor();
 	private final GoalTracker m_goalTracker =
@@ -232,13 +231,12 @@ public class RobotContainer {
 
 	private void configureDefaultCommands() {
 		if (!Constants.SWERVE_DISABLED) {
-			m_swerveSubsystem.setDefaultCommand(
-					new DriveCommand(
-							m_swerveSubsystem,
-							() -> -m_driverController.getLeftY() * Swerve.VELOCITY_RANGE,
-							() -> -m_driverController.getLeftX() * Swerve.VELOCITY_RANGE,
-							() -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
-
+      m_swerveSubsystem.setDefaultCommand(
+          new DriveCommand(
+              m_swerveSubsystem,
+              () -> -m_driverController.getLeftY() * m_swerveSubsystem.getMaxVelocity(),
+              () -> -m_driverController.getLeftX() * m_swerveSubsystem.getMaxVelocity(),
+              () -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
 		}
 
 	}

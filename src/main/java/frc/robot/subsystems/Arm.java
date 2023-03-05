@@ -170,9 +170,6 @@ public class Arm extends SubsystemBase {
 			double cosRadians = Math.cos(radians);
 			double demandFF = MAX_GRAVITY_FF * cosRadians;
 
-			//
-			//	System.out.println((extenderMotor.configGetParameter(ParamEnum.eContinuousCurrentLimitAmps, 0)));
-
 			//			setOpenLoop(demandFF);
 		}
 

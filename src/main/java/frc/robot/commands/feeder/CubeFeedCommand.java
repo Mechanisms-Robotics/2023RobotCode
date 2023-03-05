@@ -6,9 +6,9 @@ import frc.robot.subsystems.Conveyor;
 import frc.robot.subsystems.Feeder;
 
 public class CubeFeedCommand extends CommandBase {
-  private final static double IN_TIME = 1.0;
-  private final static double OUT_TIME = 0.25;
-  private final static double ROTATE_TIME = 0.25;
+  private final static double IN_TIME = 2.0;
+  private final static double OUT_TIME = 0.0;
+  private final static double ROTATE_TIME = 0.0;
   private final static double POSITIONING_TIME = 1.375;
 
   private final Feeder m_feeder;
@@ -82,8 +82,8 @@ public class CubeFeedCommand extends CommandBase {
           m_inTimer.stop();
           m_inTimer.reset();
 
-          m_feeder.unjam();
-          m_conveyor.unjam();
+//          m_feeder.unjam();
+//          m_conveyor.unjam();
           m_feederState = FeederState.Unjamming;
 
           m_outTimer.start();
@@ -95,8 +95,8 @@ public class CubeFeedCommand extends CommandBase {
           m_outTimer.stop();
           m_outTimer.reset();
 
-          m_feeder.rotate();
-          m_conveyor.stop();
+//          m_feeder.rotate();
+//          m_conveyor.stop();
           m_feederState = FeederState.Rotating;
 
           m_rotateTimer.start();
