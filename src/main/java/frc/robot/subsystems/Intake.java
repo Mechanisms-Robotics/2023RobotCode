@@ -10,7 +10,7 @@ public class Intake extends SubsystemBase {
 
 	private enum Position {
 		GamePieceStation(-16387, 0.2, 0.7),
-		Deploy(-37000, INTAKE_SPEED, OUTTAKE_SPEED),
+		Deploy(-37800, INTAKE_SPEED, OUTTAKE_SPEED),
 		Retract(-3000, INTAKE_SPEED, OUTTAKE_SPEED);
 
 		private final double intakeSpeed;
@@ -24,8 +24,8 @@ public class Intake extends SubsystemBase {
 		}
 	}
 
-	private static final double INTAKE_SPEED = 0.2; // 0.7 percent
-	private static final double OUTTAKE_SPEED = -0.3;
+	private static final double INTAKE_SPEED = 0.3; // 0.7 percent
+	private static final double OUTTAKE_SPEED = -0.15;
 
 	private static final TalonFXConfiguration INTAKE_MOTOR_CONFIG = new TalonFXConfiguration();
 	private static final TalonFXConfiguration INTAKE_PIVOT_MOTOR_CONFIG =

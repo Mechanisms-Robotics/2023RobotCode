@@ -8,10 +8,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Gripper extends SubsystemBase {
 
 	// TODO: find positions
-	private static final double OPEN_POSITION = 0;
-	private static final double CLOSED_POSITION = 0;
-	private static final double CONE_POSITION = 0;
-	private static final double CUBE_POSITION = 0;
+	private static final double OPEN_POSITION = -50;
+	private static final double CLOSED_POSITION = -3500;
+	private static final double CONE_POSITION = -3500;
+	private static final double CUBE_POSITION = -1500;
 
 	private static final TalonFXConfiguration GRIPPER_MOTOR_CONFIG = new TalonFXConfiguration();
 
@@ -20,16 +20,16 @@ public class Gripper extends SubsystemBase {
 		GRIPPER_MOTOR_CONFIG.motionCruiseVelocity = 2000;
 		GRIPPER_MOTOR_CONFIG.neutralDeadband = 0.001;
 
-		GRIPPER_MOTOR_CONFIG.reverseSoftLimitEnable = false;
+		GRIPPER_MOTOR_CONFIG.reverseSoftLimitEnable = true;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitEnable = true;
 		// TODO: Find soft limits
-		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = 0;
+		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = -3580;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitThreshold = 0;
 	}
 
 	private final WPI_TalonFX gripperMotor = new WPI_TalonFX(60);
 
-	private static final double kP = 0.0;
+	private static final double kP = 0.2;
 	private static final double kD = 0.0;
 
 	private boolean isOpen = true;
@@ -46,7 +46,7 @@ public class Gripper extends SubsystemBase {
 	}
 
 	private void setClosedLoop(double position) {
-		gripperMotor.set(ControlMode.MotionMagic, position);
+		gripperMotor.set(ControlMode.Position, position);
 	}
 
 	public void toggle() {
@@ -60,15 +60,23 @@ public class Gripper extends SubsystemBase {
 	}
 
 	public void open() {
-		setOpenLoop(0.2);
+		setClosedLoop(OPEN_POSITION);
 	}
 
 	public void close() {
-		setOpenLoop(-0.2);
+		setClosedLoop(CLOSED_POSITION);
 	}
 
 	public void stop() {
 		setOpenLoop(0.0);
+	}
+
+	public void cone() {
+		setClosedLoop(CONE_POSITION);
+	}
+
+	public void cube() {
+		setClosedLoop(CUBE_POSITION);
 	}
 
 	public void zeroEncoder() {

@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -12,14 +13,17 @@ import frc.robot.commands.auto.OneConeOneCubeRight;
 import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
+import frc.robot.commands.conveyor.ConveyCommand;
+import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
+import frc.robot.util.AprilTagTracker;
 import frc.robot.util.GoalTracker;
 
 public class RobotContainer {
 	public final Swerve m_swerveSubsystem = new Swerve();
 	public final Intake m_intakeSubsystem = new Intake();
-	public final Arm m_armSubsystem = new Arm();
-	public final Gripper m_gripperSubsystem = new Gripper();
+	//	public final Arm m_armSubsystem = new Arm();
+	//	public final Gripper m_gripperSubsystem = new Gripper();
 	public final Feeder m_feederSubsystem = new Feeder();
 	public final Conveyor m_conveyorSubsystem = new Conveyor();
 	private final GoalTracker m_goalTracker =
@@ -117,28 +121,30 @@ public class RobotContainer {
 
 		m_driverController.rightBumper().onTrue(new InstantCommand(m_intakeSubsystem::deploy));
 		m_driverController.leftBumper().onTrue(new InstantCommand(m_intakeSubsystem::retract));
+		m_driverController
+				.leftTrigger()
+				.onTrue(new InstantCommand(m_intakeSubsystem::setToGamePieceStation));
 
 		m_driverController
 				.rightTrigger()
 				.toggleOnTrue(
-						new FunctionalCommand(
+						Commands.parallel(new FunctionalCommand(
 								() -> {
 									m_intakeSubsystem.intake();
 									m_feederSubsystem.feed();
-									m_conveyorSubsystem.convey();
 								},
 								() -> {},
 								(interrupted) -> {
 									m_intakeSubsystem.stop();
 									m_feederSubsystem.stop();
-									m_conveyorSubsystem.stop();
 								},
 								() -> false,
 								m_intakeSubsystem,
-								m_feederSubsystem,
-								m_conveyorSubsystem));
+								m_feederSubsystem),
+								new ConveyCommand(m_conveyorSubsystem.conveyorSensor::get, m_conveyorSubsystem))
+						);
 
-		m_secondDriverController
+		m_driverController
 				.a()
 				.toggleOnTrue(
 						new FunctionalCommand(
@@ -158,12 +164,15 @@ public class RobotContainer {
 								m_feederSubsystem,
 								m_conveyorSubsystem));
 
-		m_secondDriverController.b().onTrue(new InstantCommand(m_gripperSubsystem::toggle));
-
-		m_secondDriverController.povDown().onTrue(new InstantCommand(m_armSubsystem::stow));
-		m_secondDriverController.povLeft().onTrue(new InstantCommand(m_armSubsystem::low));
-		m_secondDriverController.povRight().onTrue(new InstantCommand(m_armSubsystem::mid));
-		m_secondDriverController.povUp().onTrue(new InstantCommand(m_armSubsystem::high));
+		// UNCOMMENT
+		//		m_secondDriverController.b().onTrue(new InstantCommand(m_gripperSubsystem::cone));
+		//		m_secondDriverController.x().onTrue(new InstantCommand(m_gripperSubsystem::cube));
+		//		m_secondDriverController.y().onTrue(new InstantCommand(m_gripperSubsystem::open));
+		//
+		//		m_secondDriverController.povDown().onTrue(new InstantCommand(m_armSubsystem::stow));
+		//		m_secondDriverController.povLeft().onTrue(new InstantCommand(m_armSubsystem::low));
+		//		m_secondDriverController.povRight().onTrue(new InstantCommand(m_armSubsystem::mid));
+		//		m_secondDriverController.povUp().onTrue(new InstantCommand(m_armSubsystem::high));
 
 		//		m_driverController.leftBumper().onTrue(new FunctionalCommand(
 		//				m_intakeSubsystem::retract,
@@ -221,15 +230,21 @@ public class RobotContainer {
 		//																m_intakeSubsystem,
 		//								m_feederSubsystem,
 		//								m_conveyorSubsystem));
+
+		AprilTagTracker.setAllianceSide(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
 	}
 
 	private void configureDefaultCommands() {
-		//				m_swerveSubsystem.setDefaultCommand(
-		//						new DriveCommand(
-		//								m_swerveSubsystem,
-		//								() -> -m_driverController.getLeftY() * Swerve.VELOCITY_RANGE,
-		//								() -> -m_driverController.getLeftX() * Swerve.VELOCITY_RANGE,
-		//								() -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
+		if (!Constants.SWERVE_DISABLED) {
+			m_swerveSubsystem.setDefaultCommand(
+					new DriveCommand(
+							m_swerveSubsystem,
+							() -> -m_driverController.getLeftY() * Swerve.VELOCITY_RANGE,
+							() -> -m_driverController.getLeftX() * Swerve.VELOCITY_RANGE,
+							() -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
+
+		}
+
 	}
 
 	public Command getAutonomousCommand() {

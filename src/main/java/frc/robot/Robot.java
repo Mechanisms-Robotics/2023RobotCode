@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void disabledInit() {
 		m_robotContainer.m_intakeSubsystem.stopPivot();
-		m_robotContainer.m_armSubsystem.stop();
+		//		m_robotContainer.m_armSubsystem.stop();
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
 		// continue until interrupted by another command, remove
 		// this line or comment it out.
 
-		m_robotContainer.m_armSubsystem.stow();
+		//		m_robotContainer.m_armSubsystem.stow();
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
@@ -81,9 +81,9 @@ public class Robot extends TimedRobot {
 		CommandScheduler.getInstance().cancelAll();
 
 		m_robotContainer.m_intakeSubsystem.zeroEncoders();
-		m_robotContainer.m_armSubsystem.zeroEncoder();
+		//		m_robotContainer.m_armSubsystem.zeroEncoder();
 		m_robotContainer.m_swerveSubsystem.zeroGyro();
-		m_robotContainer.m_gripperSubsystem.zeroEncoder();
+		//		m_robotContainer.m_gripperSubsystem.zeroEncoder();
 	}
 
 	/** This method is called periodically during test mode. */

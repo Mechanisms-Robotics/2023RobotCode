@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Conveyor extends SubsystemBase {
@@ -12,6 +14,8 @@ public class Conveyor extends SubsystemBase {
 	private static final double CONVEYOR_CONVEY_SPEED = 0.45;
 	private static final double CONVEYOR_UNJAM_SPEED = -0.3;
 	private static final TalonFXConfiguration CONVEYOR_MOTOR_CONFIG = new TalonFXConfiguration();
+
+	public final DigitalInput conveyorSensor = new DigitalInput(0);
 
 	static {
 		final var conveyorCurrentLimit = new SupplyCurrentLimitConfiguration();
@@ -30,6 +34,11 @@ public class Conveyor extends SubsystemBase {
 		conveyorMotor.setInverted(true);
 
 		conveyorMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
+	}
+
+	@Override
+	public void periodic() {
+		SmartDashboard.putBoolean("Conveyor Sensor", conveyorSensor.get());
 	}
 
 	private void setOpenLoop(double percentOutput) {

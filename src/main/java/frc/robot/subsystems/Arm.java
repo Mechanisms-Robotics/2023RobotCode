@@ -1,176 +1,346 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.ParamEnum;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Arm extends ProfiledPIDSubsystem {
-	private enum Positions {
-		High(1.97),
-		Middle(1.69),
-		Low(1.02),
-		Stowed(0.60);
+public class Arm extends SubsystemBase {
 
-		private final double setpoint;
+	private enum Position {
+		High(65000, EXTENDED_POSITION),
+		Middle(57500, EXTENDED_POSITION / 2),
+		Low(30000, STOWED_POSITION),
+		Stowed(17500, STOWED_POSITION);
 
-		Positions(double setpoint) {
-			this.setpoint = setpoint;
+		private final double armPosition;
+		private final double extendPosition;
+
+		Position(double armPosition, double extendPosition) {
+			this.armPosition = armPosition;
+			this.extendPosition = extendPosition;
 		}
 	}
+
+	private enum ArmState {
+		Retracting,
+		Pivoting,
+		Deploying,
+		Idle,
+	}
+
+	private Position desiredPosition = Position.Stowed;
 
 	private static final TalonFXConfiguration ARM_MOTOR_CONFIG = new TalonFXConfiguration();
 	private static final TalonFXConfiguration ARM_EXTENDER_MOTOR_CONFIG =
 			new TalonFXConfiguration();
 
+	private static final double STOWED_POSITION = 500;
+	private static final double EXTENDED_POSITION = 17400;
+
+	private static final double MAX_GRAVITY_FF = 0.079; // 0.3
+	private static final double MAX_EXTENSION_GRAVITY_FF = -0.08;
+
 	private static final double TICKS_PER_DEGREE = (2048.0 / 360.0) * 89.89;
-	private static final double TICKS_PER_RADIAN = (2048.0 / (2 * Math.PI)) * 89.89;
 
-	private static final TrapezoidProfile.Constraints ARM_PROFILE = new TrapezoidProfile.Constraints(
-			Math.PI,
-			Math.PI
-	);
+	private static final double ARM_HORIZONTAL_POSITION = 57500;
+	private static final double ALLOWABLE_PIVOT_ERROR = 1000;
+	private static final double ALLOWABLE_EXTENSION_ERROR = 100;
 
-	private static final double kP = 0.2;
-	private static final double kI = 0.0;
+	private static final double kP = 0.2; // 0.1
 	private static final double kD = 0.0;
+	private static final double kF = 0.01; // 0.01
+
+	private static final double extenderKP = 1.4; // 0.8
 
 	static {
 		ARM_MOTOR_CONFIG.reverseSoftLimitEnable = true;
 		ARM_MOTOR_CONFIG.forwardSoftLimitEnable = true;
-		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = 16754;
+		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = 16875;
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 75000;
+
+		ARM_MOTOR_CONFIG.motionCruiseVelocity = 30000;
+		ARM_MOTOR_CONFIG.motionAcceleration = 30000;
+		ARM_MOTOR_CONFIG.motionCurveStrength = 8;
+
+		ARM_MOTOR_CONFIG.neutralDeadband = 0.001;
+
+		ARM_EXTENDER_MOTOR_CONFIG.reverseSoftLimitEnable = true;
+		ARM_EXTENDER_MOTOR_CONFIG.forwardSoftLimitEnable = true;
+		ARM_EXTENDER_MOTOR_CONFIG.reverseSoftLimitThreshold = 0;
+		ARM_EXTENDER_MOTOR_CONFIG.forwardSoftLimitThreshold = 17500;
+
+		ARM_EXTENDER_MOTOR_CONFIG.motionCruiseVelocity = 10000;
+		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 7000;
+		ARM_EXTENDER_MOTOR_CONFIG.motionCurveStrength = 2;
 	}
 
-	private final WPI_TalonFX m_armMotor = new WPI_TalonFX(50);
-	private final WPI_TalonFX m_extenderMotor = new WPI_TalonFX(51);
+	private final WPI_TalonFX armMotorLeft = new WPI_TalonFX(50);
+	private final WPI_TalonFX armMotorRight = new WPI_TalonFX(51);
+	private final WPI_TalonFX extenderMotor = new WPI_TalonFX(52);
 
-	private final ArmFeedforward m_armFeedforward = new ArmFeedforward(0.0, 0.86, 1.61, 0.05);
+	private final ArmFeedforward armFeedforward = new ArmFeedforward(0.0, 0.86, 1.61, 0.05); // 0.86
 
-	private final SingleJointedArmSim m_armSim =
-			new SingleJointedArmSim(
-					DCMotor.getFalcon500(1),
-					89.89,
-					SingleJointedArmSim.estimateMOI(0.762, 6.8),
-					0.762,
-					0.571,
-					2.560,
-					true,
-					VecBuilder.fill(2 * Math.PI / 2048));
+	private ArmState armState = ArmState.Idle;
 
-	private final Encoder m_encoder = new Encoder(0, 1);
-	private final EncoderSim m_encoderSim = new EncoderSim(m_encoder);
-
-	private boolean m_zeroed = false;
+	private boolean zeroed = false;
 
 	public Arm() {
-		super(
-				new ProfiledPIDController(
-						kP, kI, kD, ARM_PROFILE),
-				Positions.Stowed.setpoint);
+		armMotorLeft.configFactoryDefault();
+		armMotorLeft.configAllSettings(ARM_MOTOR_CONFIG);
 
-		m_encoder.setDistancePerPulse(2 * Math.PI / 2048);
+		armMotorRight.configFactoryDefault();
+		armMotorRight.configAllSettings(ARM_MOTOR_CONFIG);
 
-		m_armMotor.configFactoryDefault();
-		m_armMotor.configAllSettings(ARM_MOTOR_CONFIG);
+		armMotorLeft.setNeutralMode(NeutralMode.Brake);
+		armMotorRight.setNeutralMode(NeutralMode.Brake);
 
-		m_armMotor.setNeutralMode(NeutralMode.Brake);
+		armMotorLeft.config_kP(0, kP);
+		armMotorLeft.config_kD(0, kD);
+		armMotorLeft.config_kF(0, kF);
 
-		m_extenderMotor.configFactoryDefault();
-		m_extenderMotor.configAllSettings(ARM_EXTENDER_MOTOR_CONFIG);
+		armMotorRight.config_kP(0, kP);
+		armMotorRight.config_kD(0, kD);
+		armMotorRight.config_kF(0, kF);
 
-		m_extenderMotor.setNeutralMode(NeutralMode.Brake);
+		armMotorRight.setSensorPhase(true);
 
-		enable();
+		armMotorLeft.configSupplyCurrentLimit(
+				new SupplyCurrentLimitConfiguration(true, 15.0, 13.0, 1.0));
+
+		armMotorRight.configSupplyCurrentLimit(
+				new SupplyCurrentLimitConfiguration(true, 15.0, 13.0, 1.0));
+
+		armMotorLeft.configNeutralDeadband(0.001);
+		armMotorLeft.configAllowableClosedloopError(0, 0.0);
+
+		armMotorRight.configNeutralDeadband(0.001);
+		armMotorRight.configAllowableClosedloopError(0, 0.0);
+
+		armMotorRight.setInverted(TalonFXInvertType.OpposeMaster);
+
+		extenderMotor.configAllSettings(ARM_EXTENDER_MOTOR_CONFIG);
+
+		extenderMotor.setNeutralMode(NeutralMode.Brake);
+
+		extenderMotor.config_kP(0, extenderKP);
+		extenderMotor.config_kI(0, 0.0);
+		extenderMotor.config_kD(0, 0.0);
+
+		extenderMotor.configNeutralDeadband(0.02);
+
+		extenderMotor.configAllowableClosedloopError(0, 0.0); // 75
+
+		extenderMotor.configSupplyCurrentLimit(
+				new SupplyCurrentLimitConfiguration(true, 20.0, 18.0, 1.0));
+
+		extenderMotor.configSetParameter(ParamEnum.eContinuousCurrentLimitAmps, 30, 30, 0);
+
+		armMotorLeft.selectProfileSlot(0, 0);
+		armMotorRight.selectProfileSlot(0, 0);
+		extenderMotor.selectProfileSlot(0, 0);
+	}
+
+	public void setOpenLoop(double percentOutput) {
+		if (!zeroed) {
+			return;
+		}
+
+		armMotorLeft.set(ControlMode.PercentOutput, percentOutput);
+		armMotorRight.follow(armMotorLeft);
+	}
+
+	public void setExtensionOpenLoop(double percentOutput) {
+		if (!zeroed) {
+			return;
+		}
+
+		extenderMotor.set(ControlMode.PercentOutput, percentOutput);
 	}
 
 	@Override
 	public void periodic() {
-		super.periodic();
+		if (armState != ArmState.Pivoting) {
+			double radians =
+					Math.toRadians(
+							-(ARM_HORIZONTAL_POSITION - armMotorLeft.getSelectedSensorPosition())
+									/ TICKS_PER_DEGREE);
+			double cosRadians = Math.cos(radians);
+			double demandFF = MAX_GRAVITY_FF * cosRadians;
 
-		SmartDashboard.putNumber("Arm Rads", getMeasurement());
+			//
+			//	System.out.println((extenderMotor.configGetParameter(ParamEnum.eContinuousCurrentLimitAmps, 0)));
+
+			//			setOpenLoop(demandFF);
+		}
+
+		switch (armState) {
+			case Idle:
+				idle();
+				break;
+			case Retracting:
+				retract();
+				break;
+			case Pivoting:
+				pivot();
+				break;
+			case Deploying:
+				deploy();
+				break;
+		}
 	}
 
-	@Override
-	public void simulationPeriodic() {
-		super.simulationPeriodic();
-
-		m_armSim.setInput(m_armMotor.get() * 12.0);
-		m_armSim.update(0.020);
-
-		m_encoderSim.setDistance(m_armSim.getAngleRads());
-
-		SmartDashboard.putNumber("Arm Rads", getMeasurement());
-	}
-
-	public void setOpenLoop(double percentOutput) {
-		if (!m_zeroed) {
+	public void setClosedLoop(double position) {
+		if (!zeroed) {
 			return;
 		}
 
-		m_armMotor.set(ControlMode.PercentOutput, percentOutput);
+		armMotorLeft.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, 0.1);
+		armMotorRight.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, 0.1);
+		armMotorRight.follow(armMotorLeft);
 	}
 
-	@Override
-	protected void useOutput(double output, TrapezoidProfile.State setpoint) {
-		if (!m_zeroed) {
+	public void setExtensionClosedLoop(double position) {
+		if (!zeroed) {
 			return;
 		}
 
-		double feedforward = m_armFeedforward.calculate(setpoint.position, setpoint.velocity);
+		//		double radians =
+		//				Math.toRadians(
+		//						(armMotor.getSelectedSensorPosition())
+		//								/ TICKS_PER_DEGREE);
+		//		double cosRadians = Math.cos(radians);
+		//		double demandFF =
+		//				MAX_EXTENSION_GRAVITY_FF * cosRadians;
 
-		SmartDashboard.putNumber("PPID Output", output);
-		SmartDashboard.putNumber("FF Output", feedforward);
-
-		m_armMotor.setVoltage((output * 12.0) + feedforward);
+		//    SmartDashboard.putNumber("ext FF", demandFF);
+		//		setExtensionOpenLoop(-0.07);
+		extenderMotor.set(
+				ControlMode.MotionMagic,
+				position,
+				DemandType.ArbitraryFeedForward,
+				MAX_EXTENSION_GRAVITY_FF);
 	}
 
-	@Override
-	protected double getMeasurement() {
-		if (RobotBase.isReal()) {
-			return m_armMotor.getSelectedSensorPosition() / TICKS_PER_RADIAN;
-		} else {
-			return m_encoderSim.getDistance();
+	private void setArm() {
+		setExtensionClosedLoop(STOWED_POSITION);
+	}
+
+	public void horizontal() {
+		setClosedLoop(ARM_HORIZONTAL_POSITION);
+	}
+
+	private void retract() {
+		//		System.out.println("RETRACTING");
+
+		if (armState == ArmState.Retracting) {
+			if (Math.abs(extenderMotor.getSelectedSensorPosition() - STOWED_POSITION)
+					<= ALLOWABLE_EXTENSION_ERROR) {
+				pivot();
+			}
+
+			return;
 		}
+
+		armState = ArmState.Retracting;
+
+		setExtensionClosedLoop(STOWED_POSITION);
+	}
+
+	private void pivot() {
+		//		System.out.println("PIBOTING");
+
+		if (armState == ArmState.Pivoting) {
+			if (Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition.armPosition)
+					<= ALLOWABLE_PIVOT_ERROR) {
+				switch (desiredPosition) {
+					case Stowed:
+						setOpenLoop(0.0);
+						break;
+					case Low:
+						setOpenLoop(0.03);
+						break;
+					case Middle:
+						setOpenLoop(0.04);
+						break;
+					case High:
+						setOpenLoop(0.04);
+						break;
+				}
+
+				if (desiredPosition.extendPosition != STOWED_POSITION) {
+					deploy();
+				} else {
+					idle();
+				}
+			}
+
+			return;
+		}
+
+		armState = ArmState.Pivoting;
+
+		setClosedLoop(desiredPosition.armPosition);
+	}
+
+	private void deploy() {
+		//		System.out.println("DEPLOTIG");
+
+		if (armState == ArmState.Deploying) {
+			if (Math.abs(extenderMotor.getSelectedSensorPosition() - desiredPosition.extendPosition)
+					<= ALLOWABLE_EXTENSION_ERROR) {
+				idle();
+			}
+
+			return;
+		}
+
+		armState = ArmState.Deploying;
+
+		setExtensionClosedLoop(desiredPosition.extendPosition);
+	}
+
+	private void idle() {
+		//		System.out.println("IDJLING");
+
+		armState = ArmState.Idle;
 	}
 
 	public void stow() {
-		setGoal(Positions.Stowed.setpoint);
+		desiredPosition = Position.Stowed;
+		retract();
 	}
 
 	public void low() {
-		setGoal(Positions.Low.setpoint);
+		desiredPosition = Position.Low;
+		retract();
 	}
 
 	public void mid() {
-		setGoal(Positions.Middle.setpoint);
+		desiredPosition = Position.Middle;
+		retract();
 	}
 
 	public void high() {
-		setGoal(Positions.High.setpoint);
+		desiredPosition = Position.High;
+		retract();
 	}
 
 	public void zeroEncoder() {
-		if (m_zeroed) {
+		if (zeroed) {
 			return;
 		}
 
-		m_armMotor.setSelectedSensorPosition(TICKS_PER_DEGREE * 33.0);
-		m_extenderMotor.setSelectedSensorPosition(0.0);
-		m_zeroed = true;
+		armMotorLeft.setSelectedSensorPosition(TICKS_PER_DEGREE * 33.0);
+		armMotorRight.setSelectedSensorPosition(TICKS_PER_DEGREE * 33.0);
+		extenderMotor.setSelectedSensorPosition(0.0);
+		zeroed = true;
 	}
 
 	public void stop() {
 		setOpenLoop(0.0);
+		setExtensionOpenLoop(0.0);
 	}
 }

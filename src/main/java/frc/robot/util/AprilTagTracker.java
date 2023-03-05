@@ -25,6 +25,7 @@ public class AprilTagTracker {
 			fieldLayout =
 					AprilTagFieldLayout.loadFromResource(
 							AprilTagFields.k2023ChargedUp.m_resourceFile);
+
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -42,6 +43,10 @@ public class AprilTagTracker {
 
 	public static void setEstimatorStrategy(PhotonPoseEstimator.PoseStrategy strategy) {
 		photonPoseEstimator.setPrimaryStrategy(strategy);
+	}
+
+	public static void setAllianceSide(AprilTagFieldLayout.OriginPosition side) {
+		fieldLayout.setOrigin(side);
 	}
 
 	public static PhotonTrackedTarget getBestTarget() {

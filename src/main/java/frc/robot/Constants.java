@@ -14,17 +14,17 @@ public final class Constants {
 
 	public static final double LOOP_TIME = TimedRobot.kDefaultPeriod;
 
-	public static final String CAMERA_NAME = "limelight";
+	public static final String CAMERA_NAME = "USB_Camera";
 
 	// Used to correct any weird odometry rotations
 	public static final Transform2d FIELD_ROBOT =
 			new Transform2d(
-					new Pose2d(0, 0, Rotation2d.fromDegrees(0.0)),
-					new Pose2d(0, 0, Rotation2d.fromDegrees(0.0)));
+					new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)),
+					new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)));
 
 	// TODO: Measure height of limelight
 	public static final Transform3d ROBOT_TO_CAMERA =
-			new Transform3d(new Translation3d(0.0, -0.3, 1.0), new Rotation3d(new Quaternion()));
+			new Transform3d(new Translation3d(0.0, -0.088, 1.067), new Rotation3d(new Quaternion()));
 
 	public static final Transform2d SCORING_OFFSET =
 			new Transform2d(new Translation2d(1.0, 0.0), new Rotation2d());
@@ -42,4 +42,6 @@ public final class Constants {
 	public static final double SWERVE_ROT_KP = 5.0;
 	public static final double SWERVE_ROT_KI = 0.0;
 	public static final double SWERVE_ROT_KD = 0.0;
+
+	public static final boolean SWERVE_DISABLED = true;
 }
