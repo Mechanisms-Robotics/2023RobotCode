@@ -234,18 +234,18 @@ public class RobotContainer {
 			m_swerveSubsystem.setDefaultCommand(
 					new DriveCommand(
 							m_swerveSubsystem,
-							() -> m_driverController.getLeftY(),
-							() -> m_driverController.getLeftX(),
-							() -> m_driverController.getRightX(),
-//							() ->
-//									(Math.abs(m_driverController.getLeftY()) > 0.1)
-//											? m_driverController.getLeftY()
-//											: 0,
-//							() ->
-//									(Math.abs(m_driverController.getLeftX()) > 0.1)
-//											? m_driverController.getLeftX()
-//											: 0,
-//							() -> m_driverController.getRawAxis(2),
+//							() -> m_driverController.getLeftY(),
+//							() -> m_driverController.getLeftX(),
+//							() -> m_driverController.getRightX(),
+							() ->
+									(Math.abs(m_driverController.getLeftY()) > 0.1)
+											? m_driverController.getLeftY()
+											: 0,
+							() ->
+									(Math.abs(m_driverController.getLeftX()) > 0.1)
+											? m_driverController.getLeftX()
+											: 0,
+							m_driverController::getLeftX,
 							false));
 		}
 
