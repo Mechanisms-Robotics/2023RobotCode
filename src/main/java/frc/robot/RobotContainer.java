@@ -14,6 +14,7 @@ import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.conveyor.ConveyCommand;
+import frc.robot.commands.feeder.CubeFeedCommand;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
 import frc.robot.util.AprilTagTracker;
@@ -129,19 +130,14 @@ public class RobotContainer {
 				.rightTrigger()
 				.toggleOnTrue(
 						Commands.parallel(new FunctionalCommand(
-								() -> {
-									m_intakeSubsystem.intake();
-									m_feederSubsystem.feed();
-								},
+										m_intakeSubsystem::intake,
 								() -> {},
 								(interrupted) -> {
 									m_intakeSubsystem.stop();
-									m_feederSubsystem.stop();
 								},
 								() -> false,
-								m_intakeSubsystem,
-								m_feederSubsystem),
-								new ConveyCommand(m_conveyorSubsystem.conveyorSensor::get, m_conveyorSubsystem))
+								m_intakeSubsystem),
+								new CubeFeedCommand(m_feederSubsystem, m_conveyorSubsystem))
 						);
 
 		m_driverController

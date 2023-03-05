@@ -8,8 +8,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /** This class contains all the code that controls the feeder functionality */
 public class Feeder extends SubsystemBase {
 	// Feeder speeds
-	private static final double FEEDER_INTAKE_SPEED = -0.20;
-	private static final double UNJAM_SPEED = 0.1;
+	private static final double FEEDER_INTAKE_SPEED = -0.15;
+	private static final double UNJAM_SPEED = 0.05;
+	private static final double FEEDER_ROTATE_SPEED = 0.1;
 
 	// Feeder motor
 	private final WPI_TalonFX rightFeederMotor = new WPI_TalonFX(30);
@@ -68,6 +69,11 @@ public class Feeder extends SubsystemBase {
 	public void unjam() {
 		rightFeederMotor.set(ControlMode.PercentOutput, UNJAM_SPEED);
 		leftFeederMotor.set(ControlMode.PercentOutput, UNJAM_SPEED);
+	}
+
+	public void rotate() {
+		rightFeederMotor.set(ControlMode.PercentOutput, FEEDER_ROTATE_SPEED);
+		leftFeederMotor.set(ControlMode.PercentOutput, -FEEDER_ROTATE_SPEED);
 	}
 
 	/** Stops the feeder */

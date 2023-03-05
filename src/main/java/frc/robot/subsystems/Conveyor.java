@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Conveyor extends SubsystemBase {
 
 	private static final double CONVEYOR_CONVEY_SPEED = 0.45;
+	private static final double CONVEYOR_POSITIONING_SPEED = 0.15;
 	private static final double CONVEYOR_UNJAM_SPEED = -0.3;
 	private static final TalonFXConfiguration CONVEYOR_MOTOR_CONFIG = new TalonFXConfiguration();
 
@@ -51,6 +52,9 @@ public class Conveyor extends SubsystemBase {
 
 	public void unjam() {
 		setOpenLoop(CONVEYOR_UNJAM_SPEED);
+	}
+	public void position() {
+		setOpenLoop(CONVEYOR_POSITIONING_SPEED);
 	}
 
 	public void stop() {
