@@ -7,8 +7,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** This class contains all the code that controls the feeder functionality */
 public class Feeder extends SubsystemBase {
+
+	public enum FeederMode {
+		Cube(-0.75),
+		Cone(-0.25);
+
+		public final double speed;
+
+		FeederMode(double speed) {
+			this.speed = speed;
+		}
+	}
+
 	// Feeder speeds
-	private static final double FEEDER_INTAKE_SPEED = -0.75;
 	private static final double UNJAM_SPEED = 0.1;
 	private static final double FEEDER_ROTATE_SPEED = 0.05;
 
@@ -37,6 +48,8 @@ public class Feeder extends SubsystemBase {
 		FEEDER_MOTOR_CONFIGURATION.voltageCompSaturation = 10; // v
 	}
 
+	private FeederMode feederMode = FeederMode.Cube;
+
 	/** Constructor for the Feeder class */
 	public Feeder() {
 		rightFeederMotor.configFactoryDefault();
@@ -60,10 +73,9 @@ public class Feeder extends SubsystemBase {
 	}
 
 	/** Runs the feeder differently depending on which proximity sensors are triggered */
-	public void feed() {
-		rightFeederMotor.set(ControlMode.PercentOutput, FEEDER_INTAKE_SPEED);
-		leftFeederMotor.set(ControlMode.PercentOutput, FEEDER_INTAKE_SPEED);
-		System.out.println("FEED");
+	public void feed(double speed) {
+		rightFeederMotor.set(ControlMode.PercentOutput, speed);
+		leftFeederMotor.set(ControlMode.PercentOutput, speed);
 	}
 
 	public void unjam() {
@@ -74,6 +86,17 @@ public class Feeder extends SubsystemBase {
 	public void rotate() {
 		rightFeederMotor.set(ControlMode.PercentOutput, FEEDER_ROTATE_SPEED);
 		leftFeederMotor.set(ControlMode.PercentOutput, -FEEDER_ROTATE_SPEED);
+	}
+
+	public void setFeederMode(FeederMode mode) {
+		if (rightFeederMotor.getSelectedSensorVelocity() > 10 && this.feederMode != mode) {
+			this.feederMode = mode;
+			feed(0.0);
+		} else {
+			this.feederMode = mode;
+		}
+
+
 	}
 
 	/** Stops the feeder */

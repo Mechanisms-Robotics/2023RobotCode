@@ -24,6 +24,17 @@ public class Intake extends SubsystemBase {
 		}
 	}
 
+	public enum IntakeMode {
+		Cube(0.3),
+		Cone(0.45);
+
+		public final double speed;
+
+		IntakeMode(double speed) {
+			this.speed = speed;
+		}
+	}
+
 	private static final double INTAKE_SPEED = 0.4; // 0.7 percent
 	private static final double OUTTAKE_SPEED = -0.15;
 
@@ -86,6 +97,8 @@ public class Intake extends SubsystemBase {
 	private boolean zeroed = false;
 
 	private Position currentMode = Position.Retract;
+
+	private IntakeMode intakeMode = IntakeMode.Cube;
 
 	public Intake() {
 		pivotRight.configFactoryDefault();
@@ -174,8 +187,8 @@ public class Intake extends SubsystemBase {
 		pivotLeft.follow(pivotRight);
 	}
 
-	public void intake() {
-		setOpenLoop(currentMode.intakeSpeed);
+	public void intake(double speed) {
+		setOpenLoop(speed);
 	}
 
 	public void outtake() {
@@ -221,6 +234,16 @@ public class Intake extends SubsystemBase {
 			pivotRight.setNeutralMode(NeutralMode.Coast);
 			pivotLeft.setNeutralMode(NeutralMode.Coast);
 		}
+	}
+
+	public void setIntakeMode(IntakeMode mode) {
+		if (spinRight.getSelectedSensorVelocity() > 10 && this.intakeMode != mode) {
+			this.intakeMode = mode;
+			intake(0.0);
+		} else {
+			this.intakeMode = mode;
+		}
+
 	}
 
 	public void zeroEncoders() {

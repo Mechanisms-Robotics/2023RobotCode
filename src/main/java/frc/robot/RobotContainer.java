@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.arm.CubeArmCommand;
 import frc.robot.commands.auto.MobilityAutoLeft;
 import frc.robot.commands.auto.MobilityAutoRight;
 import frc.robot.commands.auto.OneConeLeft;
@@ -14,6 +15,7 @@ import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.feeder.CubeFeedCommand;
+import frc.robot.commands.feeder.FeedCommand;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
 import frc.robot.util.AprilTagTracker;
@@ -28,6 +30,8 @@ public class RobotContainer {
 	public final Conveyor m_conveyorSubsystem = new Conveyor();
 	private final GoalTracker m_goalTracker =
 			new GoalTracker(m_swerveSubsystem.getField(), m_swerveSubsystem::getPose);
+
+	private final Superstructure m_superstructure = new Superstructure(m_intakeSubsystem, m_feederSubsystem, m_conveyorSubsystem);
 
 	private final CommandXboxController m_driverController =
 			new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -127,17 +131,17 @@ public class RobotContainer {
 
 		m_driverController
 				.rightTrigger()
-				.toggleOnTrue(
-						Commands.parallel(new FunctionalCommand(
-										m_intakeSubsystem::intake,
-								() -> {},
-								(interrupted) -> {
-									m_intakeSubsystem.stop();
-								},
-								() -> false,
-								m_intakeSubsystem),
-								new CubeFeedCommand(m_feederSubsystem, m_conveyorSubsystem))
-						);
+				.toggleOnTrue(new FunctionalCommand(
+						() -> {
+							m_superstructure.feed();
+						},
+						() -> {},
+						(interrupted) -> {
+							m_superstructure.idle();
+						},
+						() -> false,
+						m_superstructure
+				));
 
 		m_driverController
 				.a()
@@ -158,6 +162,16 @@ public class RobotContainer {
 								m_intakeSubsystem,
 								m_feederSubsystem,
 								m_conveyorSubsystem));
+
+		m_secondDriverController.b().onTrue(new CubeArmCommand(m_armSubsystem, m_gripperSubsystem, m_conveyorSubsystem.conveyorSensor::get));
+
+		m_secondDriverController.y().onTrue(new InstantCommand(() -> {
+			m_superstructure.setElement(Superstructure.Element.Cube);
+		})); // Set intake and feeder mode to cube
+
+		m_secondDriverController.x().onTrue(new InstantCommand(() -> {
+			m_superstructure.setElement(Superstructure.Element.Cone);
+		})); // Set intake and feeder mode to cone
 
 		// UNCOMMENT
 		//		m_secondDriverController.b().onTrue(new InstantCommand(m_gripperSubsystem::cone));
@@ -231,12 +245,12 @@ public class RobotContainer {
 
 	private void configureDefaultCommands() {
 		if (!Constants.SWERVE_DISABLED) {
-      m_swerveSubsystem.setDefaultCommand(
-          new DriveCommand(
-              m_swerveSubsystem,
-              () -> -m_driverController.getLeftY() * m_swerveSubsystem.getMaxVelocity(),
-              () -> -m_driverController.getLeftX() * m_swerveSubsystem.getMaxVelocity(),
-              () -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
+		  m_swerveSubsystem.setDefaultCommand(
+			  new DriveCommand(
+				  m_swerveSubsystem,
+				  () -> -m_driverController.getLeftY() * m_swerveSubsystem.getMaxVelocity(),
+				  () -> -m_driverController.getLeftX() * m_swerveSubsystem.getMaxVelocity(),
+				  () -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
 		}
 
 	}

@@ -39,8 +39,8 @@ public class CubeFeedCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    m_feeder.feed();
-    m_conveyor.convey();
+    m_feeder.feed(0.0);
+    m_conveyor.convey(0.0);
 
     m_inTimer.start();
 
@@ -108,8 +108,8 @@ public class CubeFeedCommand extends CommandBase {
           m_rotateTimer.stop();
           m_rotateTimer.reset();
 
-          m_feeder.feed();
-          m_conveyor.convey();
+          m_feeder.feed(0);
+          m_conveyor.convey(0);
           m_feederState = FeederState.Feeding;
 
           m_inTimer.start();

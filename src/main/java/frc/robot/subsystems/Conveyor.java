@@ -46,8 +46,8 @@ public class Conveyor extends SubsystemBase {
 		conveyorMotor.set(ControlMode.PercentOutput, percentOutput);
 	}
 
-	public void convey() {
-		setOpenLoop(CONVEYOR_CONVEY_SPEED);
+	public void convey(double speed) {
+		setOpenLoop(speed);
 	}
 
 	public void unjam() {

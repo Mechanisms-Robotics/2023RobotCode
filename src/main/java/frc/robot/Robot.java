@@ -33,7 +33,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void disabledInit() {
 		m_robotContainer.m_intakeSubsystem.stopPivot();
-		//		m_robotContainer.m_armSubsystem.stop();
+				m_robotContainer.m_armSubsystem.stop();
+				m_robotContainer.m_gripperSubsystem.stop();
 	}
 
 	@Override

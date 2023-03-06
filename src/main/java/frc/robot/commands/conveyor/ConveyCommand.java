@@ -25,7 +25,7 @@ public class ConveyCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        conveyor.convey();
+        conveyor.convey(0.0);
         System.out.println("HABABABABBABABABBABDBADBABDBA");
     }
 

@@ -13,7 +13,12 @@ public class Arm extends SubsystemBase {
 		High(65000, EXTENDED_POSITION),
 		Middle(57500, EXTENDED_POSITION / 2),
 		Low(30000, STOWED_POSITION),
-		Stowed(17500, STOWED_POSITION);
+		Stowed(17500, STOWED_POSITION),
+
+		CubeGrabPosition(16875, STOWED_POSITION),
+		CubeBackStop(17500 + 4000, STOWED_POSITION),
+		ConeBackStop(0, STOWED_POSITION)
+		;
 
 		private final double armPosition;
 		private final double extendPosition;
@@ -37,8 +42,8 @@ public class Arm extends SubsystemBase {
 	private static final TalonFXConfiguration ARM_EXTENDER_MOTOR_CONFIG =
 			new TalonFXConfiguration();
 
-	private static final double STOWED_POSITION = 500;
-	private static final double EXTENDED_POSITION = 17400;
+	private static final double STOWED_POSITION = -500;
+	private static final double EXTENDED_POSITION = -17400;
 
 	private static final double MAX_GRAVITY_FF = 0.079; // 0.3
 	private static final double MAX_EXTENSION_GRAVITY_FF = -0.08;
@@ -53,12 +58,12 @@ public class Arm extends SubsystemBase {
 	private static final double kD = 0.0;
 	private static final double kF = 0.01; // 0.01
 
-	private static final double extenderKP = 1.4; // 0.8
+	private static final double extenderKP = 1.0; // 0.8
 
 	static {
 		ARM_MOTOR_CONFIG.reverseSoftLimitEnable = true;
 		ARM_MOTOR_CONFIG.forwardSoftLimitEnable = true;
-		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = 16875;
+		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = 16100;
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 75000;
 
 		ARM_MOTOR_CONFIG.motionCruiseVelocity = 30000;
@@ -218,7 +223,7 @@ public class Arm extends SubsystemBase {
 				ControlMode.MotionMagic,
 				position,
 				DemandType.ArbitraryFeedForward,
-				MAX_EXTENSION_GRAVITY_FF);
+				0.0);
 	}
 
 	private void setArm() {
@@ -230,14 +235,14 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void retract() {
-		//		System.out.println("RETRACTING");
+//				System.out.println("RETRACTING");
 
 		if (armState == ArmState.Retracting) {
 			if (Math.abs(extenderMotor.getSelectedSensorPosition() - STOWED_POSITION)
 					<= ALLOWABLE_EXTENSION_ERROR) {
 				pivot();
 			}
-
+			System.out.println(extenderMotor.getSelectedSensorPosition());
 			return;
 		}
 
@@ -247,25 +252,25 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void pivot() {
-		//		System.out.println("PIBOTING");
+				System.out.println("PIBOTING");
 
 		if (armState == ArmState.Pivoting) {
 			if (Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition.armPosition)
 					<= ALLOWABLE_PIVOT_ERROR) {
-				switch (desiredPosition) {
-					case Stowed:
-						setOpenLoop(0.0);
-						break;
-					case Low:
-						setOpenLoop(0.03);
-						break;
-					case Middle:
-						setOpenLoop(0.04);
-						break;
-					case High:
-						setOpenLoop(0.04);
-						break;
-				}
+//				switch (desiredPosition) {
+//					case Stowed:
+//						setOpenLoop(0.0);
+//						break;
+//					case Low:
+//						setOpenLoop(0.03);
+//						break;
+//					case Middle:
+//						setOpenLoop(0.04);
+//						break;
+//					case High:
+//						setOpenLoop(0.04);
+//						break;
+//				}
 
 				if (desiredPosition.extendPosition != STOWED_POSITION) {
 					deploy();
@@ -278,12 +283,11 @@ public class Arm extends SubsystemBase {
 		}
 
 		armState = ArmState.Pivoting;
-
 		setClosedLoop(desiredPosition.armPosition);
 	}
 
 	private void deploy() {
-		//		System.out.println("DEPLOTIG");
+//				System.out.println("DEPLOTIG");
 
 		if (armState == ArmState.Deploying) {
 			if (Math.abs(extenderMotor.getSelectedSensorPosition() - desiredPosition.extendPosition)
@@ -300,29 +304,50 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void idle() {
-		//		System.out.println("IDJLING");
+//				System.out.println("IDJLING");
 
 		armState = ArmState.Idle;
 	}
 
 	public void stow() {
 		desiredPosition = Position.Stowed;
+		armState = ArmState.Idle;
 		retract();
 	}
 
 	public void low() {
 		desiredPosition = Position.Low;
+		armState = ArmState.Idle;
 		retract();
 	}
 
 	public void mid() {
 		desiredPosition = Position.Middle;
+		armState = ArmState.Idle;
 		retract();
 	}
 
 	public void high() {
 		desiredPosition = Position.High;
+		armState = ArmState.Idle;
 		retract();
+	}
+
+	public void cubeBackStop() {
+		desiredPosition = Position.CubeBackStop;
+		armState = ArmState.Idle;
+		retract();
+	}
+
+	public void cubeGrabPosition() {
+		desiredPosition = Position.CubeGrabPosition;
+		armState = ArmState.Idle;
+		retract();
+	}
+
+	public boolean isAtPosition() {
+		return Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition.armPosition)
+				<= ALLOWABLE_PIVOT_ERROR;
 	}
 
 	public void zeroEncoder() {

@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Gripper extends SubsystemBase {
@@ -11,7 +14,9 @@ public class Gripper extends SubsystemBase {
 	private static final double OPEN_POSITION = -50;
 	private static final double CLOSED_POSITION = -3500;
 	private static final double CONE_POSITION = -3500;
-	private static final double CUBE_POSITION = -1500;
+	private static final double CUBE_POSITION = -2000;
+
+	private static final double GRAB_TIME = 0.5;
 
 	private static final TalonFXConfiguration GRIPPER_MOTOR_CONFIG = new TalonFXConfiguration();
 
@@ -31,6 +36,8 @@ public class Gripper extends SubsystemBase {
 
 	private static final double kP = 0.2;
 	private static final double kD = 0.0;
+
+	private final Timer timer = new Timer();
 
 	private boolean isOpen = true;
 
@@ -77,6 +84,18 @@ public class Gripper extends SubsystemBase {
 
 	public void cube() {
 		setClosedLoop(CUBE_POSITION);
+	}
+
+	public Command grabCube() {
+		return new FunctionalCommand(
+				() -> {
+					timer.start();
+					open();
+				},
+				() -> {},
+				(interrupted) -> cube(),
+				() -> timer.hasElapsed(GRAB_TIME)
+		);
 	}
 
 	public void zeroEncoder() {
