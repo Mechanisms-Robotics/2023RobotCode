@@ -1,6 +1,5 @@
 package frc.robot.commands.swerve;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -56,14 +55,15 @@ public class DriveCommand extends CommandBase {
 			DoubleSupplier vX,
 			DoubleSupplier vY,
 			DoubleSupplier vR,
-			boolean isOpenLoop
-	) {
+			boolean isOpenLoop) {
 		this.swerve = swerve;
 		this.vX = vX;
 		this.vY = vY;
 		this.vR = vR;
 		this.isOpenLoop = isOpenLoop;
 		this.relativeRotation = true;
+
+		addRequirements(swerve);
 	}
 
 	@Override
@@ -75,31 +75,41 @@ public class DriveCommand extends CommandBase {
 
 		// Get the desired chassis speeds based on a 2 joystick module.
 
-//		ChassisSpeeds desiredSpeeds =
-//				swerve.getTargetSpeeds(
-//						vX.getAsDouble(),
-//						vY.getAsDouble(),
-//						new Rotation2d(heading.getAsDouble() * Math.PI));
+		//		ChassisSpeeds desiredSpeeds =
+		//				swerve.getTargetSpeeds(
+		//						vX.getAsDouble(),
+		//						vY.getAsDouble(),
+		//						new Rotation2d(heading.getAsDouble() * Math.PI));
 
 		ChassisSpeeds desiredSpeeds;
 
 		if (relativeRotation) {
-			desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vX.getAsDouble(), vY.getAsDouble(), vR.getAsDouble(), swerve.getHeading());
+			desiredSpeeds =
+					ChassisSpeeds.fromFieldRelativeSpeeds(
+							vX.getAsDouble(),
+							vY.getAsDouble(),
+							vR.getAsDouble(),
+							swerve.getHeading());
 		} else {
-			desiredSpeeds = swerve.getTargetSpeeds(vX.getAsDouble(), vY.getAsDouble(), headingX.getAsDouble(), headingY.getAsDouble());
+			desiredSpeeds =
+					swerve.getTargetSpeeds(
+							vX.getAsDouble(),
+							vY.getAsDouble(),
+							headingX.getAsDouble(),
+							headingY.getAsDouble());
 		}
 
 		// Limit velocity to prevent tippy
 		Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
-		translation =
-				SwerveMath.limitVelocity(
-						translation,
-						swerve.getFieldVelocity(),
-						swerve.getPose(),
-						Constants.LOOP_TIME,
-						Constants.ROBOT_MASS,
-						List.of(Constants.CHASSIS),
-						swerve.getSwerveDriveConfiguration());
+//		translation =
+//				SwerveMath.limitVelocity(
+//						translation,
+//						swerve.getFieldVelocity(),
+//						swerve.getPose(),
+//						Constants.LOOP_TIME,
+//						Constants.ROBOT_MASS,
+//						List.of(Constants.CHASSIS),
+//						swerve.getSwerveDriveConfiguration());
 		SmartDashboard.putNumber("LimitedTranslation", translation.getX());
 		SmartDashboard.putString("Translation", translation.toString());
 

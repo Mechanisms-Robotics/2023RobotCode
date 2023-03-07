@@ -1,16 +1,16 @@
 {
   "location": {
-    "x": 9.125,
-    "y": 15.125
+    "x": 15.125,
+    "y": 9.125
   },
-  "absoluteEncoderOffset": 32.87,
+  "absoluteEncoderOffset": 277.910,
   "drive": {
-    "type": "falcon",
+    "type": "talonfx",
     "id": 13,
     "canbus": null
   },
   "angle": {
-    "type": "falcon",
+    "type": "talonfx",
     "id": 12,
     "canbus": null
   },
