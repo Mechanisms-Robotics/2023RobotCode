@@ -14,8 +14,9 @@ import swervelib.math.SwerveMath;
 
 public class DriveCommand extends CommandBase {
 	private final Swerve swerve;
-	private final DoubleSupplier vX, vY, heading;
+	private final DoubleSupplier vX, vY, headingX, headingY;
 	private final boolean isOpenLoop;
+	private final boolean relativeRotation;
 
 	/**
 	 * Used to drive a swerve robot in full field-centric mode. vX and vY supply translation inputs,
@@ -36,13 +37,17 @@ public class DriveCommand extends CommandBase {
 			Swerve swerve,
 			DoubleSupplier vX,
 			DoubleSupplier vY,
-			DoubleSupplier heading,
-			boolean isOpenLoop) {
+			DoubleSupplier headingX,
+			DoubleSupplier headingY,
+			boolean isOpenLoop,
+			boolean relativeRotation) {
 		this.swerve = swerve;
 		this.vX = vX;
 		this.vY = vY;
-		this.heading = heading;
+		this.headingX = headingX;
+		this.headingY = headingY;
 		this.isOpenLoop = isOpenLoop;
+		this.relativeRotation = relativeRotation;
 
 		addRequirements(swerve);
 	}
@@ -56,11 +61,19 @@ public class DriveCommand extends CommandBase {
 
 		// Get the desired chassis speeds based on a 2 joystick module.
 
-		ChassisSpeeds desiredSpeeds =
-				swerve.getTargetSpeeds(
-						vX.getAsDouble(),
-						vY.getAsDouble(),
-						new Rotation2d(heading.getAsDouble() * Math.PI));
+//		ChassisSpeeds desiredSpeeds =
+//				swerve.getTargetSpeeds(
+//						vX.getAsDouble(),
+//						vY.getAsDouble(),
+//						new Rotation2d(heading.getAsDouble() * Math.PI));
+
+		ChassisSpeeds desiredSpeeds;
+
+		if (relativeRotation) {
+			desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vX.getAsDouble(), v)
+		} else {
+			desiredSpeeds = swerve.getTargetSpeeds(vX.getAsDouble(), vY.getAsDouble(), headingX.getAsDouble(), headingY.getAsDouble());
+		}
 
 		// Limit velocity to prevent tippy
 		Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);

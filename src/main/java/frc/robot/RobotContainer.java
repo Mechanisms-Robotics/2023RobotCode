@@ -239,18 +239,25 @@ public class RobotContainer {
 //							() -> m_driverController.getLeftX(),
 //							() -> m_driverController.getRightX(),
 							() ->
-									(Math.abs(m_driverController.getLeftY()) > 0.1)
-											? m_driverController.getLeftY()
-											: 0,
-							() ->
 									(Math.abs(m_driverController.getLeftX()) > 0.1)
 											? m_driverController.getLeftX()
 											: 0,
-							m_driverController::getLeftX,
+							() ->
+									(Math.abs(m_driverController.getLeftY()) > 0.1)
+											? -m_driverController.getLeftY()
+											: 0,
+							m_driverController::getRightX,
+							m_driverController::getRightY,
 							true));
 		}
 
-//		m_swerveSubsystem.setDefaultCommand(new FunctionalCommand(() -> {}, () -> m_swerveSubsystem.drive(new Translation2d(m_driverController.getLeftX(), m_driverController.getLeftY()), m_driverController.getRightX(), true, true)));
+//		m_swerveSubsystem.setDefaultCommand(new FunctionalCommand(
+//				() -> {},
+//				() -> m_swerveSubsystem.drive(new Translation2d(m_driverController.getLeftX(), -m_driverController.getLeftY()), m_driverController.getRightX(), true, false),
+//				(interrupt) -> {},
+//				() -> false,
+//				m_swerveSubsystem
+//				));
 	}
 
 	public Command getAutonomousCommand() {

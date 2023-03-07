@@ -20,7 +20,7 @@ public final class Constants {
 
 	public static final double ROBOT_MASS = 52.6167; // kg
 	public static final Matter CHASSIS =
-			new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
+			new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), Units.lbsToKilograms(45));
 
 	public static final String CAMERA_NAME = "USB_Camera";
 
