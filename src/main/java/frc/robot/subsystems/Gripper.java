@@ -12,9 +12,9 @@ public class Gripper extends SubsystemBase {
 
 	// TODO: find positions
 	private static final double OPEN_POSITION = -50;
-	private static final double CLOSED_POSITION = -3500;
-	private static final double CONE_POSITION = -3500;
-	private static final double CUBE_POSITION = -2000;
+	private static final double CLOSED_POSITION = -3765;
+	private static final double CONE_POSITION = -3765;
+	private static final double CUBE_POSITION = -3000;
 
 	private static final double GRAB_TIME = 0.5;
 
@@ -28,7 +28,7 @@ public class Gripper extends SubsystemBase {
 		GRIPPER_MOTOR_CONFIG.reverseSoftLimitEnable = true;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitEnable = true;
 		// TODO: Find soft limits
-		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = -3580;
+		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = -3765;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitThreshold = 0;
 	}
 
@@ -79,7 +79,7 @@ public class Gripper extends SubsystemBase {
 	}
 
 	public void cone() {
-		setClosedLoop(CONE_POSITION);
+			setClosedLoop(CONE_POSITION);
 	}
 
 	public void cube() {

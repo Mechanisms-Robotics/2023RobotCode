@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Feeder extends SubsystemBase {
 
 	public enum FeederMode {
-		Cube(-0.75),
+		Cube(-1.0),
 		Cone(-0.25);
 
 		public final double speed;

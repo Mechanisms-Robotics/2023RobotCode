@@ -7,13 +7,14 @@ import java.util.ArrayList;
 public class Superstructure extends SubsystemBase {
 
     private static final double[][] SPEEDS = new double[][] {
-            {0.35, -0.75, 0.45},
-            {0.40, -0.25, 0.45}
+            {0.35, -0.75, 0.45, 0.2}, // Cube
+            {0.40, -0.25, 0.45, 0.2}  // Cone
     };
 
     private enum State {
         Idle,
         Feed,
+        Positioning,
         Unjam
     }
 
@@ -30,14 +31,18 @@ public class Superstructure extends SubsystemBase {
     private final Intake intake;
     private final Feeder feeder;
     private final Conveyor conveyor;
+    private final Arm arm;
 
     private State state = State.Idle;
     private Element element = Element.Cube;
 
-    public Superstructure(Intake intake, Feeder feeder, Conveyor conveyor) {
+    private boolean isPositioned = false;
+
+    public Superstructure(Intake intake, Feeder feeder, Conveyor conveyor, Arm arm) {
         this.intake = intake;
         this.feeder = feeder;
         this.conveyor = conveyor;
+        this.arm = arm;
     }
 
     @Override
@@ -47,12 +52,10 @@ public class Superstructure extends SubsystemBase {
                 idle(); break;
             case Feed:
                 feed(); break;
+            case Positioning:
+                position(); break;
             case Unjam:
                 unjam(); break;
-        }
-
-        if (!conveyor.conveyorSensor.get()) {
-            conveyor.stop();
         }
     }
 
@@ -61,10 +64,31 @@ public class Superstructure extends SubsystemBase {
     }
 
     public void feed() {
+        isPositioned = false;
+
+        if (!conveyor.getDebouncedSensor()) {
+            position();
+            return;
+        }
+
         state = State.Feed;
         intake.intake(SPEEDS[element.index][0]);
         feeder.feed(SPEEDS[element.index][1]);
         conveyor.convey(SPEEDS[element.index][2]);
+    }
+
+    public void position() {
+        if (conveyor.getDebouncedSensor()) {
+            isPositioned = true;
+
+            idle();
+            return;
+        }
+
+        state = State.Positioning;
+        intake.intake(SPEEDS[element.index][0]);
+        feeder.stop();
+        conveyor.convey(SPEEDS[element.index][3]);
     }
 
     public void unjam() {
@@ -79,6 +103,10 @@ public class Superstructure extends SubsystemBase {
         intake.stop();
         feeder.stop();
         conveyor.stop();
+    }
+
+    public boolean isPositioned() {
+        return isPositioned;
     }
 
 }

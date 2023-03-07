@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
 
+import frc.robot.subsystems.Intake;
 import java.util.function.BooleanSupplier;
 
 public class CubeArmCommand extends CommandBase {
@@ -15,16 +16,20 @@ public class CubeArmCommand extends CommandBase {
 
     private final Arm arm;
     private final Gripper gripper;
+    private final Intake intake;
 
     private final BooleanSupplier conveyorSensor;
+    private final BooleanSupplier isPositioned;
 
     private State state = State.Backstopping;
     private boolean grabbed = false;
 
-    public CubeArmCommand(Arm arm, Gripper gripper, BooleanSupplier conveyorSensor) {
+    public CubeArmCommand(Intake intake, Arm arm, Gripper gripper, BooleanSupplier conveyorSensor, BooleanSupplier isPositioned) {
         this.arm = arm;
         this.gripper = gripper;
+        this.intake = intake;
         this.conveyorSensor = conveyorSensor;
+        this.isPositioned = isPositioned;
 
         addRequirements(arm, gripper);
     }
@@ -33,7 +38,7 @@ public class CubeArmCommand extends CommandBase {
     public void initialize() {
         state = State.Backstopping;
         grabbed = false;
-        arm.cubeBackStop();
+        arm.stow();
     }
 
     @Override
@@ -42,15 +47,16 @@ public class CubeArmCommand extends CommandBase {
                     System.out.println(state);
         switch (state) {
             case Backstopping:
-                gripper.close();
+                gripper.cone();
                 if (!conveyorSensor.getAsBoolean()) {
                     arm.cubeGrabPosition();
                     state = State.GoingToPosition;
+                    intake.stop();
                 }
                 break;
             case GoingToPosition:
                 gripper.open();
-                if (arm.isAtPosition()) {
+                if (arm.isAtPosition() && isPositioned.getAsBoolean()) {
                     gripper.cube();
                     grabbed = true;
                 }

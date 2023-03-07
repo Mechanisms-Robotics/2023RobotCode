@@ -14,8 +14,6 @@ import frc.robot.commands.auto.OneConeOneCubeRight;
 import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.auto.OneConeTwoCubesLeft;
 import frc.robot.commands.auto.OneConeTwoCubesRight;
-import frc.robot.commands.feeder.CubeFeedCommand;
-import frc.robot.commands.feeder.FeedCommand;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
 import frc.robot.util.AprilTagTracker;
@@ -31,7 +29,7 @@ public class RobotContainer {
 	private final GoalTracker m_goalTracker =
 			new GoalTracker(m_swerveSubsystem.getField(), m_swerveSubsystem::getPose);
 
-	private final Superstructure m_superstructure = new Superstructure(m_intakeSubsystem, m_feederSubsystem, m_conveyorSubsystem);
+	private final Superstructure m_superstructure = new Superstructure(m_intakeSubsystem, m_feederSubsystem, m_conveyorSubsystem, m_armSubsystem);
 
 	private final CommandXboxController m_driverController =
 			new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -129,19 +127,20 @@ public class RobotContainer {
 				.leftTrigger()
 				.onTrue(new InstantCommand(m_intakeSubsystem::setToGamePieceStation));
 
-		m_driverController
-				.rightTrigger()
-				.toggleOnTrue(new FunctionalCommand(
-						() -> {
-							m_superstructure.feed();
-						},
-						() -> {},
-						(interrupted) -> {
-							m_superstructure.idle();
-						},
-						() -> false,
-						m_superstructure
-				));
+    m_driverController
+        .rightTrigger()
+        .toggleOnTrue(
+						Commands.parallel(
+
+            new FunctionalCommand(
+								m_superstructure::feed,
+                () -> {},
+                (interrupted) -> {
+                  m_superstructure.idle();
+                },
+								m_superstructure::isPositioned,
+                m_superstructure),
+								new CubeArmCommand(m_intakeSubsystem, m_armSubsystem, m_gripperSubsystem, m_conveyorSubsystem::getDebouncedSensor, m_superstructure::isPositioned)));
 
 		m_driverController
 				.a()
@@ -163,7 +162,7 @@ public class RobotContainer {
 								m_feederSubsystem,
 								m_conveyorSubsystem));
 
-		m_secondDriverController.b().onTrue(new CubeArmCommand(m_armSubsystem, m_gripperSubsystem, m_conveyorSubsystem.conveyorSensor::get));
+//		m_secondDriverController.b().onTrue(new CubeArmCommand(m_armSubsystem, m_gripperSubsystem, m_conveyorSubsystem::getDebouncedSensor, m_superstructure::isPositioned));
 
 		m_secondDriverController.y().onTrue(new InstantCommand(() -> {
 			m_superstructure.setElement(Superstructure.Element.Cube);
@@ -178,10 +177,44 @@ public class RobotContainer {
 		//		m_secondDriverController.x().onTrue(new InstantCommand(m_gripperSubsystem::cube));
 		//		m_secondDriverController.y().onTrue(new InstantCommand(m_gripperSubsystem::open));
 		//
-		//		m_secondDriverController.povDown().onTrue(new InstantCommand(m_armSubsystem::stow));
-		//		m_secondDriverController.povLeft().onTrue(new InstantCommand(m_armSubsystem::low));
-		//		m_secondDriverController.povRight().onTrue(new InstantCommand(m_armSubsystem::mid));
-		//		m_secondDriverController.povUp().onTrue(new InstantCommand(m_armSubsystem::high));
+		m_secondDriverController.povDown().onTrue(
+				Commands.parallel(
+						Commands.runOnce(m_armSubsystem::stow),
+						Commands.runOnce(m_intakeSubsystem::retract)
+				)
+		);
+		m_secondDriverController.povLeft().onTrue(
+				Commands.parallel(
+						Commands.runOnce(m_armSubsystem::low),
+						Commands.runOnce(m_intakeSubsystem::retract)
+				)
+		);
+		m_secondDriverController.povRight().onTrue(
+				Commands.parallel(
+						Commands.runOnce(m_armSubsystem::mid),
+						Commands.runOnce(m_intakeSubsystem::retract)
+				)
+		);
+		m_secondDriverController.povUp().onTrue(
+				Commands.parallel(
+						Commands.runOnce(m_armSubsystem::high),
+						Commands.runOnce(m_intakeSubsystem::retract)
+				)
+		);
+
+//		m_secondDriverController.povDown().onTrue(new InstantCommand(m_armSubsystem::stow));
+//		m_secondDriverController.povLeft().onTrue(new InstantCommand(m_armSubsystem::low));
+//		m_secondDriverController.povRight().onTrue(new InstantCommand(m_armSubsystem::mid));
+//		m_secondDriverController.povUp().onTrue(new InstantCommand(m_armSubsystem::high));
+
+		m_secondDriverController.
+				a().onTrue(
+				Commands.sequence(
+					Commands.runOnce(m_gripperSubsystem::open, m_gripperSubsystem),
+					Commands.waitSeconds(0.5),
+					Commands.runOnce(m_armSubsystem::stow, m_armSubsystem)
+				)
+		);
 
 		//		m_driverController.leftBumper().onTrue(new FunctionalCommand(
 		//				m_intakeSubsystem::retract,

@@ -15,9 +15,8 @@ public class Arm extends SubsystemBase {
 		Low(30000, STOWED_POSITION),
 		Stowed(17500, STOWED_POSITION),
 
-		CubeGrabPosition(16875, STOWED_POSITION),
+		CubeGrabPosition(TICKS_PER_DEGREE * 33.0, -250),
 		CubeBackStop(17500 + 4000, STOWED_POSITION),
-		ConeBackStop(0, STOWED_POSITION)
 		;
 
 		private final double armPosition;
@@ -63,7 +62,7 @@ public class Arm extends SubsystemBase {
 	static {
 		ARM_MOTOR_CONFIG.reverseSoftLimitEnable = true;
 		ARM_MOTOR_CONFIG.forwardSoftLimitEnable = true;
-		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = 16100;
+		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = TICKS_PER_DEGREE * 33.0;
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 75000;
 
 		ARM_MOTOR_CONFIG.motionCruiseVelocity = 30000;
@@ -74,8 +73,8 @@ public class Arm extends SubsystemBase {
 
 		ARM_EXTENDER_MOTOR_CONFIG.reverseSoftLimitEnable = true;
 		ARM_EXTENDER_MOTOR_CONFIG.forwardSoftLimitEnable = true;
-		ARM_EXTENDER_MOTOR_CONFIG.reverseSoftLimitThreshold = 0;
-		ARM_EXTENDER_MOTOR_CONFIG.forwardSoftLimitThreshold = 17500;
+		ARM_EXTENDER_MOTOR_CONFIG.reverseSoftLimitThreshold = -17500;
+		ARM_EXTENDER_MOTOR_CONFIG.forwardSoftLimitThreshold = 0;
 
 		ARM_EXTENDER_MOTOR_CONFIG.motionCruiseVelocity = 10000;
 		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 7000;
@@ -110,7 +109,7 @@ public class Arm extends SubsystemBase {
 		armMotorRight.config_kD(0, kD);
 		armMotorRight.config_kF(0, kF);
 
-		armMotorRight.setSensorPhase(true);
+		armMotorRight.setSensorPhase(false);
 
 		armMotorLeft.configSupplyCurrentLimit(
 				new SupplyCurrentLimitConfiguration(true, 15.0, 13.0, 1.0));
@@ -221,9 +220,7 @@ public class Arm extends SubsystemBase {
 		//		setExtensionOpenLoop(-0.07);
 		extenderMotor.set(
 				ControlMode.MotionMagic,
-				position,
-				DemandType.ArbitraryFeedForward,
-				0.0);
+				position);
 	}
 
 	private void setArm() {
@@ -252,26 +249,11 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void pivot() {
-				System.out.println("PIBOTING");
+//				System.out.println("PIBOTING");
 
 		if (armState == ArmState.Pivoting) {
 			if (Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition.armPosition)
 					<= ALLOWABLE_PIVOT_ERROR) {
-//				switch (desiredPosition) {
-//					case Stowed:
-//						setOpenLoop(0.0);
-//						break;
-//					case Low:
-//						setOpenLoop(0.03);
-//						break;
-//					case Middle:
-//						setOpenLoop(0.04);
-//						break;
-//					case High:
-//						setOpenLoop(0.04);
-//						break;
-//				}
-
 				if (desiredPosition.extendPosition != STOWED_POSITION) {
 					deploy();
 				} else {

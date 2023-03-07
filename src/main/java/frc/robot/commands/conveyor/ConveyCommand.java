@@ -26,17 +26,14 @@ public class ConveyCommand extends CommandBase {
     @Override
     public void initialize() {
         conveyor.convey(0.0);
-        System.out.println("HABABABABBABABABBABDBADBABDBA");
     }
 
     @Override
     public void execute() {
         if (!conveyorSensorSupplier.getAsBoolean()) {
             timer.start();
-            System.out.println("START TIMER");
         }
         if (timer.hasElapsed(TIME_TO_STOP)) {
-            System.out.println("STOP");
             conveyor.stop();
             timer.stop();
             timer.reset();
@@ -46,7 +43,6 @@ public class ConveyCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         conveyor.stop();
-        System.out.println("stop");
     }
 
     @Override
