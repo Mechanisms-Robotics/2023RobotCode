@@ -14,7 +14,7 @@ import swervelib.math.SwerveMath;
 
 public class DriveCommand extends CommandBase {
 	private final Swerve swerve;
-	private final DoubleSupplier vX, vY, headingX, headingY;
+	private DoubleSupplier vX, vY, headingX, headingY, vR;
 	private final boolean isOpenLoop;
 	private final boolean relativeRotation;
 
@@ -39,17 +39,31 @@ public class DriveCommand extends CommandBase {
 			DoubleSupplier vY,
 			DoubleSupplier headingX,
 			DoubleSupplier headingY,
-			boolean isOpenLoop,
-			boolean relativeRotation) {
+			boolean isOpenLoop) {
 		this.swerve = swerve;
 		this.vX = vX;
 		this.vY = vY;
 		this.headingX = headingX;
 		this.headingY = headingY;
 		this.isOpenLoop = isOpenLoop;
-		this.relativeRotation = relativeRotation;
+		this.relativeRotation = false;
 
 		addRequirements(swerve);
+	}
+
+	public DriveCommand(
+			Swerve swerve,
+			DoubleSupplier vX,
+			DoubleSupplier vY,
+			DoubleSupplier vR,
+			boolean isOpenLoop
+	) {
+		this.swerve = swerve;
+		this.vX = vX;
+		this.vY = vY;
+		this.vR = vR;
+		this.isOpenLoop = isOpenLoop;
+		this.relativeRotation = true;
 	}
 
 	@Override
@@ -70,7 +84,7 @@ public class DriveCommand extends CommandBase {
 		ChassisSpeeds desiredSpeeds;
 
 		if (relativeRotation) {
-			desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vX.getAsDouble(), v)
+			desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vX.getAsDouble(), vY.getAsDouble(), vR.getAsDouble(), swerve.getHeading());
 		} else {
 			desiredSpeeds = swerve.getTargetSpeeds(vX.getAsDouble(), vY.getAsDouble(), headingX.getAsDouble(), headingY.getAsDouble());
 		}
