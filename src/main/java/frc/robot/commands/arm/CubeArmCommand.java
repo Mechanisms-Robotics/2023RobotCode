@@ -43,8 +43,6 @@ public class CubeArmCommand extends CommandBase {
 
     @Override
     public void execute() {
-
-                    System.out.println(state);
         switch (state) {
             case Backstopping:
                 gripper.cone();

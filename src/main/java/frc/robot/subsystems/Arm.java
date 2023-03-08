@@ -239,7 +239,6 @@ public class Arm extends SubsystemBase {
 					<= ALLOWABLE_EXTENSION_ERROR) {
 				pivot();
 			}
-			System.out.println(extenderMotor.getSelectedSensorPosition());
 			return;
 		}
 

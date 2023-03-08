@@ -8,7 +8,7 @@ import frc.robot.subsystems.Swerve;
 import java.util.function.DoubleSupplier;
 
 public class DriveCommand extends CommandBase {
-	private static final double DEADBAND = 0.1;
+	private static final double DEADBAND = 0.2;
 	private static final double TRANSLATION_EXPONENT = 1.5;
 	private static final double ROTATION_EXPONENT = 2.0;
 

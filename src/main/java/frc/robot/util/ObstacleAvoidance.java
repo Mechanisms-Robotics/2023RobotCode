@@ -7,6 +7,7 @@ import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Swerve;
 import java.util.ArrayList;
 
@@ -15,7 +16,6 @@ public class ObstacleAvoidance {
 	private static final double BORDER_2_X = 4.875;
 
 	private static final double BORDER_1_Y = 2.75;
-	private static final double BORDER_2_Y = 5.0;
 
 	private static final Pose2d UPPER_RIGHT_CONTROL_POINT =
 			new Pose2d(new Translation2d(5.50, 4.75), Rotation2d.fromDegrees(180.0));
@@ -42,6 +42,9 @@ public class ObstacleAvoidance {
 			Pose2d goalPose, double translationVelocity, double rotationVelocity, Swerve swerve) {
 		ArrayList<PathPoint> points = new ArrayList<>();
 		points.add(PathPoint.fromCurrentHolonomicState(swerve.getPose(), swerve.getVelocity()));
+
+		SmartDashboard.putNumber("Goal X", goalPose.getX());
+		SmartDashboard.putNumber("Goal Y", goalPose.getY());
 
 		double curX = swerve.getPose().getX();
 		double curY = swerve.getPose().getY();
@@ -81,7 +84,7 @@ public class ObstacleAvoidance {
 		}
 
 		if (goalX > curX) {
-			if (curX < BORDER_1_X) {
+			if (curX > BORDER_1_X) {
 				if (curY > BORDER_1_Y) {
 					points.add(
 							new PathPoint(
@@ -101,7 +104,7 @@ public class ObstacleAvoidance {
 				}
 			}
 
-			if (curX < BORDER_2_X) {
+			if (curX > BORDER_2_X) {
 				if (curY > BORDER_1_Y) {
 					points.add(
 							new PathPoint(
@@ -121,7 +124,7 @@ public class ObstacleAvoidance {
 				}
 			}
 
-			if (curY < BORDER_2_Y) {
+      if (curX > HP_CONTROL_POINT.getX() && curY < HP_CONTROL_POINT.getY()) {
 				points.add(
 						new PathPoint(
 								HP_CONTROL_POINT.getTranslation(),

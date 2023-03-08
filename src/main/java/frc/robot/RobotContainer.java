@@ -6,14 +6,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.arm.CubeArmCommand;
+import frc.robot.commands.auto.AutoCommands;
 import frc.robot.commands.auto.MobilityAutoLeft;
 import frc.robot.commands.auto.MobilityAutoRight;
+import frc.robot.commands.auto.OneConeBalanceLeft;
+import frc.robot.commands.auto.OneConeBalanceRight;
 import frc.robot.commands.auto.OneConeLeft;
 import frc.robot.commands.auto.OneConeOneCubeLeft;
 import frc.robot.commands.auto.OneConeOneCubeRight;
 import frc.robot.commands.auto.OneConeRight;
-import frc.robot.commands.auto.OneConeTwoCubesLeft;
-import frc.robot.commands.auto.OneConeTwoCubesRight;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
 import frc.robot.util.AprilTagTracker;
@@ -50,14 +51,12 @@ public class RobotContainer {
 				"MobilityAutoRight", MobilityAutoRight.mobilityAutoRightCommand(m_swerveSubsystem));
 		autoChooser.addOption("1ConeLeft", OneConeLeft.oneConeLeft(m_swerveSubsystem));
 		autoChooser.addOption("1ConeRight", OneConeRight.oneConeRight(m_swerveSubsystem));
+		autoChooser.addOption("1ConeBalanceLeft", OneConeBalanceLeft.oneConeBalanceLeft(m_swerveSubsystem));
+		autoChooser.addOption("1ConeBalanceRight", OneConeBalanceRight.oneConeBalanceRight(m_swerveSubsystem));
 		autoChooser.addOption(
 				"1Cone1CubeLeft", OneConeOneCubeLeft.oneConeOneCubeLeft(m_swerveSubsystem));
 		autoChooser.addOption(
 				"1Cone1CubeRight", OneConeOneCubeRight.oneConeOneCubeRight(m_swerveSubsystem));
-		autoChooser.addOption(
-				"1Cone2CubesLeft", OneConeTwoCubesLeft.oneConeTwoCubesLeft(m_swerveSubsystem));
-		autoChooser.addOption(
-				"1Cone2CubesRight", OneConeTwoCubesRight.oneConeTwoCubesRight(m_swerveSubsystem));
 
 		SmartDashboard.putData(autoChooser);
 	}
@@ -65,23 +64,23 @@ public class RobotContainer {
 	private void configureBindings() {
 		m_driverController.back().onTrue(new InstantCommand(m_swerveSubsystem::zeroGyro));
 
-		//		m_driverController
-		//				.a()
-		//				.onTrue(
-		//						new FunctionalCommand(
-		//								() -> {
-		//									CommandScheduler.getInstance()
-		//											.schedule(
-		//													AutoCommands.driveToAvoidObstaclesCommand(
-		//															m_goalTracker
-		//																	.getClosestGoal()
-		//																	.plus(Constants.SCORING_OFFSET),
-		//															m_swerveSubsystem));
-		//								},
-		//								() -> {},
-		//								(interrupted) -> {},
-		//								() -> true,
-		//								m_swerveSubsystem));
+				m_driverController
+						.y()
+						.onTrue(
+								new FunctionalCommand(
+										() -> {
+											CommandScheduler.getInstance()
+													.schedule(
+															AutoCommands.driveToAvoidObstaclesCommand(
+																	m_goalTracker
+																			.getClosestGoal()
+																			.plus(Constants.SCORING_OFFSET),
+																	m_swerveSubsystem));
+										},
+										() -> {},
+										(interrupted) -> {},
+										() -> true,
+										m_swerveSubsystem));
 
 		//		m_driverController
 		//				.y()
