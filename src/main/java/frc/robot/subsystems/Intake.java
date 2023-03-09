@@ -243,7 +243,6 @@ public class Intake extends SubsystemBase {
 		} else {
 			this.intakeMode = mode;
 		}
-
 	}
 
 	public void zeroEncoders() {

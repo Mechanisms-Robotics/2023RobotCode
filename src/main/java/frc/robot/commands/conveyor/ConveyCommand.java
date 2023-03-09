@@ -1,52 +1,48 @@
 package frc.robot.commands.conveyor;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Conveyor;
-
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 public class ConveyCommand extends CommandBase {
 
-    private static final double TIME_TO_STOP = 0.2;
+	private static final double TIME_TO_STOP = 0.2;
 
-    private final Timer timer = new Timer();
-    private final Conveyor conveyor;
-    private final BooleanSupplier conveyorSensorSupplier;
+	private final Timer timer = new Timer();
+	private final Conveyor conveyor;
+	private final BooleanSupplier conveyorSensorSupplier;
 
-    public ConveyCommand(BooleanSupplier conveyorSensorResult, Conveyor conveyor) {
-        this.conveyor = conveyor;
-        this.conveyorSensorSupplier = conveyorSensorResult;
-        addRequirements(conveyor);
-    }
+	public ConveyCommand(BooleanSupplier conveyorSensorResult, Conveyor conveyor) {
+		this.conveyor = conveyor;
+		this.conveyorSensorSupplier = conveyorSensorResult;
+		addRequirements(conveyor);
+	}
 
-    @Override
-    public void initialize() {
-        conveyor.convey(0.0);
-    }
+	@Override
+	public void initialize() {
+		conveyor.convey(0.0);
+	}
 
-    @Override
-    public void execute() {
-        if (!conveyorSensorSupplier.getAsBoolean()) {
-            timer.start();
-        }
-        if (timer.hasElapsed(TIME_TO_STOP)) {
-            conveyor.stop();
-            timer.stop();
-            timer.reset();
-        }
-    }
+	@Override
+	public void execute() {
+		if (!conveyorSensorSupplier.getAsBoolean()) {
+			timer.start();
+		}
+		if (timer.hasElapsed(TIME_TO_STOP)) {
+			conveyor.stop();
+			timer.stop();
+			timer.reset();
+		}
+	}
 
-    @Override
-    public void end(boolean interrupted) {
-        conveyor.stop();
-    }
+	@Override
+	public void end(boolean interrupted) {
+		conveyor.stop();
+	}
 
-    @Override
-    public boolean isFinished() {
-        return false;
-    }
+	@Override
+	public boolean isFinished() {
+		return false;
+	}
 }

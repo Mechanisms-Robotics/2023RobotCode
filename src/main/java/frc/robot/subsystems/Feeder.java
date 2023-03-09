@@ -95,8 +95,6 @@ public class Feeder extends SubsystemBase {
 		} else {
 			this.feederMode = mode;
 		}
-
-
 	}
 
 	/** Stops the feeder */

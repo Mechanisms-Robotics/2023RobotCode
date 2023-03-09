@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -33,8 +34,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void disabledInit() {
 		m_robotContainer.m_intakeSubsystem.stopPivot();
-				m_robotContainer.m_armSubsystem.stop();
-				m_robotContainer.m_gripperSubsystem.stop();
+		m_robotContainer.m_armSubsystem.stop();
+		m_robotContainer.m_gripperSubsystem.stop();
 	}
 
 	@Override
@@ -47,12 +48,15 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-//		m_robotContainer.m_intakeSubsystem.zeroEncoders();
+		//		m_robotContainer.m_intakeSubsystem.zeroEncoders();
 
 		// schedule the autonomous command (example)
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.schedule();
 		}
+
+		m_robotContainer.m_swerveSubsystem.setNeutralMode(NeutralMode.Brake);
+		m_robotContainer.m_swerveSubsystem.zeroGyro();
 	}
 
 	/** This method is called periodically during autonomous. */
@@ -70,6 +74,8 @@ public class Robot extends TimedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
+
+		m_robotContainer.m_swerveSubsystem.setNeutralMode(NeutralMode.Coast);
 	}
 
 	/** This method is called periodically during operator control. */

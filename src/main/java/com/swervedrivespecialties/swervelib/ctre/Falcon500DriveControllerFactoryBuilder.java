@@ -142,5 +142,10 @@ public final class Falcon500DriveControllerFactoryBuilder {
 		public void setSimulatedMPS(double mps) {
 			simulatedMPS = mps;
 		}
+
+		@Override
+		public void setNeutralMode(NeutralMode neutralMode) {
+			motor.setNeutralMode(neutralMode);
+		}
 	}
 }

@@ -61,6 +61,7 @@ public class Conveyor extends SubsystemBase {
 	public void unjam() {
 		setOpenLoop(CONVEYOR_UNJAM_SPEED);
 	}
+
 	public void position() {
 		setOpenLoop(CONVEYOR_POSITIONING_SPEED);
 	}
@@ -68,7 +69,7 @@ public class Conveyor extends SubsystemBase {
 	public boolean getDebouncedSensor() {
 		if (conveyorSensor.get() != sensorValue) {
 			if (!isDebouncing) {
-        debounceTimer.start();
+				debounceTimer.start();
 
 				isDebouncing = true;
 			} else {

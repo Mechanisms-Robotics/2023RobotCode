@@ -79,7 +79,7 @@ public class Gripper extends SubsystemBase {
 	}
 
 	public void cone() {
-			setClosedLoop(CONE_POSITION);
+		setClosedLoop(CONE_POSITION);
 	}
 
 	public void cube() {
@@ -94,8 +94,7 @@ public class Gripper extends SubsystemBase {
 				},
 				() -> {},
 				(interrupted) -> cube(),
-				() -> timer.hasElapsed(GRAB_TIME)
-		);
+				() -> timer.hasElapsed(GRAB_TIME));
 	}
 
 	public void zeroEncoder() {

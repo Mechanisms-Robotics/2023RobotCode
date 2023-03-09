@@ -1,5 +1,6 @@
 package com.swervedrivespecialties.swervelib;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -48,4 +49,6 @@ public interface SwerveModule {
 	void set(double driveVoltage, double steerAngle);
 
 	void setSim(double mps, double angle);
+
+	void setNeutralMode(NeutralMode neutralMode);
 }

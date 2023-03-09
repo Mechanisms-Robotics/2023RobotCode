@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.swervedrivespecialties.swervelib.GearRatios.GearRatio;
@@ -16,6 +17,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -24,6 +26,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.*;
+import java.util.Optional;
+import org.photonvision.EstimatedRobotPose;
 
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
@@ -172,7 +176,7 @@ public class Swerve extends SubsystemBase {
 						.build();
 
 		m_gyro = new WPI_Pigeon2(GYRO_ID);
-//		m_gyro.configFactoryDefault();
+		//		m_gyro.configFactoryDefault();
 
 		upAngle = Rotation2d.fromDegrees(m_gyro.getRoll());
 
@@ -199,7 +203,7 @@ public class Swerve extends SubsystemBase {
 
 	public Rotation2d getGyroHeading() {
 		return Rotation2d.fromDegrees(m_gyro.getYaw());
-//		return Rotation2d.fromDegrees(m_gyro.getYaw()).minus(Rotation2d.fromDegrees(180.0));
+		//		return Rotation2d.fromDegrees(m_gyro.getYaw()).minus(Rotation2d.fromDegrees(180.0));
 	}
 
 	public Rotation2d getRoll() {
@@ -237,17 +241,21 @@ public class Swerve extends SubsystemBase {
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY);
 
-    m_swerveRobotRelativeHeading =
-        new Rotation2d(m_chassisSpeeds.vxMetersPerSecond, m_chassisSpeeds.vyMetersPerSecond);
+		m_swerveRobotRelativeHeading =
+				new Rotation2d(
+						m_chassisSpeeds.vxMetersPerSecond, m_chassisSpeeds.vyMetersPerSecond);
 
 		SmartDashboard.putNumber("Gyro", getGyroHeading().getDegrees());
 
 		SmartDashboard.putNumber("Pose X", m_poseEstimator.getEstimatedPosition().getX());
 		SmartDashboard.putNumber("Pose Y", m_poseEstimator.getEstimatedPosition().getY());
 
-		SmartDashboard.putNumber("Robot Relative Heading", m_swerveRobotRelativeHeading.getDegrees());
+		SmartDashboard.putNumber(
+				"Robot Relative Heading", m_swerveRobotRelativeHeading.getDegrees());
 
-		m_maxVelocityRange = MAX_VELOCITY_RANGE * (0.25 * Math.cos(2 * m_swerveRobotRelativeHeading.getRadians()) + 0.75);
+		m_maxVelocityRange =
+				MAX_VELOCITY_RANGE
+						* (0.25 * Math.cos(2 * m_swerveRobotRelativeHeading.getRadians()) + 0.75);
 
 		SmartDashboard.putNumber("Max Velocity Range", m_maxVelocityRange);
 
@@ -273,18 +281,34 @@ public class Swerve extends SubsystemBase {
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());
 
 		// TODO: Add StdDevs if needed
-		AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition())
-				.ifPresentOrElse(
-						estimatedRobotPose -> {
-							m_poseEstimator.addVisionMeasurement(
-									estimatedRobotPose.estimatedPose.toPose2d(),
-									estimatedRobotPose.timestampSeconds);
-							m_field.getObject("Cam Est Pos")
-									.setPose(estimatedRobotPose.estimatedPose.toPose2d());
-						},
-						() -> {
-//							System.out.println("NO APRIL TAGS");
-						});
+
+		if (AprilTagTracker.getCamera().getLatestResult().hasTargets()) {
+			//      AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition())
+			//          .ifPresentOrElse(
+			//              estimatedRobotPose -> {
+			//                m_poseEstimator.addVisionMeasurement(
+			//                    estimatedRobotPose.estimatedPose.toPose2d(),
+			//                    estimatedRobotPose.timestampSeconds);
+			//                m_field
+			//                    .getObject("Cam Est Pos")
+			//                    .setPose(estimatedRobotPose.estimatedPose.toPose2d());
+			//              },
+			//              () -> {
+			//                //							System.out.println("NO APRIL TAGS");
+			//              });
+
+			Optional<EstimatedRobotPose> result =
+					AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
+
+			if (result.isPresent()) {
+				EstimatedRobotPose camPose = result.get();
+				//        m_poseEstimator.addVisionMeasurement(
+				//            camPose.estimatedPose.toPose2d(), Timer.getFPGATimestamp());
+				m_field.getObject("Cam Est Pos").setPose(camPose.estimatedPose.toPose2d());
+			} else {
+				m_field.getObject("Cam Est Pos").setPose(new Pose2d(-100, -100, new Rotation2d()));
+			}
+		}
 
 		m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
@@ -312,6 +336,8 @@ public class Swerve extends SubsystemBase {
 		m_frontRightModule.offsetEncoder(FRONT_RIGHT_MODULE_STEER_OFFSET);
 		m_backLeftModule.offsetEncoder(BACK_LEFT_MODULE_STEER_OFFSET);
 		m_backRightModule.offsetEncoder(BACK_RIGHT_MODULE_STEER_OFFSET);
+
+		SmartDashboard.putString("Alliance Color", DriverStation.getAlliance().name());
 	}
 
 	public void simulationPeriodic() {
@@ -380,6 +406,13 @@ public class Swerve extends SubsystemBase {
 
 	public PathPlannerTrajectory getTrajectory() {
 		return m_currentTrajectory;
+	}
+
+	public void setNeutralMode(NeutralMode neutralMode) {
+		m_frontLeftModule.setNeutralMode(neutralMode);
+		m_frontRightModule.setNeutralMode(neutralMode);
+		m_backLeftModule.setNeutralMode(neutralMode);
+		m_backRightModule.setNeutralMode(neutralMode);
 	}
 
 	public void setTrajectory(PathPlannerTrajectory trajectory) {

@@ -9,9 +9,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
 
-	private enum Position {
-		High(65000, EXTENDED_POSITION),
-		Middle(57500, EXTENDED_POSITION / 2),
+	public enum Position {
+		High(57500, EXTENDED_POSITION), // 65000
+		Middle(52500, EXTENDED_POSITION / 2),
 		Low(30000, STOWED_POSITION),
 		Stowed(17500, STOWED_POSITION),
 
@@ -218,9 +218,7 @@ public class Arm extends SubsystemBase {
 
 		//    SmartDashboard.putNumber("ext FF", demandFF);
 		//		setExtensionOpenLoop(-0.07);
-		extenderMotor.set(
-				ControlMode.MotionMagic,
-				position);
+		extenderMotor.set(ControlMode.MotionMagic, position);
 	}
 
 	private void setArm() {
@@ -232,7 +230,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void retract() {
-//				System.out.println("RETRACTING");
+		//				System.out.println("RETRACTING");
 
 		if (armState == ArmState.Retracting) {
 			if (Math.abs(extenderMotor.getSelectedSensorPosition() - STOWED_POSITION)
@@ -248,7 +246,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void pivot() {
-//				System.out.println("PIBOTING");
+		//				System.out.println("PIBOTING");
 
 		if (armState == ArmState.Pivoting) {
 			if (Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition.armPosition)
@@ -268,7 +266,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void deploy() {
-//				System.out.println("DEPLOTIG");
+		//				System.out.println("DEPLOTIG");
 
 		if (armState == ArmState.Deploying) {
 			if (Math.abs(extenderMotor.getSelectedSensorPosition() - desiredPosition.extendPosition)
@@ -285,7 +283,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void idle() {
-//				System.out.println("IDJLING");
+		//				System.out.println("IDJLING");
 
 		armState = ArmState.Idle;
 	}

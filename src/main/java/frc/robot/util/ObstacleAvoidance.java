@@ -124,7 +124,7 @@ public class ObstacleAvoidance {
 				}
 			}
 
-      if (curX > HP_CONTROL_POINT.getX() && curY < HP_CONTROL_POINT.getY()) {
+			if (curX > HP_CONTROL_POINT.getX() && curY < HP_CONTROL_POINT.getY()) {
 				points.add(
 						new PathPoint(
 								HP_CONTROL_POINT.getTranslation(),

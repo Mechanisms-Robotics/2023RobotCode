@@ -1,6 +1,7 @@
 package frc.robot;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -16,7 +17,9 @@ import frc.robot.commands.auto.OneConeOneCubeLeft;
 import frc.robot.commands.auto.OneConeOneCubeRight;
 import frc.robot.commands.auto.OneConeRight;
 import frc.robot.commands.swerve.DriveCommand;
+// import frc.robot.commands.teleop.ScoreCommand;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.util.AprilTagTracker;
 import frc.robot.util.GoalTracker;
 
@@ -30,7 +33,13 @@ public class RobotContainer {
 	private final GoalTracker m_goalTracker =
 			new GoalTracker(m_swerveSubsystem.getField(), m_swerveSubsystem::getPose);
 
-	private final Superstructure m_superstructure = new Superstructure(m_intakeSubsystem, m_feederSubsystem, m_conveyorSubsystem, m_armSubsystem);
+	private final Superstructure m_superstructure =
+			new Superstructure(
+					m_intakeSubsystem,
+					m_feederSubsystem,
+					m_conveyorSubsystem,
+					m_armSubsystem,
+					m_gripperSubsystem);
 
 	private final CommandXboxController m_driverController =
 			new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -51,8 +60,10 @@ public class RobotContainer {
 				"MobilityAutoRight", MobilityAutoRight.mobilityAutoRightCommand(m_swerveSubsystem));
 		autoChooser.addOption("1ConeLeft", OneConeLeft.oneConeLeft(m_swerveSubsystem));
 		autoChooser.addOption("1ConeRight", OneConeRight.oneConeRight(m_swerveSubsystem));
-		autoChooser.addOption("1ConeBalanceLeft", OneConeBalanceLeft.oneConeBalanceLeft(m_swerveSubsystem));
-		autoChooser.addOption("1ConeBalanceRight", OneConeBalanceRight.oneConeBalanceRight(m_swerveSubsystem));
+		autoChooser.addOption(
+				"1ConeBalanceLeft", OneConeBalanceLeft.oneConeBalanceLeft(m_swerveSubsystem));
+		autoChooser.addOption(
+				"1ConeBalanceRight", OneConeBalanceRight.oneConeBalanceRight(m_swerveSubsystem));
 		autoChooser.addOption(
 				"1Cone1CubeLeft", OneConeOneCubeLeft.oneConeOneCubeLeft(m_swerveSubsystem));
 		autoChooser.addOption(
@@ -64,23 +75,27 @@ public class RobotContainer {
 	private void configureBindings() {
 		m_driverController.back().onTrue(new InstantCommand(m_swerveSubsystem::zeroGyro));
 
-				m_driverController
-						.y()
-						.onTrue(
-								new FunctionalCommand(
-										() -> {
-											CommandScheduler.getInstance()
-													.schedule(
-															AutoCommands.driveToAvoidObstaclesCommand(
-																	m_goalTracker
-																			.getClosestGoal()
-																			.plus(Constants.SCORING_OFFSET),
-																	m_swerveSubsystem));
-										},
-										() -> {},
-										(interrupted) -> {},
-										() -> true,
-										m_swerveSubsystem));
+		if (!Constants.SWERVE_DISABLED) {
+			m_driverController
+					.y()
+					.onTrue(
+							new FunctionalCommand(
+									() -> {
+										CommandScheduler.getInstance()
+												.schedule(
+														AutoCommands.driveToAvoidObstaclesCommand(
+																m_goalTracker
+																		.getClosestGoal()
+																		.plus(
+																				Constants
+																						.SCORING_OFFSET),
+																m_swerveSubsystem));
+									},
+									() -> {},
+									(interrupted) -> {},
+									() -> true,
+									m_swerveSubsystem));
+		}
 
 		//		m_driverController
 		//				.y()
@@ -126,20 +141,24 @@ public class RobotContainer {
 				.leftTrigger()
 				.onTrue(new InstantCommand(m_intakeSubsystem::setToGamePieceStation));
 
-    m_driverController
-        .rightTrigger()
-        .toggleOnTrue(
+		m_driverController
+				.rightTrigger()
+				.toggleOnTrue(
 						Commands.parallel(
-
-            new FunctionalCommand(
-								m_superstructure::feed,
-                () -> {},
-                (interrupted) -> {
-                  m_superstructure.idle();
-                },
-								m_superstructure::isPositioned,
-                m_superstructure),
-								new CubeArmCommand(m_intakeSubsystem, m_armSubsystem, m_gripperSubsystem, m_conveyorSubsystem::getDebouncedSensor, m_superstructure::isPositioned)));
+								new FunctionalCommand(
+										m_superstructure::feed,
+										() -> {},
+										(interrupted) -> {
+											m_superstructure.idle();
+										},
+										m_superstructure::isPositioned,
+										m_superstructure),
+								new CubeArmCommand(
+										m_intakeSubsystem,
+										m_armSubsystem,
+										m_gripperSubsystem,
+										m_conveyorSubsystem::getDebouncedSensor,
+										m_superstructure::isPositioned)));
 
 		m_driverController
 				.a()
@@ -161,59 +180,65 @@ public class RobotContainer {
 								m_feederSubsystem,
 								m_conveyorSubsystem));
 
-//		m_secondDriverController.b().onTrue(new CubeArmCommand(m_armSubsystem, m_gripperSubsystem, m_conveyorSubsystem::getDebouncedSensor, m_superstructure::isPositioned));
+		//		m_secondDriverController.b().onTrue(new CubeArmCommand(m_armSubsystem,
+		// m_gripperSubsystem, m_conveyorSubsystem::getDebouncedSensor,
+		// m_superstructure::isPositioned));
 
-		m_secondDriverController.y().onTrue(new InstantCommand(() -> {
-			m_superstructure.setElement(Superstructure.Element.Cube);
-		})); // Set intake and feeder mode to cube
+		m_secondDriverController
+				.y()
+				.onTrue(
+						new InstantCommand(
+								() -> {
+									m_superstructure.setElement(Superstructure.Element.Cube);
+								})); // Set intake and feeder mode to cube
 
-		m_secondDriverController.x().onTrue(new InstantCommand(() -> {
-			m_superstructure.setElement(Superstructure.Element.Cone);
-		})); // Set intake and feeder mode to cone
+		m_secondDriverController
+				.x()
+				.onTrue(
+						new InstantCommand(
+								() -> {
+									m_superstructure.setElement(Superstructure.Element.Cone);
+								})); // Set intake and feeder mode to cone
 
 		// UNCOMMENT
 		//		m_secondDriverController.b().onTrue(new InstantCommand(m_gripperSubsystem::cone));
 		//		m_secondDriverController.x().onTrue(new InstantCommand(m_gripperSubsystem::cube));
 		//		m_secondDriverController.y().onTrue(new InstantCommand(m_gripperSubsystem::open));
 		//
-		m_secondDriverController.povDown().onTrue(
-				Commands.parallel(
-						Commands.runOnce(m_armSubsystem::stow),
-						Commands.runOnce(m_intakeSubsystem::retract)
-				)
-		);
-		m_secondDriverController.povLeft().onTrue(
-				Commands.parallel(
-						Commands.runOnce(m_armSubsystem::low),
-						Commands.runOnce(m_intakeSubsystem::retract)
-				)
-		);
-		m_secondDriverController.povRight().onTrue(
-				Commands.parallel(
-						Commands.runOnce(m_armSubsystem::mid),
-						Commands.runOnce(m_intakeSubsystem::retract)
-				)
-		);
-		m_secondDriverController.povUp().onTrue(
-				Commands.parallel(
-						Commands.runOnce(m_armSubsystem::high),
-						Commands.runOnce(m_intakeSubsystem::retract)
-				)
-		);
+		m_secondDriverController
+				.povDown()
+				.onTrue(
+						Commands.parallel(
+								Commands.runOnce(m_armSubsystem::stow),
+								Commands.runOnce(m_intakeSubsystem::retract)));
+		m_secondDriverController
+				.povLeft()
+				.onTrue(
+						Commands.parallel(
+								Commands.runOnce(() -> m_superstructure.setLevel(Level.Low))));
+		m_secondDriverController
+				.povRight()
+				.onTrue(
+						Commands.parallel(
+								Commands.runOnce(() -> m_superstructure.setLevel(Level.Mid))));
+		m_secondDriverController
+				.povUp()
+				.onTrue(
+						Commands.parallel(
+								Commands.runOnce(() -> m_superstructure.setLevel(Level.High))));
 
-//		m_secondDriverController.povDown().onTrue(new InstantCommand(m_armSubsystem::stow));
-//		m_secondDriverController.povLeft().onTrue(new InstantCommand(m_armSubsystem::low));
-//		m_secondDriverController.povRight().onTrue(new InstantCommand(m_armSubsystem::mid));
-//		m_secondDriverController.povUp().onTrue(new InstantCommand(m_armSubsystem::high));
+		//		m_secondDriverController.povDown().onTrue(new InstantCommand(m_armSubsystem::stow));
+		//		m_secondDriverController.povLeft().onTrue(new InstantCommand(m_armSubsystem::low));
+		//		m_secondDriverController.povRight().onTrue(new InstantCommand(m_armSubsystem::mid));
+		//		m_secondDriverController.povUp().onTrue(new InstantCommand(m_armSubsystem::high));
 
-		m_secondDriverController.
-				a().onTrue(
-				Commands.sequence(
-					Commands.runOnce(m_gripperSubsystem::open, m_gripperSubsystem),
-					Commands.waitSeconds(0.5),
-					Commands.runOnce(m_armSubsystem::stow, m_armSubsystem)
-				)
-		);
+		m_secondDriverController
+				.a()
+				.onTrue(
+						Commands.sequence(
+								Commands.runOnce(m_gripperSubsystem::open, m_gripperSubsystem),
+								Commands.waitSeconds(0.5),
+								Commands.runOnce(m_armSubsystem::stow, m_armSubsystem)));
 
 		//		m_driverController.leftBumper().onTrue(new FunctionalCommand(
 		//				m_intakeSubsystem::retract,
@@ -272,19 +297,24 @@ public class RobotContainer {
 		//								m_feederSubsystem,
 		//								m_conveyorSubsystem));
 
-		AprilTagTracker.setAllianceSide(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+		if (DriverStation.getAlliance().name().equals("Blue"))
+			AprilTagTracker.setAllianceSide(OriginPosition.kBlueAllianceWallRightSide);
+		else AprilTagTracker.setAllianceSide(OriginPosition.kRedAllianceWallRightSide);
 	}
 
 	private void configureDefaultCommands() {
 		if (!Constants.SWERVE_DISABLED) {
-		  m_swerveSubsystem.setDefaultCommand(
-			  new DriveCommand(
-				  m_swerveSubsystem,
-				  () -> -m_driverController.getLeftY() * m_swerveSubsystem.getMaxVelocity(),
-				  () -> -m_driverController.getLeftX() * m_swerveSubsystem.getMaxVelocity(),
-				  () -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
+			m_swerveSubsystem.setDefaultCommand(
+					new DriveCommand(
+							m_swerveSubsystem,
+							() ->
+									-m_driverController.getLeftY()
+											* m_swerveSubsystem.getMaxVelocity(),
+							() ->
+									-m_driverController.getLeftX()
+											* m_swerveSubsystem.getMaxVelocity(),
+							() -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
 		}
-
 	}
 
 	public Command getAutonomousCommand() {

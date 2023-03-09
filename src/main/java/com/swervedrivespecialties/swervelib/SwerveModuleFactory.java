@@ -1,5 +1,6 @@
 package com.swervedrivespecialties.swervelib;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 
 public class SwerveModuleFactory<DC, SC> {
@@ -140,6 +141,11 @@ public class SwerveModuleFactory<DC, SC> {
 		public void setSim(double mps, double angle) {
 			driveController.setSimulatedMPS(mps);
 			steerController.setSimulatedAngle(angle);
+		}
+
+		@Override
+		public void setNeutralMode(NeutralMode neutralMode) {
+			driveController.setNeutralMode(neutralMode);
 		}
 	}
 }

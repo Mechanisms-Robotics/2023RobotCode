@@ -1,6 +1,5 @@
 package frc.robot.commands.swerve;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -48,38 +47,36 @@ public class DriveCommand extends CommandBase {
 		//								applyExponential(
 		//										deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT)));
 
-		double tilt = m_swerveSubsystem.getUpAngle().minus(m_swerveSubsystem.getRoll()).getDegrees();
+		double tilt =
+				m_swerveSubsystem.getUpAngle().minus(m_swerveSubsystem.getRoll()).getDegrees();
 
-		SmartDashboard.putNumber("Tilt", m_swerveSubsystem.getUpAngle().minus(m_swerveSubsystem.getRoll()).getDegrees());
+		SmartDashboard.putNumber(
+				"Tilt",
+				m_swerveSubsystem.getUpAngle().minus(m_swerveSubsystem.getRoll()).getDegrees());
 
 		if (Math.abs(tilt) >= 10.0) {
 			if (tilt > 0) {
-				m_swerveSubsystem.drive(new ChassisSpeeds(
-						0.0,
-						ANTI_TIP_SPEED,
-						0.0
-				));
+				m_swerveSubsystem.drive(new ChassisSpeeds(0.0, ANTI_TIP_SPEED, 0.0));
 			} else {
-				m_swerveSubsystem.drive(new ChassisSpeeds(
-						0.0,
-						-ANTI_TIP_SPEED,
-						0.0
-				));
+				m_swerveSubsystem.drive(new ChassisSpeeds(0.0, -ANTI_TIP_SPEED, 0.0));
 			}
-    } else {
-      m_swerveSubsystem.drive(
-          ChassisSpeeds.fromFieldRelativeSpeeds(
-              applyExponential(
-                  deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT),
-              applyExponential(
-                  deadband(m_translationYSupplier.getAsDouble()), TRANSLATION_EXPONENT),
-              applyExponential(deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
-              m_swerveSubsystem.getGyroHeading()));
+		} else {
+			m_swerveSubsystem.drive(
+					ChassisSpeeds.fromFieldRelativeSpeeds(
+							applyExponential(
+									deadband(m_translationXSupplier.getAsDouble()),
+									TRANSLATION_EXPONENT),
+							applyExponential(
+									deadband(m_translationYSupplier.getAsDouble()),
+									TRANSLATION_EXPONENT),
+							applyExponential(
+									deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
+							m_swerveSubsystem.getGyroHeading()));
 		}
 
-//		System.out.println(
-//				applyExponential(
-//						deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT));
+		//		System.out.println(
+		//				applyExponential(
+		//						deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT));
 	}
 
 	@Override

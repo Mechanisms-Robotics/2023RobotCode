@@ -1,5 +1,7 @@
 package com.swervedrivespecialties.swervelib;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 public interface DriveController {
 	Object getDriveMotor();
 
@@ -10,4 +12,6 @@ public interface DriveController {
 	double getStateDistance();
 
 	void setSimulatedMPS(double mps);
+
+	void setNeutralMode(NeutralMode neutralMode);
 }
