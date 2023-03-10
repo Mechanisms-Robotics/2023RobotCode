@@ -104,6 +104,5 @@ public class Feeder extends SubsystemBase {
 		// Set the feeder motor to run at 0% power
 		rightFeederMotor.set(ControlMode.PercentOutput, 0.0);
 		leftFeederMotor.set(ControlMode.PercentOutput, 0.0);
-		System.out.println("STOP");
 	}
 }

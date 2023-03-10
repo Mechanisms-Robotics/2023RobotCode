@@ -1,18 +1,10 @@
 {
-  "HALProvider": {
-    "Other Devices": {
-      "Talon FX[13]/Integrated Sensor": {
-        "header": {
-          "open": true
-        }
-      }
-    }
-  },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
+      "/SmartDashboard/USB_Camera Sim Field": "Field2d",
       "/SmartDashboard/limelight Sim Field": "Field2d"
     },
     "windows": {
@@ -78,6 +70,11 @@
         "robot": {
           "image": "C:\\Users\\nickb\\Downloads\\transparent.png"
         },
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/SendableChooser[0]": {
         "window": {
           "visible": true
         }

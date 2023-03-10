@@ -36,7 +36,6 @@ public class ConveyCommand extends CommandBase {
             System.out.println("START TIMER");
         }
         if (timer.hasElapsed(TIME_TO_STOP)) {
-            System.out.println("STOP");
             conveyor.stop();
             timer.stop();
             timer.reset();

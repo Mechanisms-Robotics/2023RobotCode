@@ -15,14 +15,26 @@ import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.ObstacleAvoidance;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class AutoCommands {
+
+	public static final Map<String, Command> EVENT_MAP = new HashMap<>();
+
+	static {
+		EVENT_MAP.put("marker0", Commands.none());
+		EVENT_MAP.put("marker1", Commands.none());
+		EVENT_MAP.put("marker2", Commands.none());
+	}
+
 	public static CommandBase resetPoseCommand(PathPlannerTrajectory trajectory, Swerve swerve) {
 		SmartDashboard.putNumber("Initial X", trajectory.getInitialPose().getX());
 		SmartDashboard.putNumber("Initial Y", trajectory.getInitialPose().getY());
 
 		return new InstantCommand(
 				() ->
-						swerve.setPose(
+						swerve.resetOdometry(
 								trajectory.getInitialPose(),
 								trajectory.getInitialState().holonomicRotation));
 	}
@@ -31,7 +43,7 @@ public final class AutoCommands {
 		SmartDashboard.putNumber("Initial X", pose.getX());
 		SmartDashboard.putNumber("Initial Y", pose.getY());
 
-		return new InstantCommand(() -> swerve.setPose(pose, pose.getRotation()));
+		return new InstantCommand(() -> swerve.resetOdometry(pose, pose.getRotation()));
 	}
 
 	public static CommandBase generateTrajectoryCommand(
