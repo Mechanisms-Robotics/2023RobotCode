@@ -12,19 +12,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Conveyor extends SubsystemBase {
 
-	private static final double CONVEYOR_CONVEY_SPEED = 0.45;
-	private static final double CONVEYOR_POSITIONING_SPEED = 0.15;
-	private static final double CONVEYOR_UNJAM_SPEED = -0.3;
-
 	private static final double DEBOUNCE_TIME = 0.25; // seconds
 
 	private static final TalonFXConfiguration CONVEYOR_MOTOR_CONFIG = new TalonFXConfiguration();
 
-	public final DigitalInput conveyorSensor = new DigitalInput(0);
+	public final DigitalInput frontSensor = new DigitalInput(0);
+	public final DigitalInput backSensor = new DigitalInput(1);
 
-	private boolean sensorValue = true;
-	private boolean isDebouncing = false;
-	private Timer debounceTimer = new Timer();
+	private final boolean[] sensorValues = {true, true};
+	private final boolean[] isDebouncing = {false, false};
+	private final Timer[] debounceTimers = {new Timer(), new Timer()};
 
 	static {
 		final var conveyorCurrentLimit = new SupplyCurrentLimitConfiguration();
@@ -47,7 +44,8 @@ public class Conveyor extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		SmartDashboard.putBoolean("Conveyor Sensor", getDebouncedSensor());
+		SmartDashboard.putBoolean("Front Sensor", getDebouncedSensor(0));
+		SmartDashboard.putBoolean("Back Sensor", getDebouncedSensor(1));
 	}
 
 	private void setOpenLoop(double percentOutput) {
@@ -58,33 +56,31 @@ public class Conveyor extends SubsystemBase {
 		setOpenLoop(speed);
 	}
 
-	public void unjam() {
-		setOpenLoop(CONVEYOR_UNJAM_SPEED);
+	public void outtake(double speed) {
+		setOpenLoop(speed);
 	}
 
-	public void position() {
-		setOpenLoop(CONVEYOR_POSITIONING_SPEED);
-	}
+	public boolean getDebouncedSensor(int id) {
+		boolean rawSensorValue = id == 0 ? frontSensor.get() : backSensor.get();
 
-	public boolean getDebouncedSensor() {
-		if (conveyorSensor.get() != sensorValue) {
-			if (!isDebouncing) {
-				debounceTimer.start();
+		if (rawSensorValue != sensorValues[id]) {
+			if (!isDebouncing[id]) {
+				debounceTimers[id].start();
 
-				isDebouncing = true;
+				isDebouncing[id] = true;
 			} else {
-				if (debounceTimer.hasElapsed(DEBOUNCE_TIME)) {
-					sensorValue = conveyorSensor.get();
+				if (debounceTimers[id].hasElapsed(DEBOUNCE_TIME)) {
+					sensorValues[id] = rawSensorValue;
 				}
 			}
 		} else {
-			debounceTimer.stop();
-			debounceTimer.reset();
+			debounceTimers[id].stop();
+			debounceTimers[id].reset();
 
-			isDebouncing = false;
+			isDebouncing[id] = false;
 		}
 
-		return sensorValue;
+		return !sensorValues[id];
 	}
 
 	public void stop() {

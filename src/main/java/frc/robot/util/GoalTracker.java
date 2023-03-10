@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 import java.util.function.Supplier;
@@ -40,17 +41,7 @@ public class GoalTracker extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		for (int i = 0; i < 9; i++) {
-			double distance_best =
-					m_closestGoalPosition.minus(m_poseSupplier.get()).getTranslation().getNorm();
-			double distance_i =
-					m_goalPoses.get(i).minus(m_poseSupplier.get()).getTranslation().getNorm();
-
-			if (distance_i < distance_best) {
-				m_closestGoalPosition = m_goalPoses.get(i);
-			}
-		}
-
+		m_closestGoalPosition = m_goalPoses.get((int) SmartDashboard.getNumber("TargetCol", 0));
 		m_field.getObject("eClosest Goal").setPose(m_closestGoalPosition);
 	}
 }

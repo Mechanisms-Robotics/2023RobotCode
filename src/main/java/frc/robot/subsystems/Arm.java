@@ -9,25 +9,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
 
-	public enum Position {
-		High(57500, EXTENDED_POSITION), // 65000
-		Middle(52500, EXTENDED_POSITION / 2),
-		Low(30000, STOWED_POSITION),
-		Stowed(17500, STOWED_POSITION),
-
-		CubeGrabPosition(TICKS_PER_DEGREE * 33.0, -250),
-		CubeBackStop(17500 + 4000, STOWED_POSITION),
-		;
-
-		private final double armPosition;
-		private final double extendPosition;
-
-		Position(double armPosition, double extendPosition) {
-			this.armPosition = armPosition;
-			this.extendPosition = extendPosition;
-		}
-	}
-
 	private enum ArmState {
 		Retracting,
 		Pivoting,
@@ -35,21 +16,14 @@ public class Arm extends SubsystemBase {
 		Idle,
 	}
 
-	private Position desiredPosition = Position.Stowed;
-
 	private static final TalonFXConfiguration ARM_MOTOR_CONFIG = new TalonFXConfiguration();
 	private static final TalonFXConfiguration ARM_EXTENDER_MOTOR_CONFIG =
 			new TalonFXConfiguration();
 
 	private static final double STOWED_POSITION = -500;
-	private static final double EXTENDED_POSITION = -17400;
-
-	private static final double MAX_GRAVITY_FF = 0.079; // 0.3
-	private static final double MAX_EXTENSION_GRAVITY_FF = -0.08;
 
 	private static final double TICKS_PER_DEGREE = (2048.0 / 360.0) * 89.89;
 
-	private static final double ARM_HORIZONTAL_POSITION = 57500;
 	private static final double ALLOWABLE_PIVOT_ERROR = 1000;
 	private static final double ALLOWABLE_EXTENSION_ERROR = 100;
 
@@ -85,9 +59,8 @@ public class Arm extends SubsystemBase {
 	private final WPI_TalonFX armMotorRight = new WPI_TalonFX(51);
 	private final WPI_TalonFX extenderMotor = new WPI_TalonFX(52);
 
-	private final ArmFeedforward armFeedforward = new ArmFeedforward(0.0, 0.86, 1.61, 0.05); // 0.86
-
 	private ArmState armState = ArmState.Idle;
+	private double[] desiredPosition = {0.0, 0.0};
 
 	private boolean zeroed = false;
 
@@ -166,17 +139,6 @@ public class Arm extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		if (armState != ArmState.Pivoting) {
-			double radians =
-					Math.toRadians(
-							-(ARM_HORIZONTAL_POSITION - armMotorLeft.getSelectedSensorPosition())
-									/ TICKS_PER_DEGREE);
-			double cosRadians = Math.cos(radians);
-			double demandFF = MAX_GRAVITY_FF * cosRadians;
-
-			//			setOpenLoop(demandFF);
-		}
-
 		switch (armState) {
 			case Idle:
 				idle();
@@ -193,7 +155,14 @@ public class Arm extends SubsystemBase {
 		}
 	}
 
-	public void setClosedLoop(double position) {
+	public void setArm(double armPosition, double extendPosition) {
+		this.desiredPosition[0] = armPosition;
+		this.desiredPosition[1] = extendPosition;
+
+		retract();
+	}
+
+	private void setClosedLoop(double position) {
 		if (!zeroed) {
 			return;
 		}
@@ -203,40 +172,21 @@ public class Arm extends SubsystemBase {
 		armMotorRight.follow(armMotorLeft);
 	}
 
-	public void setExtensionClosedLoop(double position) {
+	private void setExtensionClosedLoop(double position) {
 		if (!zeroed) {
 			return;
 		}
 
-		//		double radians =
-		//				Math.toRadians(
-		//						(armMotor.getSelectedSensorPosition())
-		//								/ TICKS_PER_DEGREE);
-		//		double cosRadians = Math.cos(radians);
-		//		double demandFF =
-		//				MAX_EXTENSION_GRAVITY_FF * cosRadians;
-
-		//    SmartDashboard.putNumber("ext FF", demandFF);
-		//		setExtensionOpenLoop(-0.07);
 		extenderMotor.set(ControlMode.MotionMagic, position);
 	}
 
-	private void setArm() {
-		setExtensionClosedLoop(STOWED_POSITION);
-	}
-
-	public void horizontal() {
-		setClosedLoop(ARM_HORIZONTAL_POSITION);
-	}
-
 	private void retract() {
-		//				System.out.println("RETRACTING");
-
 		if (armState == ArmState.Retracting) {
 			if (Math.abs(extenderMotor.getSelectedSensorPosition() - STOWED_POSITION)
 					<= ALLOWABLE_EXTENSION_ERROR) {
 				pivot();
 			}
+
 			return;
 		}
 
@@ -246,12 +196,10 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void pivot() {
-		//				System.out.println("PIBOTING");
-
 		if (armState == ArmState.Pivoting) {
-			if (Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition.armPosition)
+			if (Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition[0])
 					<= ALLOWABLE_PIVOT_ERROR) {
-				if (desiredPosition.extendPosition != STOWED_POSITION) {
+				if (desiredPosition[1] != STOWED_POSITION) {
 					deploy();
 				} else {
 					idle();
@@ -262,14 +210,12 @@ public class Arm extends SubsystemBase {
 		}
 
 		armState = ArmState.Pivoting;
-		setClosedLoop(desiredPosition.armPosition);
+		setClosedLoop(desiredPosition[0]);
 	}
 
 	private void deploy() {
-		//				System.out.println("DEPLOTIG");
-
 		if (armState == ArmState.Deploying) {
-			if (Math.abs(extenderMotor.getSelectedSensorPosition() - desiredPosition.extendPosition)
+			if (Math.abs(extenderMotor.getSelectedSensorPosition() - desiredPosition[1])
 					<= ALLOWABLE_EXTENSION_ERROR) {
 				idle();
 			}
@@ -279,53 +225,15 @@ public class Arm extends SubsystemBase {
 
 		armState = ArmState.Deploying;
 
-		setExtensionClosedLoop(desiredPosition.extendPosition);
+		setExtensionClosedLoop(desiredPosition[1]);
 	}
 
 	private void idle() {
-		//				System.out.println("IDJLING");
-
 		armState = ArmState.Idle;
-	}
-
-	public void stow() {
-		desiredPosition = Position.Stowed;
-		armState = ArmState.Idle;
-		retract();
-	}
-
-	public void low() {
-		desiredPosition = Position.Low;
-		armState = ArmState.Idle;
-		retract();
-	}
-
-	public void mid() {
-		desiredPosition = Position.Middle;
-		armState = ArmState.Idle;
-		retract();
-	}
-
-	public void high() {
-		desiredPosition = Position.High;
-		armState = ArmState.Idle;
-		retract();
-	}
-
-	public void cubeBackStop() {
-		desiredPosition = Position.CubeBackStop;
-		armState = ArmState.Idle;
-		retract();
-	}
-
-	public void cubeGrabPosition() {
-		desiredPosition = Position.CubeGrabPosition;
-		armState = ArmState.Idle;
-		retract();
 	}
 
 	public boolean isAtPosition() {
-		return Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition.armPosition)
+		return Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition[0])
 				<= ALLOWABLE_PIVOT_ERROR;
 	}
 

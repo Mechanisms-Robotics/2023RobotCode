@@ -33,9 +33,9 @@ public class Robot extends TimedRobot {
 	/** This method is called once each time the robot enters Disabled mode. */
 	@Override
 	public void disabledInit() {
-		m_robotContainer.m_intakeSubsystem.stopPivot();
-		m_robotContainer.m_armSubsystem.stop();
-		m_robotContainer.m_gripperSubsystem.stop();
+		m_robotContainer.m_intake.stopPivot();
+		m_robotContainer.m_arm.stop();
+		m_robotContainer.m_gripper.stop();
 	}
 
 	@Override
@@ -55,8 +55,8 @@ public class Robot extends TimedRobot {
 			m_autonomousCommand.schedule();
 		}
 
-		m_robotContainer.m_swerveSubsystem.setNeutralMode(NeutralMode.Brake);
-		m_robotContainer.m_swerveSubsystem.zeroGyro();
+		m_robotContainer.m_swerve.setNeutralMode(NeutralMode.Brake);
+		m_robotContainer.m_swerve.zeroGyro();
 	}
 
 	/** This method is called periodically during autonomous. */
@@ -70,12 +70,12 @@ public class Robot extends TimedRobot {
 		// continue until interrupted by another command, remove
 		// this line or comment it out.
 
-		m_robotContainer.m_armSubsystem.stow();
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
 
-		m_robotContainer.m_swerveSubsystem.setNeutralMode(NeutralMode.Coast);
+		m_robotContainer.m_swerve.setNeutralMode(NeutralMode.Coast);
+		m_robotContainer.m_superstructure.idle();
 	}
 
 	/** This method is called periodically during operator control. */
@@ -87,10 +87,9 @@ public class Robot extends TimedRobot {
 		// Cancels all running commands at the start of test mode.
 		CommandScheduler.getInstance().cancelAll();
 
-		m_robotContainer.m_intakeSubsystem.zeroEncoders();
-		m_robotContainer.m_armSubsystem.zeroEncoder();
-		m_robotContainer.m_swerveSubsystem.zeroGyro();
-		m_robotContainer.m_gripperSubsystem.zeroEncoder();
+		m_robotContainer.m_intake.zeroEncoders();
+		m_robotContainer.m_arm.zeroEncoder();
+		m_robotContainer.m_gripper.zeroEncoder();
 	}
 
 	/** This method is called periodically during test mode. */

@@ -6,6 +6,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 public final class Constants {
@@ -32,15 +33,15 @@ public final class Constants {
 	public static final Pose2d PICKUP_POSE =
 			new Pose2d(new Translation2d(13.5, 7.0), Rotation2d.fromDegrees(45.0));
 
-	public static final double SWERVE_X_KP = 0.075;
+	public static final double SWERVE_X_KP = RobotBase.isReal() ? 0.075 : 10.0;
 	public static final double SWERVE_X_KI = 0.0;
 	public static final double SWERVE_X_KD = 0.0;
 
-	public static final double SWERVE_Y_KP = 0.075;
+	public static final double SWERVE_Y_KP = RobotBase.isReal() ? 0.075 : 10.0;
 	public static final double SWERVE_Y_KI = 0.0;
 	public static final double SWERVE_Y_KD = 0.0;
 
-	public static final double SWERVE_ROT_KP = 0.2;
+	public static final double SWERVE_ROT_KP = RobotBase.isReal() ? 0.2 : 2.0;
 	public static final double SWERVE_ROT_KI = 0.0;
 	public static final double SWERVE_ROT_KD = 0.0;
 

@@ -9,44 +9,22 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Intake extends SubsystemBase {
 
 	private enum Position {
-		GamePieceStation(-16387, 0.2, 0.7),
-		Deploy(-37800, INTAKE_SPEED, OUTTAKE_SPEED),
-		Retract(-3000, INTAKE_SPEED, OUTTAKE_SPEED);
+		Retract(-3000),
+		Deploy(-37800),
+		GamePieceStation(-16387);
 
-		private final double intakeSpeed;
-		private final double outtakeSpeed;
 		private final double position;
 
-		Position(double position, double intakeSpeed, double outtakeSpeed) {
+		Position(double position) {
 			this.position = position;
-			this.intakeSpeed = intakeSpeed;
-			this.outtakeSpeed = outtakeSpeed;
 		}
 	}
-
-	public enum IntakeMode {
-		Cube(0.3),
-		Cone(0.45);
-
-		public final double speed;
-
-		IntakeMode(double speed) {
-			this.speed = speed;
-		}
-	}
-
-	private static final double INTAKE_SPEED = 0.4; // 0.7 percent
-	private static final double OUTTAKE_SPEED = -0.15;
 
 	private static final TalonFXConfiguration INTAKE_MOTOR_CONFIG = new TalonFXConfiguration();
 	private static final TalonFXConfiguration INTAKE_PIVOT_MOTOR_CONFIG =
 			new TalonFXConfiguration();
 	private static final TalonFXConfiguration LEFT_PIVOT_CONFIG;
 	private static final TalonFXConfiguration RIGHT_PIVOT_CONFIG;
-
-	//	private static final double RETRACTED_SENSOR_POSITION = -3000; // -5000
-	//	private static final double DEPLOYED_SENSOR_POSITION = -37000; // -34500
-	//	private static final double GAME_PIECE_STATION_POSITION = -16387;
 
 	private static final double RIGHT_MOTOR_HORIZONTAL_POSITION = -37000; // -34359
 	private static final double TICKS_PER_DEGREE = (2048.0 / 360.0) * 60.6814;
@@ -98,8 +76,6 @@ public class Intake extends SubsystemBase {
 
 	private Position currentMode = Position.Retract;
 
-	private IntakeMode intakeMode = IntakeMode.Cube;
-
 	public Intake() {
 		pivotRight.configFactoryDefault();
 		pivotLeft.configFactoryDefault();
@@ -139,7 +115,6 @@ public class Intake extends SubsystemBase {
 		pivotRight.config_kI(0, 0.0);
 		pivotRight.config_kD(0, kD);
 		pivotRight.config_kF(0, kF);
-		//		intakePivotRight.config_IntegralZone(0, );
 
 		pivotLeft.config_kP(0, kP);
 		pivotLeft.config_kI(0, 0.0);
@@ -170,17 +145,7 @@ public class Intake extends SubsystemBase {
 								/ TICKS_PER_DEGREE);
 		double cosRadians = Math.cos(radians);
 		double demandFF = MAX_GRAVITY_FF * cosRadians;
-		//		System.out.println(Math.toDegrees(radians));
-		// NOTE: Use Position with ArbFF instead of MotionMagic
-		// For Position, CTRE recommends setting kF to 0 and passing in ArbFF
-		// CTRE says that kF needs to be calculated.
-		// For MotionMagic: kF is multiplied by the runtime-calculated target and added to output.
-		// NOTE: Update motor firmware
-		/**
-		 * The kF feature and arbitrary feed-forward feature are not the same. Arbitrary
-		 * feed-forward is a supplemental term [-1,1] the robot application can provide to add to
-		 * the output via the set() routine/VI.
-		 */
+
 		pivotRight.set(
 				ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, demandFF);
 		pivotLeft.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, demandFF);
@@ -191,8 +156,8 @@ public class Intake extends SubsystemBase {
 		setOpenLoop(speed);
 	}
 
-	public void outtake() {
-		setOpenLoop(currentMode.outtakeSpeed);
+	public void outtake(double speed) {
+		setOpenLoop(speed);
 	}
 
 	@Override
@@ -219,30 +184,9 @@ public class Intake extends SubsystemBase {
 		setClosedLoop(Position.Deploy.position);
 	}
 
-	public void setToGamePieceStation() {
+	public void hpStation() {
 		currentMode = Position.GamePieceStation;
 		setClosedLoop(Position.GamePieceStation.position);
-	}
-
-	public void toggleBrakeMode() {
-		isBrakeMode = !isBrakeMode;
-		if (isBrakeMode) {
-			pivotRight.setNeutralMode(NeutralMode.Brake);
-			pivotLeft.setNeutralMode(NeutralMode.Brake);
-
-		} else {
-			pivotRight.setNeutralMode(NeutralMode.Coast);
-			pivotLeft.setNeutralMode(NeutralMode.Coast);
-		}
-	}
-
-	public void setIntakeMode(IntakeMode mode) {
-		if (spinRight.getSelectedSensorVelocity() > 10 && this.intakeMode != mode) {
-			this.intakeMode = mode;
-			intake(0.0);
-		} else {
-			this.intakeMode = mode;
-		}
 	}
 
 	public void zeroEncoders() {
@@ -263,9 +207,5 @@ public class Intake extends SubsystemBase {
 	public void stopPivot() {
 		pivotLeft.set(ControlMode.PercentOutput, 0.0);
 		pivotRight.set(ControlMode.PercentOutput, 0.0);
-	}
-
-	public static double ticksPer100ms(double degPerSec) {
-		return (degPerSec / 10) * TICKS_PER_DEGREE;
 	}
 }

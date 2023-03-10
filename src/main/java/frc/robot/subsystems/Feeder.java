@@ -8,21 +8,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /** This class contains all the code that controls the feeder functionality */
 public class Feeder extends SubsystemBase {
 
-	public enum FeederMode {
-		Cube(-1.0),
-		Cone(-0.25);
-
-		public final double speed;
-
-		FeederMode(double speed) {
-			this.speed = speed;
-		}
-	}
-
-	// Feeder speeds
-	private static final double UNJAM_SPEED = 0.1;
-	private static final double FEEDER_ROTATE_SPEED = 0.05;
-
 	// Feeder motor
 	private final WPI_TalonFX rightFeederMotor = new WPI_TalonFX(30);
 	private final WPI_TalonFX leftFeederMotor = new WPI_TalonFX(31);
@@ -47,8 +32,6 @@ public class Feeder extends SubsystemBase {
 		FEEDER_MOTOR_CONFIGURATION.forwardSoftLimitEnable = false;
 		FEEDER_MOTOR_CONFIGURATION.voltageCompSaturation = 10; // v
 	}
-
-	private FeederMode feederMode = FeederMode.Cube;
 
 	/** Constructor for the Feeder class */
 	public Feeder() {
@@ -78,23 +61,9 @@ public class Feeder extends SubsystemBase {
 		leftFeederMotor.set(ControlMode.PercentOutput, speed);
 	}
 
-	public void unjam() {
-		rightFeederMotor.set(ControlMode.PercentOutput, UNJAM_SPEED);
-		leftFeederMotor.set(ControlMode.PercentOutput, UNJAM_SPEED);
-	}
-
-	public void rotate() {
-		rightFeederMotor.set(ControlMode.PercentOutput, FEEDER_ROTATE_SPEED);
-		leftFeederMotor.set(ControlMode.PercentOutput, -FEEDER_ROTATE_SPEED);
-	}
-
-	public void setFeederMode(FeederMode mode) {
-		if (rightFeederMotor.getSelectedSensorVelocity() > 10 && this.feederMode != mode) {
-			this.feederMode = mode;
-			feed(0.0);
-		} else {
-			this.feederMode = mode;
-		}
+	public void outtake(double speed) {
+		rightFeederMotor.set(ControlMode.PercentOutput, speed);
+		leftFeederMotor.set(ControlMode.PercentOutput, speed);
 	}
 
 	/** Stops the feeder */

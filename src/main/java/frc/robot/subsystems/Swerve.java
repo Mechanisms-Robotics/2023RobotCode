@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -32,7 +33,7 @@ import org.photonvision.EstimatedRobotPose;
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
 	private static final double MAX_VOLTAGE = 12.0; // volts
-	public static final double MAX_VELOCITY_RANGE = 2.5; // 1.5 m/s
+	public static final double MAX_VELOCITY_RANGE = RobotBase.isReal() ? 2.5 : 1.5; // 1.5 m/s
 	private static final double MAX_VELOCITY = 4.5;
 	public static final double ANGULAR_VELOCITY_RANGE = Math.PI / 2; // rad/s
 

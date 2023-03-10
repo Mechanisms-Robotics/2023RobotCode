@@ -50,6 +50,7 @@ public class ObstacleAvoidance {
 		double curY = swerve.getPose().getY();
 
 		double goalX = goalPose.getX();
+		double goalY = goalPose.getY();
 
 		if (goalX < BORDER_2_X && BORDER_2_X < curX) {
 			if (BORDER_1_Y < curY) {
@@ -133,10 +134,18 @@ public class ObstacleAvoidance {
 			}
 		}
 
+		Rotation2d endHeading;
+
+		if (curY > goalY) {
+			endHeading = Rotation2d.fromDegrees(-90.0);
+		} else {
+			endHeading = Rotation2d.fromDegrees(90.0);
+		}
+
 		points.add(
 				new PathPoint(
 						goalPose.getTranslation(),
-						Rotation2d.fromDegrees(180.0),
+						endHeading,
 						goalPose.getRotation()));
 
 		PathPlannerTrajectory trajectory =

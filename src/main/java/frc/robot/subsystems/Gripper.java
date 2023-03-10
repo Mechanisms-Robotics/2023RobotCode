@@ -20,6 +20,8 @@ public class Gripper extends SubsystemBase {
 
 	private static final TalonFXConfiguration GRIPPER_MOTOR_CONFIG = new TalonFXConfiguration();
 
+	private boolean isZeroed = false;
+
 	static {
 		GRIPPER_MOTOR_CONFIG.motionAcceleration = 2000;
 		GRIPPER_MOTOR_CONFIG.motionCruiseVelocity = 2000;
@@ -49,10 +51,18 @@ public class Gripper extends SubsystemBase {
 	}
 
 	private void setOpenLoop(double percentOutput) {
+		if (!isZeroed) {
+			return;
+		}
+
 		gripperMotor.set(ControlMode.PercentOutput, percentOutput);
 	}
 
-	private void setClosedLoop(double position) {
+	public void setClosedLoop(double position) {
+		if (!isZeroed) {
+			return;
+		}
+
 		gripperMotor.set(ControlMode.Position, position);
 	}
 
