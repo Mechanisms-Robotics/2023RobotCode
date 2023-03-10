@@ -22,6 +22,7 @@ import frc.robot.commands.superstructure.AutoScoreCommand;
 import frc.robot.commands.superstructure.ScoreCommand;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Superstructure.Element;
 import frc.robot.util.GoalTracker;
 import frc.robot.util.GoalTracker.TrackingMode;
 
@@ -93,11 +94,24 @@ public class RobotContainer {
 
 		m_secondDriverController
 				.leftBumper()
-				.onTrue(new SetTrackingMode(m_goalTracker, TrackingMode.BestGoal));
+				.onTrue(new ConditionalCommand(
+						new SetTrackingMode(m_goalTracker, TrackingMode.BestGoal),
+						new InstantCommand(() -> {
+							m_superstructure.setElement(Element.Cube);
+						}),
+						m_superstructure::getAutoScore
+				));
 
-		m_secondDriverController
-				.rightBumper()
-				.onTrue(new SetTrackingMode(m_goalTracker, TrackingMode.ClosestGoal));
+    m_secondDriverController
+        .rightBumper()
+        .onTrue(
+            new ConditionalCommand(
+                new SetTrackingMode(m_goalTracker, TrackingMode.ClosestGoal),
+                new InstantCommand(
+                    () -> {
+                      m_superstructure.setElement(Element.Cone);
+                    }),
+                m_superstructure::getAutoScore));
 
     m_secondDriverController
         .y()

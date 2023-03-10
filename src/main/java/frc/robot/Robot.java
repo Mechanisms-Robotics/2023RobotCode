@@ -92,12 +92,14 @@ public class Robot extends TimedRobot {
 				m_robotContainer.m_goalTracker.getTargetNode()[0],
 				m_robotContainer.m_goalTracker.getTargetNode()[1]);
 
-		if (m_robotContainer.m_goalTracker.getTargetNode()[1] == 1
-				|| m_robotContainer.m_goalTracker.getTargetNode()[1] == 4
-				|| m_robotContainer.m_goalTracker.getTargetNode()[1] == 7) {
-			m_robotContainer.m_superstructure.setElement(Element.Cube);
-		} else {
-			m_robotContainer.m_superstructure.setElement(Element.Cone);
+    if (m_robotContainer.m_superstructure.getAutoScore()) {
+      if (m_robotContainer.m_goalTracker.getTargetNode()[1] == 1
+          || m_robotContainer.m_goalTracker.getTargetNode()[1] == 4
+          || m_robotContainer.m_goalTracker.getTargetNode()[1] == 7) {
+        m_robotContainer.m_superstructure.setElement(Element.Cube);
+      } else {
+        m_robotContainer.m_superstructure.setElement(Element.Cone);
+      }
 		}
 	}
 
