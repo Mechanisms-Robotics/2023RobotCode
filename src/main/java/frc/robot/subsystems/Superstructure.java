@@ -99,6 +99,8 @@ public class Superstructure extends SubsystemBase {
 
 	private final Timer m_scoreTimer = new Timer();
 
+	private boolean m_autoScore = true;
+
 	public Superstructure(
 			Intake intake, Feeder feeder, Conveyor conveyor, Arm arm, Gripper gripper) {
 		m_intake = intake;
@@ -266,6 +268,9 @@ public class Superstructure extends SubsystemBase {
 		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][0]);
 
 		if (m_scoreTimer.hasElapsed(SCORE_TIME)) {
+			m_scoreTimer.stop();
+			m_scoreTimer.reset();
+
 			idle();
 		}
 	}
@@ -281,5 +286,13 @@ public class Superstructure extends SubsystemBase {
 
 	public boolean atPosition() {
 		return m_arm.isIdle() && m_arm.isAtPosition() && m_arm.extendAtPosition();
+	}
+
+	public void setAutoScore(boolean autoScore) {
+		m_autoScore = autoScore;
+	}
+
+	public boolean getAutoScore() {
+		return m_autoScore;
 	}
 }

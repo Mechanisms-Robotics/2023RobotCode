@@ -1,87 +1,32 @@
 package frc.robot.commands.superstructure;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.auto.AutoCommands;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Swerve;
-import frc.robot.util.GoalTracker;
+import java.util.function.BooleanSupplier;
 
 public class ScoreCommand extends CommandBase {
-	private static final Transform2d LINEUP_OFFSET =
-			new Transform2d(new Translation2d(1.25, 0.0), new Rotation2d());
-	private static final Transform2d PLACE_OFFSET =
-			new Transform2d(new Translation2d(0.75, 0.0), new Rotation2d());
+  private final Superstructure m_superstructure;
+  private final BooleanSupplier m_interrupt;
 
-	private enum ScoreState {
-		DrivingTo,
-		Prepping,
-		Placing,
-		Done
-	}
+  public ScoreCommand(Superstructure superstructure, BooleanSupplier interrupt) {
+    m_superstructure = superstructure;
+    m_interrupt = interrupt;
 
-	private final Swerve m_swerve;
-	private final GoalTracker m_goalTracker;
-	private final Superstructure m_superstructure;
+    addRequirements(superstructure);
+  }
 
-	private ScoreState m_state;
+  @Override
+  public void initialize() {
+    m_superstructure.prep();
+  }
 
-	public ScoreCommand(Swerve swerve, GoalTracker goalTracker, Superstructure superstructure) {
-		m_swerve = swerve;
-		m_goalTracker = goalTracker;
-		m_superstructure = superstructure;
+  @Override
+  public boolean isFinished() {
+    return m_interrupt.getAsBoolean();
+  }
 
-		addRequirements(m_superstructure);
-	}
-
-	@Override
-	public void execute() {
-		if (m_state == null) {
-			if (!m_swerve.getRunningTrajectory()) {
-				CommandScheduler.getInstance()
-						.schedule(
-								AutoCommands.driveToAvoidObstaclesCommand(
-										m_goalTracker.getTargetGoal().transformBy(LINEUP_OFFSET),
-										m_swerve));
-			} else {
-				m_state = ScoreState.DrivingTo;
-			}
-		} else if (m_state == ScoreState.DrivingTo) {
-			if (!m_swerve.getRunningTrajectory()) {
-				m_state = ScoreState.Prepping;
-
-				m_superstructure.prep();
-			}
-		} else if (m_state == ScoreState.Prepping) {
-			if (m_superstructure.atPosition() || RobotBase.isSimulation()) {
-				if (!m_swerve.getRunningTrajectory()) {
-					CommandScheduler.getInstance()
-							.schedule(
-									AutoCommands.driveToAvoidObstaclesCommand(
-											m_goalTracker.getTargetGoal().transformBy(PLACE_OFFSET),
-											m_swerve));
-				} else {
-					m_state = ScoreState.Placing;
-				}
-			}
-		} else if (m_state == ScoreState.Placing) {
-			if (!m_swerve.getRunningTrajectory()) {
-				m_state = ScoreState.Done;
-
-				m_superstructure.score();
-			}
-		}
-	}
-
-	@Override
-	public boolean isFinished() {
-		if (m_state != null) SmartDashboard.putString("ScoreState", m_state.toString());
-
-		return m_state == ScoreState.Done;
-	}
+  @Override
+  public void end(boolean interrupted) {
+    m_superstructure.score();
+  }
 }
