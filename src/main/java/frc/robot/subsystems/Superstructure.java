@@ -135,6 +135,18 @@ public class Superstructure extends SubsystemBase {
 
 		SmartDashboard.putString("State", m_state.toString());
 		SmartDashboard.putString("Element", m_element.toString());
+
+		switch (m_targetNode[0]) {
+			case 0:
+				SmartDashboard.putString("Level", "Low");
+				break;
+			case 1:
+				SmartDashboard.putString("Level", "Mid");
+				break;
+			case 2:
+				SmartDashboard.putString("Level", "High");
+				break;
+		}
 	}
 
 	@Override

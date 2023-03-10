@@ -16,9 +16,9 @@ import frc.robot.commands.goalTracker.SetTrackingMode;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.HPStationIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
+import frc.robot.commands.superstructure.AutoScoreCommand;
 import frc.robot.commands.superstructure.IntakeCommand;
 import frc.robot.commands.superstructure.OuttakeCommand;
-import frc.robot.commands.superstructure.AutoScoreCommand;
 import frc.robot.commands.superstructure.ScoreCommand;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
@@ -80,76 +80,94 @@ public class RobotContainer {
 				.a()
 				.onTrue(
 						new ConditionalCommand(
-								new InstantCommand(() -> {
-									CommandScheduler.getInstance()
-											.schedule(
-													new AutoScoreCommand(
-															m_swerve,
-															m_goalTracker,
-															m_superstructure));
-								}),
+								new InstantCommand(
+										() -> {
+											CommandScheduler.getInstance()
+													.schedule(
+															new AutoScoreCommand(
+																	m_swerve,
+																	m_goalTracker,
+																	m_superstructure));
+										}),
 								new ScoreCommand(m_superstructure, m_secondDriverController.a()),
 								m_superstructure::getAutoScore));
 		m_driverController.y().toggleOnTrue(new OuttakeCommand(m_superstructure));
 
 		m_secondDriverController
 				.leftBumper()
-				.onTrue(new ConditionalCommand(
-						new SetTrackingMode(m_goalTracker, TrackingMode.BestGoal),
-						new InstantCommand(() -> {
-							m_superstructure.setElement(Element.Cube);
-						}),
-						m_superstructure::getAutoScore
-				));
+				.onTrue(new SetTrackingMode(m_goalTracker, TrackingMode.BestGoal));
 
-    m_secondDriverController
-        .rightBumper()
-        .onTrue(
-            new ConditionalCommand(
-                new SetTrackingMode(m_goalTracker, TrackingMode.ClosestGoal),
-                new InstantCommand(
-                    () -> {
-                      m_superstructure.setElement(Element.Cone);
-                    }),
-                m_superstructure::getAutoScore));
+		m_secondDriverController
+				.rightBumper()
+				.onTrue(new SetTrackingMode(m_goalTracker, TrackingMode.ClosestGoal));
 
-    m_secondDriverController
-        .y()
-        .onTrue(
-            new InstantCommand(
-                () -> m_superstructure.setAutoScore(!m_superstructure.getAutoScore())));
+		m_secondDriverController.leftTrigger().onTrue(new ConditionalCommand(
+				new InstantCommand(() -> {
+					m_superstructure.setElement(Element.Cone);
+				}),
+				new InstantCommand(() -> {}),
+						() -> (!m_superstructure.getAutoScore() || m_goalTracker.getTrackingMode() == TrackingMode.ClosestGoal)
+		));
+
+		m_secondDriverController.rightTrigger().onTrue(new ConditionalCommand(
+				new InstantCommand(() -> {
+					m_superstructure.setElement(Element.Cube);
+				}),
+				new InstantCommand(() -> {}),
+				() -> (!m_superstructure.getAutoScore() || m_goalTracker.getTrackingMode() == TrackingMode.ClosestGoal)
+		));
+
+		m_secondDriverController
+				.y()
+				.onTrue(
+						new InstantCommand(
+								() ->
+										m_superstructure.setAutoScore(
+												!m_superstructure.getAutoScore())));
 
 		m_secondDriverController.povDown().onTrue(new InstantCommand(m_superstructure::idle));
 
-		m_secondDriverController.povLeft().onTrue(
-				new ConditionalCommand(
-						new InstantCommand(() -> {}),
-						new InstantCommand(() -> {
-							m_superstructure.setNode(0, 0);
-						}),
-						m_superstructure::getAutoScore
-				)
-		);
+		m_secondDriverController
+				.povLeft()
+				.onTrue(
+						new ConditionalCommand(
+								new InstantCommand(() -> {}),
+								new InstantCommand(
+										() -> {
+											m_superstructure.setNode(0, 0);
+										}),
+								() ->
+										m_superstructure.getAutoScore()
+												&& !(m_goalTracker.getTrackingMode()
+														== TrackingMode.ClosestGoal)));
 
-		m_secondDriverController.povRight().onTrue(
-				new ConditionalCommand(
-						new InstantCommand(() -> {}),
-						new InstantCommand(() -> {
-							m_superstructure.setNode(1, 0);
-						}),
-						m_superstructure::getAutoScore
-				)
-		);
+		m_secondDriverController
+				.povRight()
+				.onTrue(
+						new ConditionalCommand(
+								new InstantCommand(() -> {}),
+								new InstantCommand(
+										() -> {
+											m_superstructure.setNode(1, 0);
+										}),
+								() ->
+										m_superstructure.getAutoScore()
+												&& !(m_goalTracker.getTrackingMode()
+														== TrackingMode.ClosestGoal)));
 
-		m_secondDriverController.povUp().onTrue(
-				new ConditionalCommand(
-						new InstantCommand(() -> {}),
-						new InstantCommand(() -> {
-							m_superstructure.setNode(2, 0);
-						}),
-						m_superstructure::getAutoScore
-				)
-		);
+		m_secondDriverController
+				.povUp()
+				.onTrue(
+						new ConditionalCommand(
+								new InstantCommand(() -> {}),
+								new InstantCommand(
+										() -> {
+											m_superstructure.setNode(2, 0);
+										}),
+								() ->
+										m_superstructure.getAutoScore()
+												&& !(m_goalTracker.getTrackingMode()
+														== TrackingMode.ClosestGoal)));
 	}
 
 	private void configureDefaultCommands() {

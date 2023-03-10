@@ -61,6 +61,10 @@ public class GoalTracker extends SubsystemBase {
 		m_trackingMode = trackingMode;
 	}
 
+	public TrackingMode getTrackingMode() {
+		return m_trackingMode;
+	}
+
 	@Override
 	public void periodic() {
 		if (m_trackingMode == TrackingMode.BestGoal) {
