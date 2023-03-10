@@ -4,7 +4,6 @@ import com.ctre.phoenix.ParamEnum;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
@@ -235,6 +234,15 @@ public class Arm extends SubsystemBase {
 	public boolean isAtPosition() {
 		return Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition[0])
 				<= ALLOWABLE_PIVOT_ERROR;
+	}
+
+	public boolean extendAtPosition() {
+		return Math.abs(extenderMotor.getSelectedSensorPosition() - desiredPosition[1])
+				<= ALLOWABLE_EXTENSION_ERROR;
+	}
+
+	public boolean isIdle() {
+		return armState == ArmState.Idle;
 	}
 
 	public void zeroEncoder() {

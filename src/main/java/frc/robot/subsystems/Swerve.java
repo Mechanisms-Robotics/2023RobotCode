@@ -405,6 +405,10 @@ public class Swerve extends SubsystemBase {
 		m_isRunningTrajectory = isRunningTrajectory;
 	}
 
+	public boolean getRunningTrajectory() {
+		return m_isRunningTrajectory;
+	}
+
 	public PathPlannerTrajectory getTrajectory() {
 		return m_currentTrajectory;
 	}

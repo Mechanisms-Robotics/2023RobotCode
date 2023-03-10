@@ -20,12 +20,12 @@ public class ObstacleAvoidance {
 	private static final Pose2d UPPER_RIGHT_CONTROL_POINT =
 			new Pose2d(new Translation2d(5.50, 4.75), Rotation2d.fromDegrees(180.0));
 	private static final Pose2d UPPER_LEFT_CONTROL_POINT =
-			new Pose2d(new Translation2d(2.25, 4.75), Rotation2d.fromDegrees(180.0));
+			new Pose2d(new Translation2d(2.625, 4.75), Rotation2d.fromDegrees(180.0 + 45.0));
 
 	private static final Pose2d LOWER_RIGHT_CONTROL_POINT =
 			new Pose2d(new Translation2d(5.50, 0.75), Rotation2d.fromDegrees(180.0));
 	private static final Pose2d LOWER_LEFT_CONTROL_POINT =
-			new Pose2d(new Translation2d(2.25, 0.75), Rotation2d.fromDegrees(180.0));
+			new Pose2d(new Translation2d(2.625, 0.75), Rotation2d.fromDegrees(180.0 - 45.0));
 
 	private static final Pose2d HP_CONTROL_POINT =
 			new Pose2d(new Translation2d(10.5, 6.0), Rotation2d.fromDegrees(20.0));
@@ -41,8 +41,6 @@ public class ObstacleAvoidance {
 	public static PathPlannerTrajectory generateTrajectoryAvoidObstacles(
 			Pose2d goalPose, double translationVelocity, double rotationVelocity, Swerve swerve) {
 		ArrayList<PathPoint> points = new ArrayList<>();
-		points.add(PathPoint.fromCurrentHolonomicState(swerve.getPose(), swerve.getVelocity()));
-
 		SmartDashboard.putNumber("Goal X", goalPose.getX());
 		SmartDashboard.putNumber("Goal Y", goalPose.getY());
 
@@ -51,6 +49,20 @@ public class ObstacleAvoidance {
 
 		double goalX = goalPose.getX();
 		double goalY = goalPose.getY();
+
+		if (curY > goalY) {
+			points.add(
+					new PathPoint(
+							swerve.getPose().getTranslation(),
+							Rotation2d.fromDegrees(-90.0),
+							swerve.getGyroHeading()));
+		} else {
+			points.add(
+					new PathPoint(
+							swerve.getPose().getTranslation(),
+							Rotation2d.fromDegrees(90.0),
+							swerve.getGyroHeading()));
+		}
 
 		if (goalX < BORDER_2_X && BORDER_2_X < curX) {
 			if (BORDER_1_Y < curY) {
@@ -134,18 +146,10 @@ public class ObstacleAvoidance {
 			}
 		}
 
-		Rotation2d endHeading;
-
-		if (curY > goalY) {
-			endHeading = Rotation2d.fromDegrees(-90.0);
-		} else {
-			endHeading = Rotation2d.fromDegrees(90.0);
-		}
-
 		points.add(
 				new PathPoint(
 						goalPose.getTranslation(),
-						endHeading,
+						Rotation2d.fromDegrees(-90.0),
 						goalPose.getRotation()));
 
 		PathPlannerTrajectory trajectory =

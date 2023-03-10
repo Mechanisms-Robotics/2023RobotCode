@@ -6,9 +6,12 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Superstructure.Element;
 import frc.robot.util.AprilTagTracker;
 import org.photonvision.common.hardware.VisionLEDMode;
 
@@ -57,6 +60,10 @@ public class Robot extends TimedRobot {
 
 		m_robotContainer.m_swerve.setNeutralMode(NeutralMode.Brake);
 		m_robotContainer.m_swerve.zeroGyro();
+
+		if (DriverStation.getAlliance().name().equals("Blue"))
+			AprilTagTracker.setAllianceSide(OriginPosition.kBlueAllianceWallRightSide);
+		else AprilTagTracker.setAllianceSide(OriginPosition.kRedAllianceWallRightSide);
 	}
 
 	/** This method is called periodically during autonomous. */
@@ -80,7 +87,19 @@ public class Robot extends TimedRobot {
 
 	/** This method is called periodically during operator control. */
 	@Override
-	public void teleopPeriodic() {}
+	public void teleopPeriodic() {
+		m_robotContainer.m_superstructure.setNode(
+				m_robotContainer.m_goalTracker.getTargetNode()[0],
+				m_robotContainer.m_goalTracker.getTargetNode()[1]);
+
+		if (m_robotContainer.m_goalTracker.getTargetNode()[1] == 1
+				|| m_robotContainer.m_goalTracker.getTargetNode()[1] == 4
+				|| m_robotContainer.m_goalTracker.getTargetNode()[1] == 7) {
+			m_robotContainer.m_superstructure.setElement(Element.Cube);
+		} else {
+			m_robotContainer.m_superstructure.setElement(Element.Cone);
+		}
+	}
 
 	@Override
 	public void testInit() {

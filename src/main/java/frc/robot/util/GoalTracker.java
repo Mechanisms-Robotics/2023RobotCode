@@ -11,14 +11,22 @@ import java.util.function.Supplier;
 
 public class GoalTracker extends SubsystemBase {
 	private static final Translation2d LEFT_LOW_POSITION = new Translation2d(1.16, 0.48);
-	private static final Translation2d UP_OFFSET = new Translation2d(0.0, 0.55);
+	private static final Translation2d UP_OFFSET = new Translation2d(0.0, 0.565);
 
 	private final Field2d m_field;
 
 	private final ArrayList<Pose2d> m_goalPoses = new ArrayList<>();
 
 	private final Supplier<Pose2d> m_poseSupplier;
-	private Pose2d m_closestGoalPosition = new Pose2d(LEFT_LOW_POSITION, new Rotation2d());
+	private Pose2d m_targetGoalPosition = new Pose2d(LEFT_LOW_POSITION, new Rotation2d());
+	private final int[] m_targetNode = {0, 0};
+
+	public enum TrackingMode {
+		BestGoal,
+		ClosestGoal
+	}
+
+	private TrackingMode m_trackingMode = TrackingMode.BestGoal;
 
 	public GoalTracker(Field2d field, Supplier<Pose2d> poseSupplier) {
 		initGoalPositions();
@@ -35,13 +43,48 @@ public class GoalTracker extends SubsystemBase {
 		}
 	}
 
-	public Pose2d getClosestGoal() {
-		return m_closestGoalPosition;
+	public void setTargetGoal(int col) {
+		m_targetGoalPosition = m_goalPoses.get(col);
+		m_targetNode[0] = (int) SmartDashboard.getNumber("TargetRow", 0);
+		m_targetNode[1] = col;
+	}
+
+	public Pose2d getTargetGoal() {
+		return m_targetGoalPosition;
+	}
+
+	public int[] getTargetNode() {
+		return m_targetNode;
+	}
+
+	public void setTrackingMode(TrackingMode trackingMode) {
+		m_trackingMode = trackingMode;
 	}
 
 	@Override
 	public void periodic() {
-		m_closestGoalPosition = m_goalPoses.get((int) SmartDashboard.getNumber("TargetCol", 0));
-		m_field.getObject("eClosest Goal").setPose(m_closestGoalPosition);
+		if (m_trackingMode == TrackingMode.BestGoal) {
+			setTargetGoal((int) SmartDashboard.getNumber("TargetCol", 0));
+		} else {
+			int closest_goal = 0;
+			double closest_distance = 1000.0; // meters
+
+			for (int i = 0; i < 9; i++) {
+				double distance =
+						m_goalPoses
+								.get(i)
+								.getTranslation()
+								.getDistance(m_poseSupplier.get().getTranslation());
+
+				if (distance < closest_distance) {
+					closest_goal = i;
+					closest_distance = distance;
+				}
+			}
+
+			setTargetGoal(closest_goal);
+		}
+
+		m_field.getObject("eTarget Goal").setPose(m_targetGoalPosition);
 	}
 }
