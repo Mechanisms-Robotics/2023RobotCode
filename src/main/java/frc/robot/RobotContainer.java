@@ -1,9 +1,14 @@
 package frc.robot;
 
+import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -14,6 +19,8 @@ import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
 import frc.robot.util.AprilTagTracker;
 import frc.robot.util.GoalTracker;
+
+import java.util.List;
 
 public class RobotContainer {
 	public final Swerve m_swerveSubsystem = new Swerve();
@@ -32,42 +39,42 @@ public class RobotContainer {
 	private final CommandXboxController m_secondDriverController =
 			new CommandXboxController(Constants.SECOND_DRIVER_CONTROLLER_PORT);
 
-	private final SendableChooser<CommandBase> autoChooser;
+	private final SendableChooser<Command> autoChooser;
 
-	private final SwerveAutoBuilder swerveAutoBuilder;
+	private final AutoBuilder autoBuilder;
 
 	public RobotContainer() {
 		configureBindings();
 		configureDefaultCommands();
 
-		swerveAutoBuilder = new SwerveAutoBuilder(
+		autoBuilder = new AutoBuilder(
 				m_swerveSubsystem::getPose,
 				m_swerveSubsystem::resetOdometry,
 				Constants.Swerve.swerveKinematics,
-				new PIDConstants(0.0, 0.0, 0.0), // translation
-				new PIDConstants(0.0, 0.0, 0.0), // rotation
+				Constants.Auto.kTranslationPID, // translation
+				Constants.Auto.kRotationPID, // rotation
 				m_swerveSubsystem::setModuleStates,
 				Autos.EVENT_MAP,
 				true,
 				m_swerveSubsystem
 		);
 
-		autoChooser = new SendableChooser<CommandBase>();
+		autoChooser = new SendableChooser<>();
 
 		autoChooser.addOption(
-				"MobilityAutoLeft", swerveAutoBuilder.followPath(Autos.MOBILITY_AUTO_LEFT));
+				"MobilityAutoLeft", autoBuilder.followPath(Autos.MOBILITY_AUTO_LEFT, true));
 		autoChooser.addOption(
-				"MobilityAutoRight", swerveAutoBuilder.followPath(Autos.MOBILITY_AUTO_RIGHT));
-		autoChooser.addOption("1ConeLeft", swerveAutoBuilder.followPath(Autos.ONE_CONE_LEFT));
-		autoChooser.addOption("1ConeRight", swerveAutoBuilder.followPath(Autos.ONE_CONE_RIGHT));
+				"MobilityAutoRight", autoBuilder.followPath(Autos.MOBILITY_AUTO_RIGHT, true));
+		autoChooser.addOption("1ConeLeft", autoBuilder.followPath(Autos.ONE_CONE_LEFT, true));
+		autoChooser.addOption("1ConeRight", autoBuilder.followPath(Autos.ONE_CONE_RIGHT, true));
 		autoChooser.addOption(
-				"1Cone1CubeLeft", swerveAutoBuilder.followPath(Autos.ONE_CONE_ONE_CUBE_LEFT));
+				"1Cone1CubeLeft", autoBuilder.followPath(Autos.ONE_CONE_ONE_CUBE_LEFT, true));
 		autoChooser.addOption(
-				"1Cone1CubeRight", swerveAutoBuilder.followPath(Autos.ONE_CONE_ONE_CUBE_RIGHT));
+				"1Cone1CubeRight", autoBuilder.followPath(Autos.ONE_CONE_ONE_CUBE_RIGHT, true));
 		autoChooser.addOption(
-				"1Cone2CubesLeft", swerveAutoBuilder.followPath(Autos.ONE_CONE_TWO_CUBES_LEFT));
+				"1Cone2CubesLeft", autoBuilder.followPath(Autos.ONE_CONE_TWO_CUBES_LEFT, true));
 		autoChooser.addOption(
-				"1Cone2CubesRight", swerveAutoBuilder.followPath(Autos.ONE_CONE_TWO_CUBES_RIGHT));
+				"1Cone2CubesRight", autoBuilder.followPath(Autos.ONE_CONE_TWO_CUBES_RIGHT, true));
 
 		SmartDashboard.putData(autoChooser);
 	}
@@ -256,16 +263,19 @@ public class RobotContainer {
 		  m_swerveSubsystem.setDefaultCommand(
 			  new DriveCommand(
 				  m_swerveSubsystem,
-				  () -> -m_driverController.getLeftY() * m_swerveSubsystem.getMaxVelocity(),
-				  () -> -m_driverController.getLeftX() * m_swerveSubsystem.getMaxVelocity(),
-				  () -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE,
-				  () -> true,
-				  () -> true));
+					  () -> -m_driverController.getLeftY() * m_swerveSubsystem.getMaxVelocity(),
+					  () -> -m_driverController.getLeftX() * m_swerveSubsystem.getMaxVelocity(),
+					  () -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE,
+					  () -> true,
+					  () -> true,
+					  () -> !autoBuilder.getRunning() && !Constants.SWERVE_DISABLED
+		));
 		}
 
 	}
 
 	public Command getAutonomousCommand() {
+//		return autoBuilder.autoBalance();
 		return autoChooser.getSelected();
 	}
 }

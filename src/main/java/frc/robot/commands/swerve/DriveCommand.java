@@ -22,6 +22,7 @@ public class DriveCommand extends CommandBase {
 	private final DoubleSupplier m_rotationSupplier;
 	private final BooleanSupplier m_isFieldRelativeSupplier;
 	private final BooleanSupplier m_isOpenLoopSupplier;
+	private final BooleanSupplier m_enabled;
 
 	public DriveCommand(
 			Swerve swerveSubsystem,
@@ -29,7 +30,8 @@ public class DriveCommand extends CommandBase {
 			DoubleSupplier translationYSupplier,
 			DoubleSupplier rotationSupplier,
 			BooleanSupplier isFieldRelativeSupplier,
-			BooleanSupplier isOpenLoopSupplier) {
+			BooleanSupplier isOpenLoopSupplier,
+			BooleanSupplier enabled) {
 		m_swerveSubsystem = swerveSubsystem;
 
 		m_translationXSupplier = translationXSupplier;
@@ -37,6 +39,7 @@ public class DriveCommand extends CommandBase {
 		m_rotationSupplier = rotationSupplier;
 		m_isFieldRelativeSupplier = isFieldRelativeSupplier;
 		m_isOpenLoopSupplier = isOpenLoopSupplier;
+		m_enabled = enabled;
 
 		addRequirements(swerveSubsystem);
 	}
@@ -47,44 +50,46 @@ public class DriveCommand extends CommandBase {
 
 		SmartDashboard.putNumber("Tilt", m_swerveSubsystem.getUpAngle().minus(m_swerveSubsystem.getRoll()).getDegrees());
 
-		if (Math.abs(tilt) >= 10.0) {
-			if (tilt > 0) {
-				m_swerveSubsystem.drive(new Translation2d(
-						0.0,
-						ANTI_TIP_SPEED),
-						0.0,
-						m_isFieldRelativeSupplier.getAsBoolean(),
-						m_isOpenLoopSupplier.getAsBoolean()
-				);
-			} else {
-				m_swerveSubsystem.drive(new Translation2d(
-								0.0,
-								-ANTI_TIP_SPEED),
-						0.0,
-						m_isFieldRelativeSupplier.getAsBoolean(),
-						m_isOpenLoopSupplier.getAsBoolean()
-				);
-			}
-    } else {
-//      m_swerveSubsystem.drive(
-//          ChassisSpeeds.fromFieldRelativeSpeeds(
-//              applyExponential(
-//                  deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT),
-//              applyExponential(
-//                  deadband(m_translationYSupplier.getAsDouble()), TRANSLATION_EXPONENT),
-//              applyExponential(deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
-//              m_swerveSubsystem.getYaw()));
-
-			m_swerveSubsystem.drive(
-					new Translation2d(
-							applyExponential(deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT),
-							applyExponential(deadband(m_translationYSupplier.getAsDouble()), TRANSLATION_EXPONENT)
-					),
-					applyExponential(deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
-					m_isFieldRelativeSupplier.getAsBoolean(),
-					m_isOpenLoopSupplier.getAsBoolean()
+		if (m_enabled.getAsBoolean()) {
+			if (Math.abs(tilt) >= 10.0) {
+				if (tilt > 0) {
+					m_swerveSubsystem.drive(new Translation2d(
+							0.0,
+							ANTI_TIP_SPEED),
+							0.0,
+							m_isFieldRelativeSupplier.getAsBoolean(),
+							m_isOpenLoopSupplier.getAsBoolean()
 					);
+				} else {
+					m_swerveSubsystem.drive(new Translation2d(
+									0.0,
+									-ANTI_TIP_SPEED),
+							0.0,
+							m_isFieldRelativeSupplier.getAsBoolean(),
+							m_isOpenLoopSupplier.getAsBoolean()
+					);
+				}
+		} else {
+	//      m_swerveSubsystem.drive(
+	//          ChassisSpeeds.fromFieldRelativeSpeeds(
+	//              applyExponential(
+	//                  deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT),
+	//              applyExponential(
+	//                  deadband(m_translationYSupplier.getAsDouble()), TRANSLATION_EXPONENT),
+	//              applyExponential(deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
+	//              m_swerveSubsystem.getYaw()));
 
+				m_swerveSubsystem.drive(
+						new Translation2d(
+								applyExponential(deadband(m_translationXSupplier.getAsDouble()), TRANSLATION_EXPONENT),
+								applyExponential(deadband(m_translationYSupplier.getAsDouble()), TRANSLATION_EXPONENT)
+						),
+						applyExponential(deadband(m_rotationSupplier.getAsDouble()), ROTATION_EXPONENT),
+						m_isFieldRelativeSupplier.getAsBoolean(),
+						m_isOpenLoopSupplier.getAsBoolean()
+						);
+
+			}
 		}
 
 //		System.out.println(

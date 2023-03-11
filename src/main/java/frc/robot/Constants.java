@@ -6,6 +6,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.pathplanner.lib.auto.PIDConstants;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -169,5 +170,10 @@ public final class Constants {
 			public static final SwerveModuleConstants constants =
 					new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
 		}
+	}
+
+	public static final class Auto {
+		public static final PIDConstants kTranslationPID = new PIDConstants(0.0, 0.0, 0.0);
+		public static final PIDConstants kRotationPID = new PIDConstants(0.0, 0.0, 0.0);
 	}
 }
