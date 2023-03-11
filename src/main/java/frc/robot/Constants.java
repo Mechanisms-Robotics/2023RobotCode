@@ -45,5 +45,5 @@ public final class Constants {
 	public static final double SWERVE_ROT_KI = 0.0;
 	public static final double SWERVE_ROT_KD = 0.0;
 
-	public static final boolean SWERVE_DISABLED = false;
+	public static final boolean SWERVE_DISABLED = true;
 }

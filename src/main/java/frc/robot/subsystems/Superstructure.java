@@ -9,7 +9,7 @@ public class Superstructure extends SubsystemBase {
 	private static final double[][] INTAKE_SPEEDS =
 			new double[][] {
 				{0.30, -1.0, 0.45, 0.2}, // Intake, Feeder, Conveyor, Positioning | Cube
-				{0.40, -0.25, 0.45, 0.2} // Intake, Feeder, Conveyor, Positioning | Cone
+				{0.5, -0.1, 0.3, 0.2} // Intake, Feeder, Conveyor, Positioning | Cone
 			};
 
 	private static final double[][] OUTTAKE_SPEEDS =
@@ -21,30 +21,31 @@ public class Superstructure extends SubsystemBase {
 	private static final double[][] ARM_POSITIONS =
 			new double[][] {
 				{
-					17500, 21500, 16875, 30000, 52500, 57500
+					17500, 17500, 17500, 30000, 52500, 57500
 				}, // Idling, Backstopping, Grabbing, Low, Mid, High | Cube
 				{
-					17500, 21500, 16875, 30000, 52500, 57500
+					17500, 16875, 16875, 30000, 52500, 57500
 				} // Idling, Backstopping, Grabbing, Low, Mid, High | Cone
 			};
 
 	private static final double[][] EXTENSION_POSITIONS =
 			new double[][] {
 				{
-					-500, -500, -250, -500, -8700, -17400
+					-250, -250, -250, -500, -8700, -17400
 				}, // Idling, Backstopping, Grabbing, Low, Mid, High | Cube
 				{
-					-500, -500, -250, -500, -8700, -17400
+					-0, -1500, -500, -500, -8700, -17400
 				} // Idling, Backstopping, Grabbing, Low, Mid, High | Cone
 			};
 
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
-				{-50, -3765, -3000}, // Idling, Backstopping, Grabbing | Cube
-				{-50, -50, -3765} // Idling, Backstopping, Grabbing | Cone
+				{-250, -18825, -15000}, // Idling, Backstopping, Grabbing | Cube
+				{-250, -7500, -19384} // Idling, Backstopping, Grabbing | Cone
 			};
 
 	private static final double SCORE_TIME = 0.5; // seconds
+	private static final double CONE_POSITION_TIME = 0.85;
 
 	private enum IntakeState {
 		Idling,
@@ -98,6 +99,7 @@ public class Superstructure extends SubsystemBase {
 	private int[] m_targetNode = {0, 0};
 
 	private final Timer m_scoreTimer = new Timer();
+	private final Timer m_conePositionTimer = new Timer();
 
 	private boolean m_autoScore = true;
 
@@ -196,9 +198,23 @@ public class Superstructure extends SubsystemBase {
 
 			m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][1]);
 		} else if (m_intakeState == IntakeState.Positioning) {
-			if (m_conveyor.getDebouncedSensor(1)) {
-				hold();
-				return;
+      if (m_element == Element.Cone) {
+				if (!m_conePositionTimer.hasElapsed(0.01)) {
+					m_conePositionTimer.start();
+				}
+
+        if (m_conePositionTimer.hasElapsed(CONE_POSITION_TIME)) {
+					m_conePositionTimer.stop();
+					m_conePositionTimer.reset();
+
+					hold();
+          return;
+        }
+			} else if (m_element == Element.Cube) {
+				if (!m_conveyor.getDebouncedSensor(0)) {
+					hold();
+					return;
+				}
 			}
 
 			m_intake.stop();
@@ -254,7 +270,7 @@ public class Superstructure extends SubsystemBase {
 
 		m_arm.setArm(
 				ARM_POSITIONS[m_element.index][3 + m_targetNode[0]],
-				ARM_POSITIONS[m_element.index][3 + m_targetNode[0]]);
+				EXTENSION_POSITIONS[m_element.index][3 + m_targetNode[0]]);
 
 		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][2]);
 	}
@@ -275,7 +291,7 @@ public class Superstructure extends SubsystemBase {
 
 		m_arm.setArm(
 				ARM_POSITIONS[m_element.index][3 + m_targetNode[0]],
-				ARM_POSITIONS[m_element.index][3 + m_targetNode[0]]);
+				EXTENSION_POSITIONS[m_element.index][3 + m_targetNode[0]]);
 
 		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][0]);
 

@@ -4,6 +4,7 @@ import com.ctre.phoenix.ParamEnum;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
@@ -59,7 +60,7 @@ public class Arm extends SubsystemBase {
 	private final WPI_TalonFX extenderMotor = new WPI_TalonFX(52);
 
 	private ArmState armState = ArmState.Idle;
-	private double[] desiredPosition = {0.0, 0.0};
+	private final double[] desiredPosition = {0.0, 0.0};
 
 	private boolean zeroed = false;
 
@@ -152,13 +153,17 @@ public class Arm extends SubsystemBase {
 				deploy();
 				break;
 		}
+
+		SmartDashboard.putString("ArmState", armState.toString());
 	}
 
 	public void setArm(double armPosition, double extendPosition) {
-		this.desiredPosition[0] = armPosition;
-		this.desiredPosition[1] = extendPosition;
+    if (this.desiredPosition[0] != armPosition || this.desiredPosition[1] != extendPosition) {
+      this.desiredPosition[0] = armPosition;
+      this.desiredPosition[1] = extendPosition;
 
-		retract();
+      retract();
+		}
 	}
 
 	private void setClosedLoop(double position) {
@@ -187,10 +192,9 @@ public class Arm extends SubsystemBase {
 			}
 
 			return;
-		}
+    }
 
 		armState = ArmState.Retracting;
-
 		setExtensionClosedLoop(STOWED_POSITION);
 	}
 
