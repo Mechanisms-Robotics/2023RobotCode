@@ -8,6 +8,8 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -27,11 +29,20 @@ public class Robot extends TimedRobot {
 		// autonomous chooser on the dashboard.
 		m_robotContainer = new RobotContainer();
 		AprilTagTracker.getCamera().setLED(VisionLEDMode.kOff);
+
+		m_robotContainer.m_swerve.resetModules();
 	}
 
 	@Override
 	public void robotPeriodic() {
 		CommandScheduler.getInstance().run();
+
+		if (DriverStation.getAlliance() == Alliance.Blue) {
+			AprilTagTracker.setAllianceSide(OriginPosition.kBlueAllianceWallRightSide);
+		}
+		else {
+			AprilTagTracker.setAllianceSide(OriginPosition.kRedAllianceWallRightSide);
+		}
 	}
 
 	/** This method is called once each time the robot enters Disabled mode. */
@@ -52,7 +63,6 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-		//		m_robotContainer.m_intakeSubsystem.zeroEncoders();
 
 		// schedule the autonomous command (example)
 		if (m_autonomousCommand != null) {
@@ -62,9 +72,13 @@ public class Robot extends TimedRobot {
 		m_robotContainer.m_swerve.setNeutralMode(NeutralMode.Brake);
 		m_robotContainer.m_swerve.zeroGyro();
 
-		if (DriverStation.getAlliance().name().equals("Blue"))
-			AprilTagTracker.setAllianceSide(OriginPosition.kBlueAllianceWallRightSide);
-		else AprilTagTracker.setAllianceSide(OriginPosition.kRedAllianceWallRightSide);
+		m_robotContainer.m_swerve.resetModules();
+
+		m_robotContainer.m_intake.zeroEncoders();
+		m_robotContainer.m_arm.init();
+		m_robotContainer.m_gripper.zeroEncoder();
+
+		m_robotContainer.m_superstructure.setAutoScore(false);
 	}
 
 	/** This method is called periodically during autonomous. */
@@ -83,8 +97,11 @@ public class Robot extends TimedRobot {
 		}
 
 		m_robotContainer.m_swerve.setNeutralMode(NeutralMode.Coast);
-		m_robotContainer.m_arm.setArm(0.0, 0.0);
 		m_robotContainer.m_superstructure.idle();
+
+		m_robotContainer.m_swerve.resetModules();
+
+		m_robotContainer.m_superstructure.setAutoScore(true);
 	}
 
 	/** This method is called periodically during operator control. */
@@ -104,6 +121,12 @@ public class Robot extends TimedRobot {
 				m_robotContainer.m_superstructure.setElement(Element.Cone);
 			}
 		}
+
+		if (m_robotContainer.m_intake.isDeployed()) {
+			m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 3.0 : 2.0);
+		} else {
+			m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 2.5 : 1.5);
+		}
 	}
 
 	@Override
@@ -111,8 +134,11 @@ public class Robot extends TimedRobot {
 		// Cancels all running commands at the start of test mode.
 		CommandScheduler.getInstance().cancelAll();
 
+		m_robotContainer.m_swerve.resetModules();
+
 		m_robotContainer.m_intake.zeroEncoders();
-		m_robotContainer.m_arm.zeroEncoder();
+		m_robotContainer.m_arm.init();
+//		m_robotContainer.m_arm.zeroEncoder();
 		m_robotContainer.m_gripper.zeroEncoder();
 	}
 

@@ -21,10 +21,10 @@ public class Superstructure extends SubsystemBase {
 	private static final double[][] ARM_POSITIONS =
 			new double[][] {
 				{
-					17500, 17500, 17500, 30000, 52500, 57500
+						19000, 17500, 19000, 30000, 52500, 57500
 				}, // Idling, Backstopping, Grabbing, Low, Mid, High | Cube
 				{
-					17500, 16875, 16875, 30000, 52500, 57500
+					17500, 16875, 16875, 30000, 52500, 65000
 				} // Idling, Backstopping, Grabbing, Low, Mid, High | Cone
 			};
 
@@ -40,12 +40,12 @@ public class Superstructure extends SubsystemBase {
 
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
-				{-250, -18825, -15000}, // Idling, Backstopping, Grabbing | Cube
-				{-250, -7500, -19384} // Idling, Backstopping, Grabbing | Cone
+				{0, -18825, -10000}, // Idling, Backstopping, Grabbing | Cube
+				{0, 0, -17500} // Idling, Backstopping, Grabbing | Cone
 			};
 
 	private static final double SCORE_TIME = 0.5; // seconds
-	private static final double CONE_POSITION_TIME = 0.85;
+	private static final double CONE_POSITION_TIME = 0.75;
 
 	private enum IntakeState {
 		Idling,

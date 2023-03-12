@@ -32,6 +32,10 @@ public class Gripper extends SubsystemBase {
 		// TODO: Find soft limits
 		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = -19384;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitThreshold = 0;
+
+
+		GRIPPER_MOTOR_CONFIG.peakOutputReverse = -0.5;
+		GRIPPER_MOTOR_CONFIG.peakOutputForward = 0.25;
 	}
 
 	private final WPI_TalonFX gripperMotor = new WPI_TalonFX(60);

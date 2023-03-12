@@ -1,6 +1,6 @@
-package frc.robot.commands.auto;
+package frc.robot.commands.auto_legacy;
 
-import static frc.robot.commands.auto.AutoCommands.followTrajectoryCommand;
+import static frc.robot.commands.auto_legacy.AutoCommands.followTrajectoryCommand;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;

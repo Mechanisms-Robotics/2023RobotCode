@@ -12,4 +12,6 @@ public interface SteerController {
 	double getStateAngle();
 
 	void setSimulatedAngle(double angle);
+
+	void reset();
 }

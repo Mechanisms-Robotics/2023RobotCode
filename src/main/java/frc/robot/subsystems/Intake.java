@@ -184,6 +184,12 @@ public class Intake extends SubsystemBase {
 		setClosedLoop(Position.Deploy.position);
 	}
 
+	public boolean isDeployed() {
+		boolean isDeployed = Math.abs(pivotLeft.getSelectedSensorPosition() - Position.Deploy.position) < Math.abs(pivotLeft.getSelectedSensorPosition() - Position.Retract.position);
+		SmartDashboard.putBoolean("Is Deployed", isDeployed);
+		return isDeployed;
+	}
+
 	public void hpStation() {
 		currentMode = Position.GamePieceStation;
 		setClosedLoop(Position.GamePieceStation.position);

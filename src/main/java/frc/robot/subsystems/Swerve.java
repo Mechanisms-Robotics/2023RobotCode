@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.sensors.Pigeon2Configuration;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.swervedrivespecialties.swervelib.GearRatios.GearRatio;
@@ -15,9 +16,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -33,7 +36,6 @@ import org.photonvision.EstimatedRobotPose;
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
 	private static final double MAX_VOLTAGE = 12.0; // volts
-	public static final double MAX_VELOCITY_RANGE = RobotBase.isReal() ? 2.5 : 1.5; // 1.5 m/s
 	private static final double MAX_VELOCITY = 4.5;
 	public static final double ANGULAR_VELOCITY_RANGE = Math.PI / 2; // rad/s
 
@@ -118,6 +120,7 @@ public class Swerve extends SubsystemBase {
 	private PathPlannerTrajectory m_currentTrajectory;
 	private boolean m_isRunningTrajectory;
 
+	public double m_maxVelocity = RobotBase.isReal() ? 2.5 : 1.5; // 1.5 m/s
 	private double m_maxVelocityRange = 4.5; // m/s
 	private Rotation2d m_swerveRobotRelativeHeading = new Rotation2d();
 
@@ -199,12 +202,11 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void zeroGyro() {
-		CtreUtils.checkCtreError(m_gyro.setYaw(0.0), "PIGEON2 HAS EERROR");
+		CtreUtils.checkCtreError(m_gyro.setYaw(0.0), "PIGEON2 HAS ERROR");
 	}
 
 	public Rotation2d getGyroHeading() {
 		return Rotation2d.fromDegrees(m_gyro.getYaw());
-		//		return Rotation2d.fromDegrees(m_gyro.getYaw()).minus(Rotation2d.fromDegrees(180.0));
 	}
 
 	public Rotation2d getRoll() {
@@ -217,6 +219,14 @@ public class Swerve extends SubsystemBase {
 
 	public Rotation2d getUpAngle() {
 		return upAngle;
+	}
+
+	public void resetOdometry(Pose2d pose) {
+		m_poseEstimator.resetPosition(getGyroHeading(), getModulePositions(), pose);
+	}
+
+	public void resetOdometry(Pose2d pose, Rotation2d heading) {
+		m_poseEstimator.resetPosition(heading, getModulePositions(), pose);
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
@@ -255,7 +265,7 @@ public class Swerve extends SubsystemBase {
 				"Robot Relative Heading", m_swerveRobotRelativeHeading.getDegrees());
 
 		m_maxVelocityRange =
-				MAX_VELOCITY_RANGE
+				m_maxVelocity
 						* (0.25 * Math.cos(2 * m_swerveRobotRelativeHeading.getRadians()) + 0.75);
 
 		SmartDashboard.putNumber("Max Velocity Range", m_maxVelocityRange);
@@ -303,8 +313,8 @@ public class Swerve extends SubsystemBase {
 
 			if (result.isPresent()) {
 				EstimatedRobotPose camPose = result.get();
-				//        m_poseEstimator.addVisionMeasurement(
-				//            camPose.estimatedPose.toPose2d(), Timer.getFPGATimestamp());
+				        m_poseEstimator.addVisionMeasurement(
+				            camPose.estimatedPose.toPose2d(),camPose.timestampSeconds);
 				m_field.getObject("Cam Est Pos").setPose(camPose.estimatedPose.toPose2d());
 			} else {
 				m_field.getObject("Cam Est Pos").setPose(new Pose2d(-100, -100, new Rotation2d()));
@@ -401,6 +411,10 @@ public class Swerve extends SubsystemBase {
 		return m_field;
 	}
 
+	public void setMaxVelocity(double maxVelocity) {
+		m_maxVelocity = maxVelocity;
+	}
+
 	public void setRunningTrajectory(boolean isRunningTrajectory) {
 		m_isRunningTrajectory = isRunningTrajectory;
 	}
@@ -422,5 +436,12 @@ public class Swerve extends SubsystemBase {
 
 	public void setTrajectory(PathPlannerTrajectory trajectory) {
 		m_currentTrajectory = trajectory;
+	}
+
+	public void resetModules() {
+		m_frontLeftModule.reset();
+		m_frontRightModule.reset();
+		m_backLeftModule.reset();
+		m_backRightModule.reset();
 	}
 }

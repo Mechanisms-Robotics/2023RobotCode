@@ -4,6 +4,8 @@ import com.ctre.phoenix.ParamEnum;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.sun.nio.file.ExtendedWatchEventModifier;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -21,6 +23,9 @@ public class Arm extends SubsystemBase {
 			new TalonFXConfiguration();
 
 	private static final double STOWED_POSITION = -500;
+	private static final double START_EXTENSION_POSITION = -6341;
+
+	private static final double START_ARM_POSITION = 19000;
 
 	private static final double TICKS_PER_DEGREE = (2048.0 / 360.0) * 89.89;
 
@@ -40,7 +45,7 @@ public class Arm extends SubsystemBase {
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 75000;
 
 		ARM_MOTOR_CONFIG.motionCruiseVelocity = 30000;
-		ARM_MOTOR_CONFIG.motionAcceleration = 30000;
+		ARM_MOTOR_CONFIG.motionAcceleration = 15000; // 30000
 		ARM_MOTOR_CONFIG.motionCurveStrength = 8;
 
 		ARM_MOTOR_CONFIG.neutralDeadband = 0.001;
@@ -120,6 +125,7 @@ public class Arm extends SubsystemBase {
 		extenderMotor.selectProfileSlot(0, 0);
 	}
 
+
 	public void setOpenLoop(double percentOutput) {
 		if (!zeroed) {
 			return;
@@ -157,6 +163,18 @@ public class Arm extends SubsystemBase {
 		SmartDashboard.putString("ArmState", armState.toString());
 	}
 
+	public void init() {
+		if (zeroed) {
+			return;
+		}
+
+		armMotorLeft.setSelectedSensorPosition(START_ARM_POSITION);
+		armMotorRight.setSelectedSensorPosition(START_ARM_POSITION);
+		extenderMotor.setSelectedSensorPosition(START_EXTENSION_POSITION);
+
+		zeroed = true;
+	}
+
 	public void setArm(double armPosition, double extendPosition) {
     if (this.desiredPosition[0] != armPosition || this.desiredPosition[1] != extendPosition) {
       this.desiredPosition[0] = armPosition;
@@ -185,7 +203,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	private void retract() {
-		if (armState == ArmState.Retracting) {
+		if (DriverStation.isEnabled() && armState == ArmState.Retracting) {
 			if (Math.abs(extenderMotor.getSelectedSensorPosition() - STOWED_POSITION)
 					<= ALLOWABLE_EXTENSION_ERROR) {
 				pivot();

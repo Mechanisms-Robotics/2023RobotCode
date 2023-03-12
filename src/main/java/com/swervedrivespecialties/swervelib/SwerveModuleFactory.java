@@ -147,5 +147,10 @@ public class SwerveModuleFactory<DC, SC> {
 		public void setNeutralMode(NeutralMode neutralMode) {
 			driveController.setNeutralMode(neutralMode);
 		}
+
+		@Override
+		public void reset() {
+			steerController.reset();
+		}
 	}
 }

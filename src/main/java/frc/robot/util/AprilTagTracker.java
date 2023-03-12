@@ -71,6 +71,7 @@ public class AprilTagTracker {
 
 	public static Optional<EstimatedRobotPose> getEstimatedGlobalPose(
 			Pose2d prevEstimatedRobotPose) {
+		photonPoseEstimator.setLastPose(prevEstimatedRobotPose);
 		photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
 		return photonPoseEstimator.update();
 	}

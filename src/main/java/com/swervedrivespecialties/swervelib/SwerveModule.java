@@ -51,4 +51,6 @@ public interface SwerveModule {
 	void setSim(double mps, double angle);
 
 	void setNeutralMode(NeutralMode neutralMode);
+
+	void reset();
 }
