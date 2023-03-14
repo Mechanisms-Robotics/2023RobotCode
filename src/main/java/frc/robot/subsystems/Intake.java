@@ -185,7 +185,10 @@ public class Intake extends SubsystemBase {
 	}
 
 	public boolean isDeployed() {
-		boolean isDeployed = Math.abs(pivotLeft.getSelectedSensorPosition() - Position.Deploy.position) < Math.abs(pivotLeft.getSelectedSensorPosition() - Position.Retract.position);
+		boolean isDeployed =
+				Math.abs(pivotLeft.getSelectedSensorPosition() - Position.Deploy.position)
+						< Math.abs(
+								pivotLeft.getSelectedSensorPosition() - Position.Retract.position);
 		SmartDashboard.putBoolean("Is Deployed", isDeployed);
 		return isDeployed;
 	}

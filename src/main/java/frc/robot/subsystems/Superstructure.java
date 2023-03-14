@@ -8,8 +8,8 @@ public class Superstructure extends SubsystemBase {
 
 	private static final double[][] INTAKE_SPEEDS =
 			new double[][] {
-				{0.30, -1.0, 0.45, 0.2}, // Intake, Feeder, Conveyor, Positioning | Cube
-				{0.5, -0.1, 0.3, 0.2} // Intake, Feeder, Conveyor, Positioning | Cone
+				{0.45, -0.75, 0.45, 0.45}, // Intake, Feeder, Conveyor, Positioning | Cube
+				{0.5, -0.1, 0.4, 0.35} // Intake, Feeder, Conveyor, Positioning | Cone
 			};
 
 	private static final double[][] OUTTAKE_SPEEDS =
@@ -21,31 +21,35 @@ public class Superstructure extends SubsystemBase {
 	private static final double[][] ARM_POSITIONS =
 			new double[][] {
 				{
-						19000, 17500, 19000, 30000, 52500, 57500
-				}, // Idling, Backstopping, Grabbing, Low, Mid, High | Cube
+					20000, 32500, 20000, 20000, 30000, 50000, 60000
+				}, // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cube
 				{
-					17500, 16875, 16875, 30000, 52500, 65000
-				} // Idling, Backstopping, Grabbing, Low, Mid, High | Cone
+					17000, 32500, 17000, 16875, 30000, 58750, 67500
+				} // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cone
 			};
 
 	private static final double[][] EXTENSION_POSITIONS =
 			new double[][] {
 				{
-					-250, -250, -250, -500, -8700, -17400
-				}, // Idling, Backstopping, Grabbing, Low, Mid, High | Cube
+					-250, -11500, -250, -0, -500, -1750, -17875
+				}, // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cube
 				{
-					-0, -1500, -500, -500, -8700, -17400
-				} // Idling, Backstopping, Grabbing, Low, Mid, High | Cone
+					-3250, -11500, -3250, -500, -500, -1750, -17875
+				} // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cone
 			};
 
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
-				{0, -18825, -10000}, // Idling, Backstopping, Grabbing | Cube
-				{0, 0, -17500} // Idling, Backstopping, Grabbing | Cone
+				{0, 0, 0, -10000}, // Idling, Ground Pickup, Backstopping, Grabbing | Cube | -18825
+				{0, 0, 0, -18500} // Idling, Ground Pickup, Backstopping, Grabbing | Cone
 			};
 
 	private static final double SCORE_TIME = 0.5; // seconds
-	private static final double CONE_POSITION_TIME = 0.75;
+
+	private static final double CONE_POSITION_TIME = 1000;
+	private static final double CUBE_POSITION_TIME = 1000;
+
+	private static final double CONE_GRABBING_MODE_TIME = 1;
 
 	private enum IntakeState {
 		Idling,
@@ -56,6 +60,7 @@ public class Superstructure extends SubsystemBase {
 
 	private enum ArmState {
 		Idling,
+		GroundPickup,
 		Backstopping,
 		Grabbing,
 		Holding,
@@ -63,9 +68,10 @@ public class Superstructure extends SubsystemBase {
 		Scoring
 	}
 
-	private enum State {
+	public enum State {
 		Idling,
 		Intaking,
+		GroundPickup,
 		Outtaking,
 		Holding,
 		Prepping,
@@ -100,8 +106,12 @@ public class Superstructure extends SubsystemBase {
 
 	private final Timer m_scoreTimer = new Timer();
 	private final Timer m_conePositionTimer = new Timer();
+	private final Timer m_cubePositionTimer = new Timer();
 
-	private boolean m_autoScore = true;
+	private final Timer m_coneGrabbingModeTimer = new Timer();
+
+	private boolean m_autoScore = false;
+	private boolean m_grab = false;
 
 	public Superstructure(
 			Intake intake, Feeder feeder, Conveyor conveyor, Arm arm, Gripper gripper) {
@@ -120,6 +130,9 @@ public class Superstructure extends SubsystemBase {
 				break;
 			case Intaking:
 				intake();
+				break;
+			case GroundPickup:
+				groundPickup();
 				break;
 			case Outtaking:
 				outtake();
@@ -149,6 +162,8 @@ public class Superstructure extends SubsystemBase {
 				SmartDashboard.putString("Level", "High");
 				break;
 		}
+
+		SmartDashboard.putBoolean("AutoScore", m_autoScore);
 	}
 
 	@Override
@@ -182,7 +197,7 @@ public class Superstructure extends SubsystemBase {
 		if (m_state != State.Intaking) m_state = State.Intaking;
 
 		if (m_intakeState == IntakeState.Intaking) {
-			if (m_conveyor.getDebouncedSensor(0)) {
+			if (true || m_conveyor.getDebouncedSensor(0)) {
 				m_intakeState = IntakeState.Positioning;
 				m_armState = ArmState.Grabbing;
 
@@ -194,36 +209,86 @@ public class Superstructure extends SubsystemBase {
 			m_conveyor.convey(INTAKE_SPEEDS[m_element.index][2]);
 
 			m_arm.setArm(
-					ARM_POSITIONS[m_element.index][1], EXTENSION_POSITIONS[m_element.index][1]);
+					ARM_POSITIONS[m_element.index][2], EXTENSION_POSITIONS[m_element.index][2]);
 
-			m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][1]);
+			m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][2]);
 		} else if (m_intakeState == IntakeState.Positioning) {
-      if (m_element == Element.Cone) {
+			if (m_element == Element.Cone) {
 				if (!m_conePositionTimer.hasElapsed(0.01)) {
 					m_conePositionTimer.start();
 				}
 
-        if (m_conePositionTimer.hasElapsed(CONE_POSITION_TIME)) {
+				if (!m_coneGrabbingModeTimer.hasElapsed(0.01)) {
+					m_coneGrabbingModeTimer.start();
+				}
+
+				if (m_conePositionTimer.hasElapsed(CONE_POSITION_TIME) || m_grab) {
 					m_conePositionTimer.stop();
 					m_conePositionTimer.reset();
 
+					m_coneGrabbingModeTimer.stop();
+					m_coneGrabbingModeTimer.reset();
+
+					m_grab = false;
+
 					hold();
-          return;
-        }
+					return;
+				}
+
+				if (m_coneGrabbingModeTimer.hasElapsed(CONE_GRABBING_MODE_TIME)) {
+					m_arm.setArm(
+							ARM_POSITIONS[m_element.index][3],
+							EXTENSION_POSITIONS[m_element.index][3]);
+
+					m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][0]);
+				}
 			} else if (m_element == Element.Cube) {
-				if (!m_conveyor.getDebouncedSensor(0)) {
+				if (!m_cubePositionTimer.hasElapsed(0.01)) {
+					m_cubePositionTimer.start();
+				}
+
+				if (m_cubePositionTimer.hasElapsed(CUBE_POSITION_TIME) || m_grab) {
+					m_cubePositionTimer.stop();
+					m_cubePositionTimer.reset();
+
+					m_grab = false;
+
 					hold();
 					return;
 				}
 			}
 
-			m_intake.stop();
-			m_feeder.stop();
+//			m_intake.stop();
+//			m_feeder.stop();
+			m_intake.intake(INTAKE_SPEEDS[m_element.index][0]);
+			m_feeder.feed(INTAKE_SPEEDS[m_element.index][1]);
 			m_conveyor.convey(INTAKE_SPEEDS[m_element.index][3]);
 
 			m_arm.setArm(
 					ARM_POSITIONS[m_element.index][2], EXTENSION_POSITIONS[m_element.index][2]);
 
+			m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][0]);
+		}
+	}
+
+	public void groundPickup() {
+		if (m_intakeState != IntakeState.Idling) m_intakeState = IntakeState.Idling;
+		if (m_armState != ArmState.GroundPickup) m_armState = ArmState.GroundPickup;
+
+		if (m_grab) {
+			m_grab = false;
+
+			m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][3]);
+		}
+
+		m_intake.stop();
+		m_feeder.stop();
+		m_conveyor.stop();
+
+		m_arm.setArm(ARM_POSITIONS[m_element.index][1], EXTENSION_POSITIONS[m_element.index][1]);
+
+		if (m_state != State.GroundPickup) {
+			m_state = State.GroundPickup;
 			m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][0]);
 		}
 	}
@@ -253,9 +318,9 @@ public class Superstructure extends SubsystemBase {
 		m_feeder.stop();
 		m_conveyor.stop();
 
-		m_arm.setArm(ARM_POSITIONS[m_element.index][2], EXTENSION_POSITIONS[m_element.index][2]);
+		m_arm.setArm(ARM_POSITIONS[m_element.index][3], EXTENSION_POSITIONS[m_element.index][3]);
 
-		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][2]);
+		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][3]);
 	}
 
 	public void prep() {
@@ -269,10 +334,10 @@ public class Superstructure extends SubsystemBase {
 		m_conveyor.stop();
 
 		m_arm.setArm(
-				ARM_POSITIONS[m_element.index][3 + m_targetNode[0]],
-				EXTENSION_POSITIONS[m_element.index][3 + m_targetNode[0]]);
+				ARM_POSITIONS[m_element.index][4 + m_targetNode[0]],
+				EXTENSION_POSITIONS[m_element.index][4 + m_targetNode[0]]);
 
-		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][2]);
+		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][3]);
 	}
 
 	public void score() {
@@ -290,8 +355,8 @@ public class Superstructure extends SubsystemBase {
 		m_conveyor.stop();
 
 		m_arm.setArm(
-				ARM_POSITIONS[m_element.index][3 + m_targetNode[0]],
-				EXTENSION_POSITIONS[m_element.index][3 + m_targetNode[0]]);
+				ARM_POSITIONS[m_element.index][4 + m_targetNode[0]],
+				EXTENSION_POSITIONS[m_element.index][4 + m_targetNode[0]]);
 
 		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][0]);
 
@@ -322,5 +387,13 @@ public class Superstructure extends SubsystemBase {
 
 	public boolean getAutoScore() {
 		return m_autoScore;
+	}
+
+	public State getState() {
+		return m_state;
+	}
+
+	public void grab() {
+		m_grab = true;
 	}
 }

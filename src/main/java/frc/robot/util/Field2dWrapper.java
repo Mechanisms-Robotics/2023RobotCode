@@ -26,7 +26,7 @@ public class Field2dWrapper extends Field2d {
 
 	private boolean robotSimActive = false;
 	private boolean boidsSimActive = false;
-	private boolean cameraSimActive = true;
+	private boolean cameraSimActive = false;
 	private boolean physicsSimActive = false;
 
 	public Field2dWrapper() {

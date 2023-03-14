@@ -16,10 +16,7 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "score",
-          "idle"
-        ],
+        "names": [],
         "executionBehavior": "sequential",
         "waitBehavior": "after",
         "waitTime": 0
@@ -27,16 +24,16 @@
     },
     {
       "anchorPoint": {
-        "x": 7.08,
-        "y": 4.57
+        "x": 6.75,
+        "y": 4.0
       },
       "prevControl": {
-        "x": 6.086363887984013,
-        "y": 4.972267309413444
+        "x": 5.756363887984013,
+        "y": 4.4022673094134435
       },
       "nextControl": {
-        "x": 6.086363887984013,
-        "y": 4.972267309413444
+        "x": 5.756363887984013,
+        "y": 4.4022673094134435
       },
       "holonomicAngle": 0,
       "isReversal": true,
@@ -52,15 +49,15 @@
     },
     {
       "anchorPoint": {
-        "x": 2.066322034841094,
+        "x": 2.1,
         "y": 4.709763466302276
       },
       "prevControl": {
-        "x": 2.4299225919500747,
+        "x": 2.4636005571089807,
         "y": 5.113132834345052
       },
       "nextControl": {
-        "x": 1.9757034530577913,
+        "x": 2.009381418216697,
         "y": 4.609233477136424
       },
       "holonomicAngle": 0,
@@ -77,12 +74,12 @@
     },
     {
       "anchorPoint": {
-        "x": 1.9129280498107424,
-        "y": 4.272306546030526
+        "x": 2.1,
+        "y": 4.375
       },
       "prevControl": {
-        "x": 1.940590816596769,
-        "y": 4.432844619087472
+        "x": 2.1276627667860266,
+        "y": 4.535538073056946
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -101,5 +98,43 @@
   "maxVelocity": 2.0,
   "maxAcceleration": 1.5,
   "isReversed": null,
-  "markers": []
+  "markers": [
+    {
+      "position": 0.0,
+      "names": [
+        "scoreCone",
+        "idle"
+      ]
+    },
+    {
+      "position": 3.0,
+      "names": [
+        "event"
+      ]
+    },
+    {
+      "position": 0.42545454545456163,
+      "names": [
+        "deploy"
+      ]
+    },
+    {
+      "position": 1.3963636363637295,
+      "names": [
+        "retract"
+      ]
+    },
+    {
+      "position": 1.7345454545455556,
+      "names": [
+        "scoreCube"
+      ]
+    },
+    {
+      "position": 0.0,
+      "names": [
+        "event"
+      ]
+    }
+  ]
 }

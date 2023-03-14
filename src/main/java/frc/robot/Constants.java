@@ -27,7 +27,8 @@ public final class Constants {
 	// TODO: Measure height of limelight
 	public static final Transform3d ROBOT_TO_CAMERA =
 			new Transform3d(
-					new Translation3d(0.0, -0.088, 1.067), new Rotation3d(0.0, 0.0, Math.toRadians(180.0)));
+					new Translation3d(0.0, -0.088, 1.067),
+					new Rotation3d(0.0, 0.0, Math.toRadians(180.0)));
 
 	public static final Transform2d SCORING_OFFSET =
 			new Transform2d(new Translation2d(1.0, 0.0), new Rotation2d());

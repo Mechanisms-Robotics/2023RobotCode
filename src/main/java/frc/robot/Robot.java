@@ -39,8 +39,7 @@ public class Robot extends TimedRobot {
 
 		if (DriverStation.getAlliance() == Alliance.Blue) {
 			AprilTagTracker.setAllianceSide(OriginPosition.kBlueAllianceWallRightSide);
-		}
-		else {
+		} else {
 			AprilTagTracker.setAllianceSide(OriginPosition.kRedAllianceWallRightSide);
 		}
 	}
@@ -63,7 +62,6 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-
 		// schedule the autonomous command (example)
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.schedule();
@@ -79,6 +77,7 @@ public class Robot extends TimedRobot {
 		m_robotContainer.m_gripper.zeroEncoder();
 
 		m_robotContainer.m_superstructure.setAutoScore(false);
+		m_robotContainer.m_intake.retract();
 	}
 
 	/** This method is called periodically during autonomous. */
@@ -97,11 +96,12 @@ public class Robot extends TimedRobot {
 		}
 
 		m_robotContainer.m_swerve.setNeutralMode(NeutralMode.Coast);
+		m_robotContainer.m_arm.setArm(0.0, 0.0);
 		m_robotContainer.m_superstructure.idle();
 
 		m_robotContainer.m_swerve.resetModules();
 
-		m_robotContainer.m_superstructure.setAutoScore(true);
+		//		m_robotContainer.m_superstructure.setAutoScore(true);
 	}
 
 	/** This method is called periodically during operator control. */
@@ -138,7 +138,7 @@ public class Robot extends TimedRobot {
 
 		m_robotContainer.m_intake.zeroEncoders();
 		m_robotContainer.m_arm.init();
-//		m_robotContainer.m_arm.zeroEncoder();
+		//		m_robotContainer.m_arm.zeroEncoder();
 		m_robotContainer.m_gripper.zeroEncoder();
 	}
 

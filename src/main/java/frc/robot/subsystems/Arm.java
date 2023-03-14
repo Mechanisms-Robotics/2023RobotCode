@@ -4,7 +4,6 @@ import com.ctre.phoenix.ParamEnum;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.sun.nio.file.ExtendedWatchEventModifier;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,7 +29,7 @@ public class Arm extends SubsystemBase {
 	private static final double TICKS_PER_DEGREE = (2048.0 / 360.0) * 89.89;
 
 	private static final double ALLOWABLE_PIVOT_ERROR = 1000;
-	private static final double ALLOWABLE_EXTENSION_ERROR = 100;
+	private static final double ALLOWABLE_EXTENSION_ERROR = 400;
 
 	private static final double kP = 0.2; // 0.1
 	private static final double kD = 0.0;
@@ -44,7 +43,7 @@ public class Arm extends SubsystemBase {
 		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = TICKS_PER_DEGREE * 33.0;
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 75000;
 
-		ARM_MOTOR_CONFIG.motionCruiseVelocity = 30000;
+		ARM_MOTOR_CONFIG.motionCruiseVelocity = 20000;
 		ARM_MOTOR_CONFIG.motionAcceleration = 15000; // 30000
 		ARM_MOTOR_CONFIG.motionCurveStrength = 8;
 
@@ -125,7 +124,6 @@ public class Arm extends SubsystemBase {
 		extenderMotor.selectProfileSlot(0, 0);
 	}
 
-
 	public void setOpenLoop(double percentOutput) {
 		if (!zeroed) {
 			return;
@@ -161,10 +159,12 @@ public class Arm extends SubsystemBase {
 		}
 
 		SmartDashboard.putString("ArmState", armState.toString());
+		SmartDashboard.putBoolean("ArmZeroed", zeroed);
 	}
 
 	public void init() {
 		if (zeroed) {
+			System.out.println("ALREADY ZEROED");
 			return;
 		}
 
@@ -176,11 +176,11 @@ public class Arm extends SubsystemBase {
 	}
 
 	public void setArm(double armPosition, double extendPosition) {
-    if (this.desiredPosition[0] != armPosition || this.desiredPosition[1] != extendPosition) {
-      this.desiredPosition[0] = armPosition;
-      this.desiredPosition[1] = extendPosition;
+		if (this.desiredPosition[0] != armPosition || this.desiredPosition[1] != extendPosition) {
+			this.desiredPosition[0] = armPosition;
+			this.desiredPosition[1] = extendPosition;
 
-      retract();
+			retract();
 		}
 	}
 
@@ -210,7 +210,7 @@ public class Arm extends SubsystemBase {
 			}
 
 			return;
-    }
+		}
 
 		armState = ArmState.Retracting;
 		setExtensionClosedLoop(STOWED_POSITION);

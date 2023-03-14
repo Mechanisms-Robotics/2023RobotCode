@@ -76,8 +76,8 @@ public class ScoreCommand extends CommandBase {
 
 	@Override
 	public boolean isFinished() {
-    if (m_interrupt != null) {
-      return m_interrupt.getAsBoolean();
+		if (m_interrupt != null) {
+			return m_interrupt.getAsBoolean();
 		} else {
 			return m_scoreTimer.hasElapsed(SCORE_TIME);
 		}

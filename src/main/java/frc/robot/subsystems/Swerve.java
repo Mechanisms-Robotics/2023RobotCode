@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.sensors.Pigeon2Configuration;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.swervedrivespecialties.swervelib.GearRatios.GearRatio;
@@ -16,11 +15,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -313,8 +310,8 @@ public class Swerve extends SubsystemBase {
 
 			if (result.isPresent()) {
 				EstimatedRobotPose camPose = result.get();
-				        m_poseEstimator.addVisionMeasurement(
-				            camPose.estimatedPose.toPose2d(),camPose.timestampSeconds);
+				m_poseEstimator.addVisionMeasurement(
+						camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
 				m_field.getObject("Cam Est Pos").setPose(camPose.estimatedPose.toPose2d());
 			} else {
 				m_field.getObject("Cam Est Pos").setPose(new Pose2d(-100, -100, new Rotation2d()));

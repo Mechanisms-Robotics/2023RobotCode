@@ -126,7 +126,7 @@ public final class AutoCommands {
 						() -> {
 							PathPlannerTrajectory trajectory =
 									ObstacleAvoidance.generateTrajectoryAvoidObstacles(
-											goalPose, 3.0, 3.0, swerve);
+											goalPose, 1.5, 1.5, swerve);
 							swerve.setTrajectory(trajectory);
 						})
 				.andThen(

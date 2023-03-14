@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.photonvision.*;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -37,8 +38,7 @@ public class AprilTagTracker {
 						camera,
 						Constants.ROBOT_TO_CAMERA);
 
-		photonPoseEstimator.setMultiTagFallbackStrategy(
-				PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+		photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 	}
 
 	public static void setEstimatorStrategy(PhotonPoseEstimator.PoseStrategy strategy) {
