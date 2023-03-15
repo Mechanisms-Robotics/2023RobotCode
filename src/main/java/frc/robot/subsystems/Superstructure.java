@@ -3,19 +3,26 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.LEDWrapper;
 
 public class Superstructure extends SubsystemBase {
 
 	private static final double[][] INTAKE_SPEEDS =
 			new double[][] {
 				{0.45, -0.75, 0.45, 0.45}, // Intake, Feeder, Conveyor, Positioning | Cube
-				{0.5, -0.1, 0.4, 0.35} // Intake, Feeder, Conveyor, Positioning | Cone
+				{0.6, -0.1, 0.4, 0.35} // Intake, Feeder, Conveyor, Positioning | Cone
 			};
 
 	private static final double[][] OUTTAKE_SPEEDS =
 			new double[][] {
 				{-0.15, 0.1, -0.3}, // Intake, Feeder, Conveyor | Cube
 				{-0.15, 0.1, -0.3} // Intake, Feeder, Conveyor | Cone
+			};
+
+	private static final double[][] SHOOT_OUT_SPEEDS =
+			new double[][] {
+				{-0.5, 0.5, -0.5}, // Intake, Feeder, Conveyor | Cube
+				{-0.5, 0.5, -0.5} // Intake, Feeder, Conveyor | Cube
 			};
 
 	private static final double[][] ARM_POSITIONS =
@@ -40,8 +47,8 @@ public class Superstructure extends SubsystemBase {
 
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
-				{0, 0, 0, -10000}, // Idling, Ground Pickup, Backstopping, Grabbing | Cube | -18825
-				{0, 0, 0, -18500} // Idling, Ground Pickup, Backstopping, Grabbing | Cone
+				{0, 0, 0, -10000, -10000}, // Idling, Ground Pickup, Backstopping, Grabbing, Loose Grab | Cube
+				{0, 0, 0, -18500, -17000} // Idling, Ground Pickup, Backstopping, Grabbing, Loose Grab | Cone
 			};
 
 	private static final double SCORE_TIME = 0.5; // seconds
@@ -51,11 +58,12 @@ public class Superstructure extends SubsystemBase {
 
 	private static final double CONE_GRABBING_MODE_TIME = 1;
 
-	private enum IntakeState {
+	public enum IntakeState {
 		Idling,
 		Intaking,
 		Positioning,
-		Outtaking
+		Outtaking,
+		ShootOuting
 	}
 
 	private enum ArmState {
@@ -102,6 +110,8 @@ public class Superstructure extends SubsystemBase {
 
 	private Element m_element = Element.Cube;
 
+	private LEDWrapper m_ledWrapper;
+
 	private int[] m_targetNode = {0, 0};
 
 	private final Timer m_scoreTimer = new Timer();
@@ -114,12 +124,14 @@ public class Superstructure extends SubsystemBase {
 	private boolean m_grab = false;
 
 	public Superstructure(
-			Intake intake, Feeder feeder, Conveyor conveyor, Arm arm, Gripper gripper) {
+			Intake intake, Feeder feeder, Conveyor conveyor, Arm arm, Gripper gripper, LEDWrapper ledWrapper) {
 		m_intake = intake;
 		m_feeder = feeder;
 		m_conveyor = conveyor;
 		m_arm = arm;
 		m_gripper = gripper;
+
+		m_ledWrapper = ledWrapper;
 	}
 
 	@Override
@@ -161,6 +173,12 @@ public class Superstructure extends SubsystemBase {
 			case 2:
 				SmartDashboard.putString("Level", "High");
 				break;
+		}
+
+		if (m_element == Element.Cone) {
+			m_ledWrapper.setColor(true, false);
+		} else if (m_element == Element.Cube) {
+			m_ledWrapper.setColor(false, true);
 		}
 
 		SmartDashboard.putBoolean("AutoScore", m_autoScore);
@@ -258,8 +276,8 @@ public class Superstructure extends SubsystemBase {
 				}
 			}
 
-//			m_intake.stop();
-//			m_feeder.stop();
+			//			m_intake.stop();
+			//			m_feeder.stop();
 			m_intake.intake(INTAKE_SPEEDS[m_element.index][0]);
 			m_feeder.feed(INTAKE_SPEEDS[m_element.index][1]);
 			m_conveyor.convey(INTAKE_SPEEDS[m_element.index][3]);
@@ -294,14 +312,21 @@ public class Superstructure extends SubsystemBase {
 	}
 
 	public void outtake() {
-		if (m_intakeState != IntakeState.Outtaking) m_intakeState = IntakeState.Outtaking;
+		if (m_intakeState != IntakeState.Outtaking && m_intakeState != IntakeState.ShootOuting)
+			m_intakeState = IntakeState.Outtaking;
 		if (m_armState != ArmState.Idling) m_armState = ArmState.Idling;
 
 		if (m_state != State.Outtaking) m_state = State.Outtaking;
 
-		m_intake.outtake(OUTTAKE_SPEEDS[m_element.index][0]);
-		m_feeder.outtake(OUTTAKE_SPEEDS[m_element.index][1]);
-		m_conveyor.outtake(OUTTAKE_SPEEDS[m_element.index][2]);
+		if (m_intakeState == IntakeState.Outtaking) {
+			m_intake.outtake(OUTTAKE_SPEEDS[m_element.index][0]);
+			m_feeder.outtake(OUTTAKE_SPEEDS[m_element.index][1]);
+			m_conveyor.outtake(OUTTAKE_SPEEDS[m_element.index][2]);
+		} else {
+			m_intake.outtake(SHOOT_OUT_SPEEDS[m_element.index][0]);
+			m_intake.outtake(SHOOT_OUT_SPEEDS[m_element.index][1]);
+			m_intake.outtake(SHOOT_OUT_SPEEDS[m_element.index][2]);
+		}
 
 		m_arm.setArm(ARM_POSITIONS[m_element.index][0], EXTENSION_POSITIONS[m_element.index][0]);
 
@@ -337,7 +362,7 @@ public class Superstructure extends SubsystemBase {
 				ARM_POSITIONS[m_element.index][4 + m_targetNode[0]],
 				EXTENSION_POSITIONS[m_element.index][4 + m_targetNode[0]]);
 
-		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][3]);
+		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][4]);
 	}
 
 	public void score() {
@@ -368,6 +393,10 @@ public class Superstructure extends SubsystemBase {
 		}
 	}
 
+	public void shootOut() {
+		if (m_intakeState != IntakeState.ShootOuting) m_intakeState = IntakeState.ShootOuting;
+	}
+
 	public void setElement(Element element) {
 		m_element = element;
 	}
@@ -391,6 +420,10 @@ public class Superstructure extends SubsystemBase {
 
 	public State getState() {
 		return m_state;
+	}
+
+	public IntakeState getIntakeState() {
+		return m_intakeState;
 	}
 
 	public void grab() {

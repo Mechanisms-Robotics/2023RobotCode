@@ -50,6 +50,8 @@ public class Robot extends TimedRobot {
 		m_robotContainer.m_intake.stopPivot();
 		m_robotContainer.m_arm.stop();
 		m_robotContainer.m_gripper.stop();
+
+		m_robotContainer.m_ledWrapper.turnOff();
 	}
 
 	@Override
@@ -122,10 +124,12 @@ public class Robot extends TimedRobot {
 			}
 		}
 
-		if (m_robotContainer.m_intake.isDeployed()) {
-			m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 3.0 : 2.0);
-		} else {
-			m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 2.5 : 1.5);
+		if (!m_robotContainer.m_swerve.getClimbMode()) {
+			if (m_robotContainer.m_intake.isDeployed()) {
+				m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 3.0 : 2.0);
+			} else {
+				m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 2.5 : 1.5);
+			}
 		}
 	}
 

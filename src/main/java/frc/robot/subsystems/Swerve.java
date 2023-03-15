@@ -121,6 +121,8 @@ public class Swerve extends SubsystemBase {
 	private double m_maxVelocityRange = 4.5; // m/s
 	private Rotation2d m_swerveRobotRelativeHeading = new Rotation2d();
 
+	private boolean m_climbMode = false;
+
 	public Swerve() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
 
@@ -246,6 +248,15 @@ public class Swerve extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+		if (m_climbMode) {
+			setNeutralMode(NeutralMode.Brake);
+			setMaxVelocity(1.5);
+		} else if (!DriverStation.isAutonomousEnabled()) {
+			setNeutralMode(NeutralMode.Coast);
+		}
+
+		SmartDashboard.putBoolean("Climb Mode", m_climbMode);
+
 		SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY);
 
@@ -433,6 +444,14 @@ public class Swerve extends SubsystemBase {
 
 	public void setTrajectory(PathPlannerTrajectory trajectory) {
 		m_currentTrajectory = trajectory;
+	}
+
+	public void setClimbMode(boolean climbMode) {
+		m_climbMode = climbMode;
+	}
+
+	public boolean getClimbMode() {
+		return m_climbMode;
 	}
 
 	public void resetModules() {

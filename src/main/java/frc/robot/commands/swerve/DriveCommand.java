@@ -54,7 +54,7 @@ public class DriveCommand extends CommandBase {
 				"Tilt",
 				m_swerveSubsystem.getUpAngle().minus(m_swerveSubsystem.getRoll()).getDegrees());
 
-		if (Math.abs(tilt) >= 10.0) {
+		if (Math.abs(tilt) >= 10.0 && !m_swerveSubsystem.getClimbMode()) {
 			if (tilt > 0) {
 				m_swerveSubsystem.drive(new ChassisSpeeds(0.0, ANTI_TIP_SPEED, 0.0));
 			} else {

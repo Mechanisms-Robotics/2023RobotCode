@@ -14,15 +14,16 @@ import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.HPStationIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
 import frc.robot.commands.superstructure.AutoScoreCommand;
-import frc.robot.commands.superstructure.IntakeCommand;
 import frc.robot.commands.superstructure.OuttakeCommand;
 import frc.robot.commands.superstructure.ScoreCommand;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Superstructure.Element;
+import frc.robot.subsystems.Superstructure.IntakeState;
 import frc.robot.subsystems.Superstructure.State;
 import frc.robot.util.GoalTracker;
 import frc.robot.util.GoalTracker.TrackingMode;
+import frc.robot.util.LEDWrapper;
 import java.util.HashMap;
 
 public class RobotContainer {
@@ -32,11 +33,15 @@ public class RobotContainer {
 	public final Gripper m_gripper = new Gripper();
 	public final Feeder m_feeder = new Feeder();
 	public final Conveyor m_conveyor = new Conveyor();
+
 	public final GoalTracker m_goalTracker =
 			new GoalTracker(m_swerve.getField(), m_swerve::getPose);
 
+	public final LEDWrapper m_ledWrapper = new LEDWrapper();
+
 	public final Superstructure m_superstructure =
-			new Superstructure(m_intake, m_feeder, m_conveyor, m_arm, m_gripper);
+			new Superstructure(m_intake, m_feeder, m_conveyor, m_arm, m_gripper, m_ledWrapper);
+
 
 	private final CommandXboxController m_driverController =
 			new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -86,7 +91,14 @@ public class RobotContainer {
 		m_driverController.rightBumper().onTrue(new DeployIntakeCommand(m_intake));
 
 		m_driverController.leftTrigger().onTrue(new HPStationIntakeCommand(m_intake));
-		m_driverController.rightTrigger().toggleOnFalse(new IntakeCommand(m_superstructure));
+
+		m_driverController
+				.rightTrigger()
+				.onTrue(
+						new ConditionalCommand(
+								new InstantCommand(m_superstructure::intake),
+								new InstantCommand(m_superstructure::idle),
+								() -> m_superstructure.getState() != State.Intaking));
 
 		m_driverController
 				.a()
@@ -103,7 +115,32 @@ public class RobotContainer {
 										}),
 								Commands.none(),
 								m_superstructure::getAutoScore));
-		m_driverController.y().toggleOnTrue(new OuttakeCommand(m_superstructure));
+
+		m_driverController
+				.y()
+				.onTrue(
+						new ConditionalCommand(
+								new OuttakeCommand(m_superstructure),
+								Commands.none(),
+								() -> m_superstructure.getState() != State.Outtaking));
+
+		m_driverController
+				.b()
+				.onTrue(
+						new ConditionalCommand(
+								new InstantCommand(m_superstructure::shootOut),
+								new InstantCommand(m_superstructure::idle),
+								() ->
+										m_superstructure.getIntakeState()
+												!= IntakeState.ShootOuting));
+
+		m_driverController
+				.x()
+				.onTrue(
+						new ConditionalCommand(
+								new InstantCommand(() -> m_swerve.setClimbMode(false)),
+								new InstantCommand(() -> m_swerve.setClimbMode(true)),
+								m_swerve::getClimbMode));
 
 		m_secondDriverController
 				.a()
@@ -115,7 +152,9 @@ public class RobotContainer {
 										new ConditionalCommand(
 												new InstantCommand(m_superstructure::score),
 												Commands.none(),
-												() -> m_superstructure.getState() == State.Prepping),
+												() ->
+														m_superstructure.getState()
+																== State.Prepping),
 										() -> m_superstructure.getState() == State.Holding),
 								() -> m_superstructure.getState() == State.Intaking));
 
