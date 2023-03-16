@@ -31,9 +31,9 @@ public class Arm extends SubsystemBase {
 	private static final double ALLOWABLE_PIVOT_ERROR = 1000;
 	private static final double ALLOWABLE_EXTENSION_ERROR = 400;
 
-	private static final double kP = 0.2; // 0.1
+	private static final double kP = 0.2; // 0.2
 	private static final double kD = 0.0;
-	private static final double kF = 0.01; // 0.01
+	private static final double kF = 0.0; // 0.01
 
 	private static final double extenderKP = 1.0; // 0.8
 
@@ -189,8 +189,8 @@ public class Arm extends SubsystemBase {
 			return;
 		}
 
-		armMotorLeft.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, 0.1);
-		armMotorRight.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, 0.1);
+		armMotorLeft.set(ControlMode.MotionMagic, position);
+		armMotorRight.set(ControlMode.MotionMagic, position);
 		armMotorRight.follow(armMotorLeft);
 	}
 

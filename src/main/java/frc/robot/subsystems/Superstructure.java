@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LEDWrapper;
@@ -10,7 +12,7 @@ public class Superstructure extends SubsystemBase {
 	private static final double[][] INTAKE_SPEEDS =
 			new double[][] {
 				{0.45, -0.75, 0.45, 0.45}, // Intake, Feeder, Conveyor, Positioning | Cube
-				{0.6, -0.1, 0.4, 0.35} // Intake, Feeder, Conveyor, Positioning | Cone
+				{0.5, -0.1, 0.4, 0.35} // Intake, Feeder, Conveyor, Positioning | Cone
 			};
 
 	private static final double[][] OUTTAKE_SPEEDS =
@@ -31,24 +33,24 @@ public class Superstructure extends SubsystemBase {
 					20000, 32500, 20000, 20000, 30000, 50000, 60000
 				}, // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cube
 				{
-					17000, 32500, 17000, 16875, 30000, 58750, 67500
+					17000, 32500, 17000, 16875, 30000, 58750, 65000
 				} // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cone
 			};
 
 	private static final double[][] EXTENSION_POSITIONS =
 			new double[][] {
 				{
-					-250, -11500, -250, -0, -500, -1750, -17875
+					-250, -11500, -250, -0, -500, -3750, -17875
 				}, // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cube
 				{
-					-3250, -11500, -3250, -500, -500, -1750, -17875
+					-3250, -11500, -3250, -1500, -500, -1750, -17875
 				} // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cone
 			};
 
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
 				{0, 0, 0, -10000, -10000}, // Idling, Ground Pickup, Backstopping, Grabbing, Loose Grab | Cube
-				{0, 0, 0, -18500, -17000} // Idling, Ground Pickup, Backstopping, Grabbing, Loose Grab | Cone
+				{0, 0, 0, -19384, -17750} // Idling, Ground Pickup, Backstopping, Grabbing, Loose Grab | Cone
 			};
 
 	private static final double SCORE_TIME = 0.5; // seconds
@@ -123,6 +125,8 @@ public class Superstructure extends SubsystemBase {
 	private boolean m_autoScore = false;
 	private boolean m_grab = false;
 
+	private final SendableChooser<Double> m_offsetChooser;
+
 	public Superstructure(
 			Intake intake, Feeder feeder, Conveyor conveyor, Arm arm, Gripper gripper, LEDWrapper ledWrapper) {
 		m_intake = intake;
@@ -132,6 +136,18 @@ public class Superstructure extends SubsystemBase {
 		m_gripper = gripper;
 
 		m_ledWrapper = ledWrapper;
+
+		m_offsetChooser = new SendableChooser<>();
+
+		m_offsetChooser.addOption("UPUPUP", 8000.0);
+		m_offsetChooser.addOption("UPUP", 4000.0);
+		m_offsetChooser.addOption("UP",  2000.0);
+		m_offsetChooser.setDefaultOption("MIDDLE", 0.0);
+		m_offsetChooser.addOption("DOWN", -2000.0);
+		m_offsetChooser.addOption("DOWNDOWN", -4000.0);
+		m_offsetChooser.addOption("DOWNDOWNDOWN", -8000.0);
+
+		SmartDashboard.putData("Offset Chooser", m_offsetChooser);
 	}
 
 	@Override
@@ -200,7 +216,9 @@ public class Superstructure extends SubsystemBase {
 		m_feeder.stop();
 		m_conveyor.stop();
 
-		m_arm.setArm(ARM_POSITIONS[m_element.index][0], EXTENSION_POSITIONS[m_element.index][0]);
+    m_arm.setArm(
+        ARM_POSITIONS[m_element.index][0],
+        EXTENSION_POSITIONS[m_element.index][0]);
 
 		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][0]);
 	}
@@ -359,10 +377,14 @@ public class Superstructure extends SubsystemBase {
 		m_conveyor.stop();
 
 		m_arm.setArm(
-				ARM_POSITIONS[m_element.index][4 + m_targetNode[0]],
+				ARM_POSITIONS[m_element.index][4 + m_targetNode[0]] + m_offsetChooser.getSelected(),
 				EXTENSION_POSITIONS[m_element.index][4 + m_targetNode[0]]);
 
-		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][4]);
+    if (!m_arm.isAtPosition()) {
+      m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][3]);
+		} else {
+			m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][4]);
+		}
 	}
 
 	public void score() {
@@ -380,7 +402,7 @@ public class Superstructure extends SubsystemBase {
 		m_conveyor.stop();
 
 		m_arm.setArm(
-				ARM_POSITIONS[m_element.index][4 + m_targetNode[0]],
+				ARM_POSITIONS[m_element.index][4 + m_targetNode[0]] + m_offsetChooser.getSelected(),
 				EXTENSION_POSITIONS[m_element.index][4 + m_targetNode[0]]);
 
 		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][0]);

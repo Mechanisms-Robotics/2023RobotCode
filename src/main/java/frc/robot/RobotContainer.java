@@ -27,7 +27,9 @@ import frc.robot.util.LEDWrapper;
 import java.util.HashMap;
 
 public class RobotContainer {
-	public final Swerve m_swerve = new Swerve();
+	private SendableChooser<Boolean> m_swerveDisabledChooser = null;
+
+	public final Swerve m_swerve = new Swerve(m_swerveDisabledChooser);
 	public final Intake m_intake = new Intake();
 	public final Arm m_arm = new Arm();
 	public final Gripper m_gripper = new Gripper();
@@ -75,13 +77,19 @@ public class RobotContainer {
 		autoChooser.addOption(
 				"1Cone1CubeHP",
 				OneConeOneCubeHP.oneConeOneCubeLeft(m_autoBuilder, m_superstructure, m_intake));
-		autoChooser.addOption(
+		autoChooser.setDefaultOption(
 				"1ConeBalanceHP",
 				OneConeBalanceHP.oneConeBalanceHP(
 						m_autoBuilder, m_swerve, m_superstructure, m_intake));
 		autoChooser.addOption("Test", TestAuto.testAuto(m_autoBuilder));
 
-		SmartDashboard.putData(autoChooser);
+		SmartDashboard.putData("Auto Chooser", autoChooser);
+
+		m_swerveDisabledChooser = new SendableChooser<>();
+		m_swerveDisabledChooser.setDefaultOption("Enabled", false);
+		m_swerveDisabledChooser.addOption("Disabled", true);
+
+		SmartDashboard.putData("Swerve Chooser", m_swerveDisabledChooser);
 	}
 
 	private void configureBindings() {
@@ -251,13 +259,15 @@ public class RobotContainer {
 	}
 
 	private void configureDefaultCommands() {
-		if (!Constants.SWERVE_DISABLED) {
-			m_swerve.setDefaultCommand(
-					new DriveCommand(
-							m_swerve,
-							() -> -m_driverController.getLeftY() * m_swerve.getMaxVelocity(),
-							() -> -m_driverController.getLeftX() * m_swerve.getMaxVelocity(),
-							() -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
+    if (m_swerveDisabledChooser != null) {
+      if (!m_swerveDisabledChooser.getSelected()) {
+        m_swerve.setDefaultCommand(
+            new DriveCommand(
+                m_swerve,
+                () -> -m_driverController.getLeftY() * m_swerve.getMaxVelocity(),
+                () -> -m_driverController.getLeftX() * m_swerve.getMaxVelocity(),
+                () -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
+      }
 		}
 	}
 

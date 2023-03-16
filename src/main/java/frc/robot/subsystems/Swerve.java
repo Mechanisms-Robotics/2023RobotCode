@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -77,7 +78,7 @@ public class Swerve extends SubsystemBase {
 			-Math.toRadians(99.49 - 180.0); // rads 288.8
 	private static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(23.29); // rads
 	private static final double BACK_LEFT_MODULE_STEER_OFFSET =
-			-Math.toRadians(192.04); // 190.45 rads
+			-Math.toRadians(-170.508); // rads
 	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(329.67); // rads
 
 	private final SwerveModule m_frontLeftModule;
@@ -123,7 +124,9 @@ public class Swerve extends SubsystemBase {
 
 	private boolean m_climbMode = false;
 
-	public Swerve() {
+	private final SendableChooser<Boolean> m_swerveDisabledChooser;
+
+	public Swerve(SendableChooser<Boolean> swerveDisabledChooser) {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
 
 		m_frontLeftModule =
@@ -198,6 +201,8 @@ public class Swerve extends SubsystemBase {
 		SmartDashboard.putData("Field", m_field);
 
 		m_field.getObject("Control Points").setPoses(ObstacleAvoidance.getControlPoints());
+
+		m_swerveDisabledChooser = swerveDisabledChooser;
 	}
 
 	public void zeroGyro() {
@@ -282,19 +287,21 @@ public class Swerve extends SubsystemBase {
 			m_headingController.update(m_chassisSpeeds, getGyroHeading());
 		}
 
-		if (!Constants.SWERVE_DISABLED) {
-			m_frontLeftModule.set(
-					(states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-					states[0].angle.getRadians());
-			m_frontRightModule.set(
-					(states[1].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-					states[1].angle.getRadians());
-			m_backLeftModule.set(
-					(states[2].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-					states[2].angle.getRadians());
-			m_backRightModule.set(
-					(states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-					states[3].angle.getRadians());
+    if (m_swerveDisabledChooser != null) {
+      if (!m_swerveDisabledChooser.getSelected()) {
+        m_frontLeftModule.set(
+            (states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+            states[0].angle.getRadians());
+        m_frontRightModule.set(
+            (states[1].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+            states[1].angle.getRadians());
+        m_backLeftModule.set(
+            (states[2].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+            states[2].angle.getRadians());
+        m_backRightModule.set(
+            (states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+            states[3].angle.getRadians());
+      }
 		}
 
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());

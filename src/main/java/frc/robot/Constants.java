@@ -9,6 +9,7 @@ import com.pathplanner.lib.auto.PIDConstants;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 public final class Constants {
 	public static final int DRIVER_CONTROLLER_PORT = 0;
@@ -51,6 +52,4 @@ public final class Constants {
 		public static final PIDConstants kTranslationPID = new PIDConstants(SWERVE_X_KP, 0.0, 0.0);
 		public static final PIDConstants kRotationPID = new PIDConstants(SWERVE_ROT_KP, 0.0, 0.0);
 	}
-
-	public static final boolean SWERVE_DISABLED = true;
 }
