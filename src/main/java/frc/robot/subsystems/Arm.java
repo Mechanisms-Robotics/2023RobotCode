@@ -68,6 +68,9 @@ public class Arm extends SubsystemBase {
 
 	private boolean zeroed = false;
 
+	private int selectedMotorNum = 1;
+	private WPI_TalonFX selectedMotor = armMotorLeft;
+
 	public Arm() {
 		armMotorLeft.configFactoryDefault();
 		armMotorLeft.configAllSettings(ARM_MOTOR_CONFIG);
@@ -175,10 +178,18 @@ public class Arm extends SubsystemBase {
 		zeroed = true;
 	}
 
-	public void setArm(double armPosition, double extendPosition) {
+	public void setArm(double armPosition, double extendPosition, int selectedMotor) {
 		if (this.desiredPosition[0] != armPosition || this.desiredPosition[1] != extendPosition) {
 			this.desiredPosition[0] = armPosition;
 			this.desiredPosition[1] = extendPosition;
+
+			this.selectedMotorNum = selectedMotor;
+
+			if (this.selectedMotorNum == 1) {
+				this.selectedMotor = armMotorLeft;
+			} else {
+				this.selectedMotor = armMotorRight;
+			}
 
 			retract();
 		}
@@ -189,9 +200,19 @@ public class Arm extends SubsystemBase {
 			return;
 		}
 
-		armMotorLeft.set(ControlMode.MotionMagic, position);
-		armMotorRight.set(ControlMode.MotionMagic, position);
-		armMotorRight.follow(armMotorLeft);
+    if (this.selectedMotorNum == 1) {
+			armMotorLeft.setNeutralMode(NeutralMode.Brake);
+      armMotorLeft.set(ControlMode.MotionMagic, position);
+
+			armMotorRight.setNeutralMode(NeutralMode.Coast);
+      armMotorRight.set(ControlMode.PercentOutput, 0.0);
+		} else {
+			armMotorLeft.setNeutralMode(NeutralMode.Coast);
+			armMotorLeft.set(ControlMode.PercentOutput, 0.0);
+
+			armMotorRight.setNeutralMode(NeutralMode.Brake);
+			armMotorRight.set(ControlMode.MotionMagic, position);
+		}
 	}
 
 	private void setExtensionClosedLoop(double position) {
@@ -218,7 +239,7 @@ public class Arm extends SubsystemBase {
 
 	private void pivot() {
 		if (armState == ArmState.Pivoting) {
-			if (Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition[0])
+			if (Math.abs(selectedMotor.getSelectedSensorPosition() - desiredPosition[0])
 					<= ALLOWABLE_PIVOT_ERROR) {
 				if (desiredPosition[1] != STOWED_POSITION) {
 					deploy();
@@ -254,7 +275,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	public boolean isAtPosition() {
-		return Math.abs(armMotorLeft.getSelectedSensorPosition() - desiredPosition[0])
+		return Math.abs(selectedMotor.getSelectedSensorPosition() - desiredPosition[0])
 				<= ALLOWABLE_PIVOT_ERROR;
 	}
 

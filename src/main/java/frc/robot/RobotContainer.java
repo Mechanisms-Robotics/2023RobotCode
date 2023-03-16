@@ -14,8 +14,10 @@ import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.HPStationIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
 import frc.robot.commands.superstructure.AutoScoreCommand;
+import frc.robot.commands.superstructure.IdleCommand;
 import frc.robot.commands.superstructure.OuttakeCommand;
 import frc.robot.commands.superstructure.ScoreCommand;
+import frc.robot.commands.superstructure.ShootOutCommand;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Superstructure.Element;
@@ -129,15 +131,15 @@ public class RobotContainer {
 				.onTrue(
 						new ConditionalCommand(
 								new OuttakeCommand(m_superstructure),
-								Commands.none(),
+								new IdleCommand(m_superstructure),
 								() -> m_superstructure.getState() != State.Outtaking));
 
 		m_driverController
 				.b()
 				.onTrue(
 						new ConditionalCommand(
-								new InstantCommand(m_superstructure::shootOut),
-								new InstantCommand(m_superstructure::idle),
+								new ShootOutCommand(m_superstructure),
+								new IdleCommand(m_superstructure),
 								() ->
 										m_superstructure.getIntakeState()
 												!= IntakeState.ShootOuting));

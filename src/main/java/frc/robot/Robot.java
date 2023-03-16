@@ -98,7 +98,7 @@ public class Robot extends TimedRobot {
 		}
 
 		m_robotContainer.m_swerve.setNeutralMode(NeutralMode.Coast);
-		m_robotContainer.m_arm.setArm(0.0, 0.0);
+		m_robotContainer.m_arm.setArm(0.0, 0.0, 1);
 		m_robotContainer.m_superstructure.idle();
 
 		m_robotContainer.m_swerve.resetModules();

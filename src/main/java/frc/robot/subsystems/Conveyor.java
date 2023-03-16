@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -38,6 +39,7 @@ public class Conveyor extends SubsystemBase {
 	public Conveyor() {
 		conveyorMotor.configAllSettings(CONVEYOR_MOTOR_CONFIG);
 		conveyorMotor.setInverted(true);
+		conveyorMotor.setNeutralMode(NeutralMode.Coast);
 
 		conveyorMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
 	}

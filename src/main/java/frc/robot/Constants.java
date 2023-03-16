@@ -17,7 +17,7 @@ public final class Constants {
 
 	public static final double LOOP_TIME = TimedRobot.kDefaultPeriod;
 
-	public static final String CAMERA_NAME = "USB_Camera";
+	public static final String CAMERA_NAME = "HD_Webcam_C615";
 
 	// Used to correct any weird odometry rotations
 	public static final Transform2d FIELD_ROBOT =
