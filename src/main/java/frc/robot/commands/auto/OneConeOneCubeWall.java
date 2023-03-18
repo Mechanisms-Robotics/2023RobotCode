@@ -11,14 +11,14 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.Element;
 
-public class OneConeOneCubeHP {
+public class OneConeOneCubeWall {
 	public static final double MAX_VEL = 2.0; // m/s
 	public static final double MAX_ACCEL = 1.0; // m/s^2
 
-	private static final PathPlannerTrajectory ONE_CONE_ONE_CUBE_HP =
-			PathPlanner.loadPath("1Cone1CubeHP", MAX_VEL, MAX_ACCEL);
+	private static final PathPlannerTrajectory ONE_CONE_ONE_CUBE_WALL =
+			PathPlanner.loadPath("1Cone1CubeWall", MAX_VEL, MAX_ACCEL);
 
-	public static CommandBase oneConeOneCubeHP(
+	public static CommandBase oneConeOneCubeWall(
 			AutoBuilder autoBuilder, Superstructure superstructure, Intake intake) {
 		return Commands.sequence(
 				new InstantCommand(() -> superstructure.setElement(Element.Cone)),
@@ -33,7 +33,7 @@ public class OneConeOneCubeHP {
 				new InstantCommand(() -> superstructure.setElement(Element.Cube)),
 				new DeployIntakeCommand(intake),
 				new InstantCommand(superstructure::intake),
-				autoBuilder.followPath(ONE_CONE_ONE_CUBE_HP, true),
+				autoBuilder.followPath(ONE_CONE_ONE_CUBE_WALL, true),
 				new InstantCommand(superstructure::prep),
 				new WaitCommand(2.0),
 				new InstantCommand(superstructure::score),

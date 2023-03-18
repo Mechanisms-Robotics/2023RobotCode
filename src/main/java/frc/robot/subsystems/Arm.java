@@ -200,12 +200,12 @@ public class Arm extends SubsystemBase {
 			return;
 		}
 
-    if (this.selectedMotorNum == 1) {
+		if (this.selectedMotorNum == 1) {
 			armMotorLeft.setNeutralMode(NeutralMode.Brake);
-      armMotorLeft.set(ControlMode.MotionMagic, position);
+			armMotorLeft.set(ControlMode.MotionMagic, position);
 
 			armMotorRight.setNeutralMode(NeutralMode.Coast);
-      armMotorRight.set(ControlMode.PercentOutput, 0.0);
+			armMotorRight.set(ControlMode.PercentOutput, 0.0);
 		} else {
 			armMotorLeft.setNeutralMode(NeutralMode.Coast);
 			armMotorLeft.set(ControlMode.PercentOutput, 0.0);

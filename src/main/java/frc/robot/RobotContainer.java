@@ -6,9 +6,12 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Auto;
 import frc.robot.commands.auto.AutoBuilder;
+import frc.robot.commands.auto.MobilityAutoHP;
+import frc.robot.commands.auto.MobilityAutoWall;
 import frc.robot.commands.auto.OneConeBalanceHP;
+import frc.robot.commands.auto.OneConeBalanceWall;
 import frc.robot.commands.auto.OneConeOneCubeHP;
-import frc.robot.commands.auto.TestAuto;
+import frc.robot.commands.auto.OneConeOneCubeWall;
 import frc.robot.commands.goalTracker.SetTrackingMode;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.HPStationIntakeCommand;
@@ -46,7 +49,6 @@ public class RobotContainer {
 	public final Superstructure m_superstructure =
 			new Superstructure(m_intake, m_feeder, m_conveyor, m_arm, m_gripper, m_ledWrapper);
 
-
 	private final CommandXboxController m_driverController =
 			new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
 	private final CommandXboxController m_secondDriverController =
@@ -76,14 +78,22 @@ public class RobotContainer {
 
 		autoChooser = new SendableChooser<CommandBase>();
 
-		autoChooser.addOption(
-				"1Cone1CubeHP",
-				OneConeOneCubeHP.oneConeOneCubeLeft(m_autoBuilder, m_superstructure, m_intake));
+		autoChooser.addOption("MobilityAutoHP", MobilityAutoHP.mobilityAutoHP(m_autoBuilder));
+		autoChooser.addOption("MobilityAutoWall", MobilityAutoWall.mobilityAutoWall(m_autoBuilder));
 		autoChooser.setDefaultOption(
 				"1ConeBalanceHP",
 				OneConeBalanceHP.oneConeBalanceHP(
-						m_autoBuilder, m_swerve, m_superstructure, m_intake));
-		autoChooser.addOption("Test", TestAuto.testAuto(m_autoBuilder));
+						m_autoBuilder, m_superstructure));
+		autoChooser.addOption(
+				"1ConeBalanceWall",
+				OneConeBalanceWall.oneConeBalanceWall(
+						m_autoBuilder, m_superstructure));
+		autoChooser.addOption(
+				"1Cone1CubeHP",
+				OneConeOneCubeHP.oneConeOneCubeHP(m_autoBuilder, m_superstructure, m_intake));
+		autoChooser.addOption(
+				"1Cone1CubeWall",
+				OneConeOneCubeWall.oneConeOneCubeWall(m_autoBuilder, m_superstructure, m_intake));
 
 		SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -261,15 +271,15 @@ public class RobotContainer {
 	}
 
 	private void configureDefaultCommands() {
-    if (m_swerveDisabledChooser != null) {
-      if (!m_swerveDisabledChooser.getSelected()) {
-        m_swerve.setDefaultCommand(
-            new DriveCommand(
-                m_swerve,
-                () -> -m_driverController.getLeftY() * m_swerve.getMaxVelocity(),
-                () -> -m_driverController.getLeftX() * m_swerve.getMaxVelocity(),
-                () -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
-      }
+		if (!Constants.SWERVE_DISABLED) {
+			m_swerve.setDefaultCommand(
+					new DriveCommand(
+							m_swerve,
+							() -> -m_driverController.getLeftY() * m_swerve.getMaxVelocity(),
+							() -> -m_driverController.getLeftX() * m_swerve.getMaxVelocity(),
+							() ->
+									-m_driverController.getRightX()
+											* Swerve.ANGULAR_VELOCITY_RANGE));
 		}
 	}
 

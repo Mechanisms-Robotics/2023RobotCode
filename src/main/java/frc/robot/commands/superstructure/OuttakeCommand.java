@@ -5,8 +5,6 @@ import frc.robot.subsystems.Superstructure;
 
 public class OuttakeCommand extends InstantCommand {
 	public OuttakeCommand(Superstructure superstructure) {
-		super(
-				superstructure::outtake,
-				superstructure);
+		super(superstructure::outtake, superstructure);
 	}
 }

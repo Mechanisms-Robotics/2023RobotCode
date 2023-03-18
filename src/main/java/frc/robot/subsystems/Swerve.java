@@ -77,8 +77,7 @@ public class Swerve extends SubsystemBase {
 	private static final double FRONT_LEFT_MODULE_STEER_OFFSET =
 			-Math.toRadians(99.49 - 180.0); // rads 288.8
 	private static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(23.29); // rads
-	private static final double BACK_LEFT_MODULE_STEER_OFFSET =
-			-Math.toRadians(-170.508); // rads
+	private static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(-170.508); // rads
 	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(329.67); // rads
 
 	private final SwerveModule m_frontLeftModule;
@@ -287,21 +286,19 @@ public class Swerve extends SubsystemBase {
 			m_headingController.update(m_chassisSpeeds, getGyroHeading());
 		}
 
-    if (m_swerveDisabledChooser != null) {
-      if (!m_swerveDisabledChooser.getSelected()) {
-        m_frontLeftModule.set(
-            (states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-            states[0].angle.getRadians());
-        m_frontRightModule.set(
-            (states[1].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-            states[1].angle.getRadians());
-        m_backLeftModule.set(
-            (states[2].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-            states[2].angle.getRadians());
-        m_backRightModule.set(
-            (states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-            states[3].angle.getRadians());
-      }
+		if (!Constants.SWERVE_DISABLED) {
+				m_frontLeftModule.set(
+						(states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+						states[0].angle.getRadians());
+				m_frontRightModule.set(
+						(states[1].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+						states[1].angle.getRadians());
+				m_backLeftModule.set(
+						(states[2].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+						states[2].angle.getRadians());
+				m_backRightModule.set(
+						(states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+						states[3].angle.getRadians());
 		}
 
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());
@@ -379,10 +376,12 @@ public class Swerve extends SubsystemBase {
 			m_headingController.update(m_chassisSpeeds, getGyroHeading());
 		}
 
-		m_frontLeftModule.setSim(states[0].speedMetersPerSecond, states[0].angle.getRadians());
-		m_frontRightModule.setSim(states[1].speedMetersPerSecond, states[1].angle.getRadians());
-		m_backLeftModule.setSim(states[2].speedMetersPerSecond, states[2].angle.getRadians());
-		m_backRightModule.setSim(states[3].speedMetersPerSecond, states[3].angle.getRadians());
+    if (!Constants.SWERVE_DISABLED) {
+      m_frontLeftModule.setSim(states[0].speedMetersPerSecond, states[0].angle.getRadians());
+      m_frontRightModule.setSim(states[1].speedMetersPerSecond, states[1].angle.getRadians());
+      m_backLeftModule.setSim(states[2].speedMetersPerSecond, states[2].angle.getRadians());
+      m_backRightModule.setSim(states[3].speedMetersPerSecond, states[3].angle.getRadians());
+		}
 
 		m_simYaw =
 				m_simYaw.plus(
