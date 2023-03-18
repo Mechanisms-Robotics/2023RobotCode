@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Auto;
 import frc.robot.commands.auto.AutoBuilder;
+import frc.robot.commands.auto.InitAutoCommand;
 import frc.robot.commands.auto.MobilityAutoHP;
 import frc.robot.commands.auto.MobilityAutoWall;
 import frc.robot.commands.auto.OneConeBalanceHP;

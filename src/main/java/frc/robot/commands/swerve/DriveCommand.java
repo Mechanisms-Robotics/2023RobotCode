@@ -1,6 +1,8 @@
 package frc.robot.commands.swerve;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Swerve;
@@ -54,7 +56,7 @@ public class DriveCommand extends CommandBase {
 				"Tilt",
 				m_swerveSubsystem.getUpAngle().minus(m_swerveSubsystem.getRoll()).getDegrees());
 
-		if (Math.abs(tilt) >= 10.0 && !m_swerveSubsystem.getClimbMode()) {
+		if (Math.abs(tilt) >= 10.0 && !m_swerveSubsystem.getClimbMode() && !DriverStation.isAutonomousEnabled()) {
 			if (tilt > 0) {
 				m_swerveSubsystem.drive(new ChassisSpeeds(0.0, ANTI_TIP_SPEED, 0.0));
 			} else {

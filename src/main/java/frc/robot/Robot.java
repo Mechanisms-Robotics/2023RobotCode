@@ -62,13 +62,6 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-		// schedule the autonomous command (example)
-		if (m_autonomousCommand != null) {
-			m_autonomousCommand.schedule();
-		}
-
 		m_robotContainer.m_swerve.setNeutralMode(NeutralMode.Brake);
 		m_robotContainer.m_swerve.zeroGyro();
 
@@ -80,6 +73,13 @@ public class Robot extends TimedRobot {
 
 		m_robotContainer.m_superstructure.setAutoScore(false);
 		m_robotContainer.m_intake.retract();
+
+		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
+		// schedule the autonomous command (example)
+		if (m_autonomousCommand != null) {
+			m_autonomousCommand.schedule();
+		}
 	}
 
 	/** This method is called periodically during autonomous. */
@@ -126,9 +126,9 @@ public class Robot extends TimedRobot {
 
 		if (!m_robotContainer.m_swerve.getClimbMode()) {
 			if (m_robotContainer.m_intake.isDeployed()) {
-				m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 3.0 : 2.0);
+				m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 2.5 : 2.0);
 			} else {
-				m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 2.5 : 1.5);
+				m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 2.0 : 1.5);
 			}
 		}
 	}

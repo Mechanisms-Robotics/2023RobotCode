@@ -190,7 +190,7 @@ public class Arm extends SubsystemBase {
 			} else {
 				this.selectedMotor = armMotorRight;
 			}
-
+      System.out.println("RETRACTED");
 			retract();
 		}
 	}

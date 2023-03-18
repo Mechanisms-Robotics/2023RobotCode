@@ -22,8 +22,8 @@ public class Superstructure extends SubsystemBase {
 
 	private static final double[][] SHOOT_OUT_SPEEDS =
 			new double[][] {
-				{-0.5, 0.5, -0.5}, // Intake, Feeder, Conveyor | Cube
-				{-0.5, 0.5, -0.5} // Intake, Feeder, Conveyor | Cube
+				{-0.25, 0.5, -0.5}, // Intake, Feeder, Conveyor | Cube
+				{-0.25, 1.0, -0.5} // Intake, Feeder, Conveyor | Cone
 			};
 
 	private static final double[][] ARM_POSITIONS =
@@ -32,7 +32,7 @@ public class Superstructure extends SubsystemBase {
 					20000, 32500, 20000, 20000, 30000, 50000, 60000
 				}, // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cube
 				{
-					18000, 32500, 18000, 18000, 30000, 58750, 65000
+					18000, 32500, 18000, 18000, 30000, 60000, 68500
 				} // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cone
 			};
 
@@ -42,7 +42,7 @@ public class Superstructure extends SubsystemBase {
 					-250, -11500, -250, -0, -500, -3750, -17875
 				}, // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cube
 				{
-					-3250, -11500, -3250, -1500, -500, -1750, -17875
+					-3250, -11500, -3250, -1500, -500, -3500, -17875
 				} // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cone
 			};
 
@@ -52,7 +52,7 @@ public class Superstructure extends SubsystemBase {
 					0, 0, 0, -10000, -10000
 				}, // Idling, Ground Pickup, Backstopping, Grabbing, Loose Grab | Cube
 				{
-					0, 0, 0, -18884, -17500
+					0, 0, 0, -20000, -17500
 				} // Idling, Ground Pickup, Backstopping, Grabbing, Loose Grab | Cone
 			};
 
@@ -105,7 +105,7 @@ public class Superstructure extends SubsystemBase {
 	private final Intake m_intake;
 	private final Feeder m_feeder;
 	private final Conveyor m_conveyor;
-	private final Arm m_arm;
+	public final Arm m_arm;
 	private final Gripper m_gripper;
 
 	private IntakeState m_intakeState = IntakeState.Idling;
