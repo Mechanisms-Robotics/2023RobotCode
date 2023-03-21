@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.auto_legacy.AutoCommands;
+import frc.robot.commands.auto.AutoBuilder;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.GoalTracker;
@@ -25,13 +25,19 @@ public class AutoScoreCommand extends CommandBase {
 		Done
 	}
 
+	private final AutoBuilder m_autoBuilder;
 	private final Swerve m_swerve;
 	private final GoalTracker m_goalTracker;
 	private final Superstructure m_superstructure;
 
 	private ScoreState m_state;
 
-	public AutoScoreCommand(Swerve swerve, GoalTracker goalTracker, Superstructure superstructure) {
+	public AutoScoreCommand(
+			AutoBuilder autoBuilder,
+			Swerve swerve,
+			GoalTracker goalTracker,
+			Superstructure superstructure) {
+		m_autoBuilder = autoBuilder;
 		m_swerve = swerve;
 		m_goalTracker = goalTracker;
 		m_superstructure = superstructure;
@@ -45,7 +51,7 @@ public class AutoScoreCommand extends CommandBase {
 			if (!m_swerve.getRunningTrajectory()) {
 				CommandScheduler.getInstance()
 						.schedule(
-								AutoCommands.driveToAvoidObstaclesCommand(
+								m_autoBuilder.driveToAvoidObstaclesCommand(
 										m_goalTracker.getTargetGoal().transformBy(LINEUP_OFFSET),
 										m_swerve));
 			} else {
@@ -62,7 +68,7 @@ public class AutoScoreCommand extends CommandBase {
 				if (!m_swerve.getRunningTrajectory()) {
 					CommandScheduler.getInstance()
 							.schedule(
-									AutoCommands.driveToAvoidObstaclesCommand(
+									m_autoBuilder.driveToAvoidObstaclesCommand(
 											m_goalTracker.getTargetGoal().transformBy(PLACE_OFFSET),
 											m_swerve));
 				} else {

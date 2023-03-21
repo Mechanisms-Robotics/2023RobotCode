@@ -6,13 +6,16 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Auto;
 import frc.robot.commands.auto.AutoBuilder;
-import frc.robot.commands.auto.InitAutoCommand;
 import frc.robot.commands.auto.MobilityAutoHP;
 import frc.robot.commands.auto.MobilityAutoWall;
-import frc.robot.commands.auto.OneConeBalanceHP;
-import frc.robot.commands.auto.OneConeBalanceWall;
-import frc.robot.commands.auto.OneConeOneCubeHP;
-import frc.robot.commands.auto.OneConeOneCubeWall;
+import frc.robot.commands.auto.OneElementBalanceHP;
+import frc.robot.commands.auto.OneElementBalanceWall;
+import frc.robot.commands.auto.ThreeElementHP;
+import frc.robot.commands.auto.ThreeElementWall;
+import frc.robot.commands.auto.TwoElementBalanceHP;
+import frc.robot.commands.auto.TwoElementBalanceWall;
+import frc.robot.commands.auto.TwoElementHP;
+import frc.robot.commands.auto.TwoElementWall;
 import frc.robot.commands.goalTracker.SetTrackingMode;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.HPStationIntakeCommand;
@@ -20,7 +23,6 @@ import frc.robot.commands.intake.RetractIntakeCommand;
 import frc.robot.commands.superstructure.AutoScoreCommand;
 import frc.robot.commands.superstructure.IdleCommand;
 import frc.robot.commands.superstructure.OuttakeCommand;
-import frc.robot.commands.superstructure.ScoreCommand;
 import frc.robot.commands.superstructure.ShootOutCommand;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.subsystems.*;
@@ -82,19 +84,17 @@ public class RobotContainer {
 		autoChooser.addOption("MobilityAutoHP", MobilityAutoHP.mobilityAutoHP(m_autoBuilder));
 		autoChooser.addOption("MobilityAutoWall", MobilityAutoWall.mobilityAutoWall(m_autoBuilder));
 		autoChooser.setDefaultOption(
-				"1ConeBalanceHP",
-				OneConeBalanceHP.oneConeBalanceHP(
-						m_autoBuilder, m_superstructure));
+				"1ElementBalanceHP", OneElementBalanceHP.oneElementBalanceHP(m_autoBuilder));
 		autoChooser.addOption(
-				"1ConeBalanceWall",
-				OneConeBalanceWall.oneConeBalanceWall(
-						m_autoBuilder, m_superstructure));
+				"1ElementBalanceWall", OneElementBalanceWall.oneElementBalanceWall(m_autoBuilder));
+		autoChooser.addOption("2ElementHP", TwoElementHP.twoElementHP(m_autoBuilder));
+		autoChooser.addOption("2ElementWall", TwoElementWall.twoElementWall(m_autoBuilder));
 		autoChooser.addOption(
-				"1Cone1CubeHP",
-				OneConeOneCubeHP.oneConeOneCubeHP(m_autoBuilder, m_superstructure, m_intake));
+				"2ElementBalanceHP", TwoElementBalanceHP.twoElementBalanceHP(m_autoBuilder));
 		autoChooser.addOption(
-				"1Cone1CubeWall",
-				OneConeOneCubeWall.oneConeOneCubeWall(m_autoBuilder, m_superstructure, m_intake));
+				"2ElementBalanceWall", TwoElementBalanceWall.twoElementBalanceWall(m_autoBuilder));
+		autoChooser.addOption("3ElementHP", ThreeElementHP.threeElementHP(m_autoBuilder));
+		autoChooser.addOption("3ElementWall", ThreeElementWall.threeElementWall(m_autoBuilder));
 
 		SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -130,6 +130,7 @@ public class RobotContainer {
 											CommandScheduler.getInstance()
 													.schedule(
 															new AutoScoreCommand(
+																	m_autoBuilder,
 																	m_swerve,
 																	m_goalTracker,
 																	m_superstructure));
@@ -270,21 +271,19 @@ public class RobotContainer {
 												&& !(m_goalTracker.getTrackingMode()
 														== TrackingMode.ClosestGoal)));
 
-		m_driverController.povUp().onTrue(new InstantCommand(
-				() -> m_superstructure.jogArm(true)
-		));
+		m_driverController.povUp().onTrue(new InstantCommand(() -> m_superstructure.jogArm(true)));
 
-		m_driverController.povDown().onTrue(new InstantCommand(
-				() -> m_superstructure.jogArm(false)
-		));
+		m_driverController
+				.povDown()
+				.onTrue(new InstantCommand(() -> m_superstructure.jogArm(false)));
 
-		m_driverController.povRight().onTrue(new InstantCommand(
-				() -> m_superstructure.jogGripper(true)
-		));
+		m_driverController
+				.povRight()
+				.onTrue(new InstantCommand(() -> m_superstructure.jogGripper(true)));
 
-		m_driverController.povLeft().onTrue(new InstantCommand(
-				() -> m_superstructure.jogGripper(false)
-		));
+		m_driverController
+				.povLeft()
+				.onTrue(new InstantCommand(() -> m_superstructure.jogGripper(false)));
 	}
 
 	private void configureDefaultCommands() {
@@ -294,21 +293,12 @@ public class RobotContainer {
 							m_swerve,
 							() -> -m_driverController.getLeftY() * m_swerve.getMaxVelocity(),
 							() -> -m_driverController.getLeftX() * m_swerve.getMaxVelocity(),
-							() ->
-									-m_driverController.getRightX()
-											* Swerve.ANGULAR_VELOCITY_RANGE));
+							() -> -m_driverController.getRightX() * Swerve.ANGULAR_VELOCITY_RANGE));
 		}
 	}
 
 	private HashMap<String, Command> buildEventMap() {
 		var events = new HashMap<String, Command>();
-
-		events.put("scoreCone", new ScoreCommand(m_superstructure, 2, Element.Cone));
-		events.put("scoreCube", new ScoreCommand(m_superstructure, 2, Element.Cube));
-		events.put("idle", new InstantCommand(m_superstructure::idle));
-		events.put("deploy", new DeployIntakeCommand(m_intake));
-		events.put("retract", new RetractIntakeCommand(m_intake));
-
 		return events;
 	}
 

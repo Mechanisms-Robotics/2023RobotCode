@@ -287,18 +287,18 @@ public class Swerve extends SubsystemBase {
 		}
 
 		if (!Constants.SWERVE_DISABLED) {
-				m_frontLeftModule.set(
-						(states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-						states[0].angle.getRadians());
-				m_frontRightModule.set(
-						(states[1].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-						states[1].angle.getRadians());
-				m_backLeftModule.set(
-						(states[2].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-						states[2].angle.getRadians());
-				m_backRightModule.set(
-						(states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
-						states[3].angle.getRadians());
+			m_frontLeftModule.set(
+					(states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+					states[0].angle.getRadians());
+			m_frontRightModule.set(
+					(states[1].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+					states[1].angle.getRadians());
+			m_backLeftModule.set(
+					(states[2].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+					states[2].angle.getRadians());
+			m_backRightModule.set(
+					(states[3].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
+					states[3].angle.getRadians());
 		}
 
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());
@@ -376,11 +376,11 @@ public class Swerve extends SubsystemBase {
 			m_headingController.update(m_chassisSpeeds, getGyroHeading());
 		}
 
-    if (!Constants.SWERVE_DISABLED) {
-      m_frontLeftModule.setSim(states[0].speedMetersPerSecond, states[0].angle.getRadians());
-      m_frontRightModule.setSim(states[1].speedMetersPerSecond, states[1].angle.getRadians());
-      m_backLeftModule.setSim(states[2].speedMetersPerSecond, states[2].angle.getRadians());
-      m_backRightModule.setSim(states[3].speedMetersPerSecond, states[3].angle.getRadians());
+		if (!Constants.SWERVE_DISABLED) {
+			m_frontLeftModule.setSim(states[0].speedMetersPerSecond, states[0].angle.getRadians());
+			m_frontRightModule.setSim(states[1].speedMetersPerSecond, states[1].angle.getRadians());
+			m_backLeftModule.setSim(states[2].speedMetersPerSecond, states[2].angle.getRadians());
+			m_backRightModule.setSim(states[3].speedMetersPerSecond, states[3].angle.getRadians());
 		}
 
 		m_simYaw =

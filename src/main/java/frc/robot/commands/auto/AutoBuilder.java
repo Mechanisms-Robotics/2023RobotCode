@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
+import frc.robot.util.ObstacleAvoidance;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -114,6 +115,26 @@ public class AutoBuilder extends SwerveAutoBuilder {
 						() ->
 								CommandScheduler.getInstance()
 										.schedule(followPath(trajectory, false))));
+	}
+
+	public CommandBase driveToAvoidObstaclesCommand(Pose2d goalPose, Swerve swerve) {
+		return new InstantCommand(
+						() -> {
+							PathPlannerTrajectory trajectory =
+									ObstacleAvoidance.generateTrajectoryAvoidObstacles(
+											goalPose, 1.5, 1.5, swerve);
+							swerve.setTrajectory(trajectory);
+						})
+				.andThen(
+						new FunctionalCommand(
+								() -> {
+									CommandScheduler.getInstance()
+											.schedule(followPath(swerve.getTrajectory(), false));
+								},
+								() -> {},
+								(interrupted) -> {},
+								() -> true,
+								swerve));
 	}
 
 	public CommandBase autoBalance() {
