@@ -4,24 +4,15 @@ import com.ctre.phoenix.ParamEnum;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
 
-	public enum ArmState {
-		Retracting,
-		Pivoting,
-		Deploying,
-		Idle,
-	}
-
 	private static final TalonFXConfiguration ARM_MOTOR_CONFIG = new TalonFXConfiguration();
 	private static final TalonFXConfiguration ARM_EXTENDER_MOTOR_CONFIG =
 			new TalonFXConfiguration();
 
-	private static final double STOWED_POSITION = -500;
 	private static final double START_EXTENSION_POSITION = -6341;
 
 	private static final double START_ARM_POSITION = 19000;
@@ -59,51 +50,28 @@ public class Arm extends SubsystemBase {
 		ARM_EXTENDER_MOTOR_CONFIG.motionCurveStrength = 2;
 	}
 
-	private final WPI_TalonFX armMotorLeft = new WPI_TalonFX(50);
-	private final WPI_TalonFX armMotorRight = new WPI_TalonFX(51);
+	private final WPI_TalonFX armMotor = new WPI_TalonFX(51);
 	private final WPI_TalonFX extenderMotor = new WPI_TalonFX(52);
 
-	private ArmState armState = ArmState.Idle;
 	private final double[] desiredPosition = {0.0, 0.0};
 
 	private boolean zeroed = false;
 
-	private int selectedMotorNum = 1;
-	private WPI_TalonFX selectedMotor = armMotorLeft;
-
 	public Arm() {
-		armMotorLeft.configFactoryDefault();
-		armMotorLeft.configAllSettings(ARM_MOTOR_CONFIG);
+		armMotor.configFactoryDefault();
+		armMotor.configAllSettings(ARM_MOTOR_CONFIG);
 
-		armMotorRight.configFactoryDefault();
-		armMotorRight.configAllSettings(ARM_MOTOR_CONFIG);
+		armMotor.setNeutralMode(NeutralMode.Brake);
 
-		armMotorLeft.setNeutralMode(NeutralMode.Brake);
-		armMotorRight.setNeutralMode(NeutralMode.Brake);
+		armMotor.config_kP(0, kP);
+		armMotor.config_kD(0, kD);
+		armMotor.config_kF(0, kF);
 
-		armMotorLeft.config_kP(0, kP);
-		armMotorLeft.config_kD(0, kD);
-		armMotorLeft.config_kF(0, kF);
-
-		armMotorRight.config_kP(0, kP);
-		armMotorRight.config_kD(0, kD);
-		armMotorRight.config_kF(0, kF);
-
-		armMotorRight.setSensorPhase(false);
-
-		armMotorLeft.configSupplyCurrentLimit(
+		armMotor.configSupplyCurrentLimit(
 				new SupplyCurrentLimitConfiguration(true, 15.0, 13.0, 1.0));
 
-		armMotorRight.configSupplyCurrentLimit(
-				new SupplyCurrentLimitConfiguration(true, 15.0, 13.0, 1.0));
-
-		armMotorLeft.configNeutralDeadband(0.001);
-		armMotorLeft.configAllowableClosedloopError(0, 0.0);
-
-		armMotorRight.configNeutralDeadband(0.001);
-		armMotorRight.configAllowableClosedloopError(0, 0.0);
-
-		armMotorRight.setInverted(TalonFXInvertType.OpposeMaster);
+		armMotor.configNeutralDeadband(0.001);
+		armMotor.configAllowableClosedloopError(0, 0.0);
 
 		extenderMotor.configAllSettings(ARM_EXTENDER_MOTOR_CONFIG);
 
@@ -122,8 +90,7 @@ public class Arm extends SubsystemBase {
 
 		extenderMotor.configSetParameter(ParamEnum.eContinuousCurrentLimitAmps, 30, 30, 0);
 
-		armMotorLeft.selectProfileSlot(0, 0);
-		armMotorRight.selectProfileSlot(0, 0);
+		armMotor.selectProfileSlot(0, 0);
 		extenderMotor.selectProfileSlot(0, 0);
 	}
 
@@ -132,8 +99,7 @@ public class Arm extends SubsystemBase {
 			return;
 		}
 
-		armMotorLeft.set(ControlMode.PercentOutput, percentOutput);
-		armMotorRight.follow(armMotorLeft);
+		armMotor.set(ControlMode.PercentOutput, percentOutput);
 	}
 
 	public void setExtensionOpenLoop(double percentOutput) {
@@ -146,23 +112,7 @@ public class Arm extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		switch (armState) {
-			case Idle:
-				idle();
-				break;
-			case Retracting:
-				retract();
-				break;
-			case Pivoting:
-				pivot();
-				break;
-			case Deploying:
-				deploy();
-				break;
-		}
-
-		SmartDashboard.putString("ArmState", armState.toString());
-		SmartDashboard.putBoolean("ArmZeroed", zeroed);
+		SmartDashboard.putBoolean("Arm Zeroed", zeroed);
 	}
 
 	public void init() {
@@ -171,53 +121,21 @@ public class Arm extends SubsystemBase {
 			return;
 		}
 
-		armMotorLeft.setSelectedSensorPosition(START_ARM_POSITION);
-		armMotorRight.setSelectedSensorPosition(START_ARM_POSITION);
+		armMotor.setSelectedSensorPosition(START_ARM_POSITION);
 		extenderMotor.setSelectedSensorPosition(START_EXTENSION_POSITION);
 
 		zeroed = true;
 	}
 
-	public void setArm(double armPosition, double extendPosition, int selectedMotor) {
-		if (this.desiredPosition[0] != armPosition
-				|| this.desiredPosition[1] != extendPosition
-				|| selectedMotor != this.selectedMotorNum) {
-			this.desiredPosition[0] = armPosition;
-			this.desiredPosition[1] = extendPosition;
-
-			this.selectedMotorNum = selectedMotor;
-
-			if (this.selectedMotorNum == 1) {
-				this.selectedMotor = armMotorLeft;
-			} else {
-				this.selectedMotor = armMotorRight;
-			}
-
-			retract();
-		}
-	}
-
-	private void setClosedLoop(double position) {
+	public void setClosedLoop(double position) {
 		if (!zeroed) {
 			return;
 		}
 
-		if (this.selectedMotorNum == 1) {
-			armMotorLeft.setNeutralMode(NeutralMode.Brake);
-			armMotorLeft.set(ControlMode.MotionMagic, position);
-
-			armMotorRight.setNeutralMode(NeutralMode.Coast);
-			armMotorRight.set(ControlMode.PercentOutput, 0.0);
-		} else {
-			armMotorLeft.setNeutralMode(NeutralMode.Coast);
-			armMotorLeft.set(ControlMode.PercentOutput, 0.0);
-
-			armMotorRight.setNeutralMode(NeutralMode.Brake);
-			armMotorRight.set(ControlMode.MotionMagic, position);
-		}
+		armMotor.set(ControlMode.MotionMagic, position);
 	}
 
-	private void setExtensionClosedLoop(double position) {
+	public void setExtensionClosedLoop(double position) {
 		if (!zeroed) {
 			return;
 		}
@@ -225,63 +143,8 @@ public class Arm extends SubsystemBase {
 		extenderMotor.set(ControlMode.MotionMagic, position);
 	}
 
-	private void retract() {
-		if (DriverStation.isEnabled() && armState == ArmState.Retracting) {
-			if (Math.abs(extenderMotor.getSelectedSensorPosition() - STOWED_POSITION)
-					<= ALLOWABLE_EXTENSION_ERROR) {
-				pivot();
-			}
-
-			return;
-		}
-
-		armState = ArmState.Retracting;
-		setExtensionClosedLoop(STOWED_POSITION);
-	}
-
-	public void setState(ArmState state) {
-		armState = state;
-	}
-
-	private void pivot() {
-		if (armState == ArmState.Pivoting) {
-			if (Math.abs(selectedMotor.getSelectedSensorPosition() - desiredPosition[0])
-					<= ALLOWABLE_PIVOT_ERROR) {
-				if (desiredPosition[1] != STOWED_POSITION) {
-					deploy();
-				} else {
-					idle();
-				}
-			}
-
-			return;
-		}
-
-		armState = ArmState.Pivoting;
-		setClosedLoop(desiredPosition[0]);
-	}
-
-	private void deploy() {
-		if (armState == ArmState.Deploying) {
-			if (Math.abs(extenderMotor.getSelectedSensorPosition() - desiredPosition[1])
-					<= ALLOWABLE_EXTENSION_ERROR) {
-				idle();
-			}
-
-			return;
-		}
-
-		armState = ArmState.Deploying;
-
-		setExtensionClosedLoop(desiredPosition[1]);
-	}
-
-	private void idle() {
-		armState = ArmState.Idle;
-	}
-
 	public boolean isAtPosition() {
-		return Math.abs(selectedMotor.getSelectedSensorPosition() - desiredPosition[0])
+		return Math.abs(armMotor.getSelectedSensorPosition() - desiredPosition[0])
 				<= ALLOWABLE_PIVOT_ERROR;
 	}
 
@@ -290,17 +153,12 @@ public class Arm extends SubsystemBase {
 				<= ALLOWABLE_EXTENSION_ERROR;
 	}
 
-	public boolean isIdle() {
-		return armState == ArmState.Idle;
-	}
-
 	public void zeroEncoder() {
 		if (zeroed) {
 			return;
 		}
 
-		armMotorLeft.setSelectedSensorPosition(TICKS_PER_DEGREE * 33.0);
-		armMotorRight.setSelectedSensorPosition(TICKS_PER_DEGREE * 33.0);
+		armMotor.setSelectedSensorPosition(TICKS_PER_DEGREE * 33.0);
 		extenderMotor.setSelectedSensorPosition(0.0);
 		zeroed = true;
 	}
@@ -308,9 +166,5 @@ public class Arm extends SubsystemBase {
 	public void stop() {
 		setOpenLoop(0.0);
 		setExtensionOpenLoop(0.0);
-	}
-
-	public double[] getDesiredPosition() {
-		return desiredPosition;
 	}
 }

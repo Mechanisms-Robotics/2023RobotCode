@@ -20,15 +20,13 @@ import frc.robot.commands.goalTracker.SetTrackingMode;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.HPStationIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
-import frc.robot.commands.superstructure.AutoScoreCommand;
-import frc.robot.commands.superstructure.IdleCommand;
-import frc.robot.commands.superstructure.OuttakeCommand;
-import frc.robot.commands.superstructure.ShootOutCommand;
 import frc.robot.commands.swerve.DriveCommand;
+import frc.robot.states.arm.Scoring;
+import frc.robot.states.arm.Stowed;
+import frc.robot.states.intake.Intaking;
+import frc.robot.states.intake.Outtaking;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Superstructure.Element;
-import frc.robot.subsystems.Superstructure.IntakeState;
-import frc.robot.subsystems.Superstructure.State;
 import frc.robot.util.GoalTracker;
 import frc.robot.util.GoalTracker.TrackingMode;
 import frc.robot.util.LEDWrapper;
@@ -119,42 +117,36 @@ public class RobotContainer {
 						new ConditionalCommand(
 								new InstantCommand(m_superstructure::intake),
 								new InstantCommand(m_superstructure::idle),
-								() -> m_superstructure.getState() != State.Intaking));
-
-		m_driverController
-				.a()
-				.onTrue(
-						new ConditionalCommand(
-								new InstantCommand(
-										() -> {
-											CommandScheduler.getInstance()
-													.schedule(
-															new AutoScoreCommand(
-																	m_autoBuilder,
-																	m_swerve,
-																	m_goalTracker,
-																	m_superstructure));
-										}),
-								Commands.none(),
-								m_superstructure::getAutoScore));
+								() ->
+										m_superstructure.getIntakeState().getClass()
+												!= Intaking.class));
 
 		m_driverController
 				.y()
 				.onTrue(
 						new ConditionalCommand(
-								new OuttakeCommand(m_superstructure),
-								new IdleCommand(m_superstructure),
-								() -> m_superstructure.getState() != State.Outtaking));
-
-		m_driverController
-				.b()
-				.onTrue(
-						new ConditionalCommand(
-								new ShootOutCommand(m_superstructure),
-								new IdleCommand(m_superstructure),
+								new InstantCommand(m_superstructure::outtake),
+								new InstantCommand(m_superstructure::idle),
 								() ->
-										m_superstructure.getIntakeState()
-												!= IntakeState.ShootOuting));
+										m_superstructure.getIntakeState().getClass()
+												!= Outtaking.class));
+
+		//		m_driverController
+		//				.a()
+		//				.onTrue(
+		//						new ConditionalCommand(
+		//								new InstantCommand(
+		//										() -> {
+		//											CommandScheduler.getInstance()
+		//													.schedule(
+		//															new AutoScoreCommand(
+		//																	m_autoBuilder,
+		//																	m_swerve,
+		//																	m_goalTracker,
+		//																	m_superstructure));
+		//										}),
+		//								Commands.none(),
+		//								m_superstructure::getAutoScore));
 
 		m_driverController
 				.x()
@@ -168,20 +160,19 @@ public class RobotContainer {
 				.a()
 				.onTrue(
 						new ConditionalCommand(
-								new InstantCommand(m_superstructure::grab),
+								new InstantCommand(m_superstructure::close),
 								new ConditionalCommand(
-										new InstantCommand(m_superstructure::prep),
+										new InstantCommand(m_superstructure::score),
 										new ConditionalCommand(
-												new InstantCommand(m_superstructure::score),
+												new InstantCommand(m_superstructure::idle),
 												Commands.none(),
 												() ->
-														m_superstructure.getState()
-																== State.Prepping),
-										() -> m_superstructure.getState() == State.Holding),
-								() -> m_superstructure.getState() == State.Intaking));
-
-		m_secondDriverController.x().onTrue(new InstantCommand(m_superstructure::groundPickup));
-		m_secondDriverController.b().onTrue(new InstantCommand(m_superstructure::hold));
+														m_superstructure.getArmState().getClass()
+																== Scoring.class),
+										() ->
+												m_superstructure.getArmState().getClass()
+														== Stowed.class),
+								() -> m_superstructure.getArmState().getClass() == Stowed.class && m_superstructure.getArmState().isOpen()));
 
 		m_secondDriverController
 				.leftBumper()
@@ -270,20 +261,6 @@ public class RobotContainer {
 										m_superstructure.getAutoScore()
 												&& !(m_goalTracker.getTrackingMode()
 														== TrackingMode.ClosestGoal)));
-
-		m_driverController.povUp().onTrue(new InstantCommand(() -> m_superstructure.jogArm(true)));
-
-		m_driverController
-				.povDown()
-				.onTrue(new InstantCommand(() -> m_superstructure.jogArm(false)));
-
-		m_driverController
-				.povRight()
-				.onTrue(new InstantCommand(() -> m_superstructure.jogGripper(true)));
-
-		m_driverController
-				.povLeft()
-				.onTrue(new InstantCommand(() -> m_superstructure.jogGripper(false)));
 	}
 
 	private void configureDefaultCommands() {

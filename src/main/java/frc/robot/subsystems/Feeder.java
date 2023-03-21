@@ -8,9 +8,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /** This class contains all the code that controls the feeder functionality */
 public class Feeder extends SubsystemBase {
 
-	// Feeder motor
+	// Feeder motors
 	private final WPI_TalonFX rightFeederMotor = new WPI_TalonFX(30);
 	private final WPI_TalonFX leftFeederMotor = new WPI_TalonFX(31);
+
 	// Feeder motor configuration
 	private static final TalonFXConfiguration FEEDER_MOTOR_CONFIGURATION =
 			new TalonFXConfiguration();
@@ -38,7 +39,6 @@ public class Feeder extends SubsystemBase {
 		rightFeederMotor.configFactoryDefault();
 		leftFeederMotor.configFactoryDefault();
 
-		// Configure feeder motor
 		rightFeederMotor.setInverted(TalonFXInvertType.Clockwise);
 		rightFeederMotor.setNeutralMode(NeutralMode.Coast);
 		rightFeederMotor.enableVoltageCompensation(true);
@@ -50,26 +50,18 @@ public class Feeder extends SubsystemBase {
 
 		leftFeederMotor.setInverted(InvertType.OpposeMaster);
 
-		// CAN bus utilization optimization
 		rightFeederMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
 		rightFeederMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
 	}
 
-	/** Runs the feeder differently depending on which proximity sensors are triggered */
-	public void feed(double speed) {
-		rightFeederMotor.set(ControlMode.PercentOutput, speed);
-		leftFeederMotor.set(ControlMode.PercentOutput, speed);
-	}
-
-	public void outtake(double speed) {
-		rightFeederMotor.set(ControlMode.PercentOutput, speed);
-		leftFeederMotor.set(ControlMode.PercentOutput, speed);
+	public void setOpenLoop(double percent) {
+		leftFeederMotor.set(ControlMode.PercentOutput, percent);
+		rightFeederMotor.set(ControlMode.PercentOutput, percent);
 	}
 
 	/** Stops the feeder */
 	public void stop() {
-		// Set the feeder motor to run at 0% power
-		rightFeederMotor.set(ControlMode.PercentOutput, 0.0);
 		leftFeederMotor.set(ControlMode.PercentOutput, 0.0);
+		rightFeederMotor.set(ControlMode.PercentOutput, 0.0);
 	}
 }

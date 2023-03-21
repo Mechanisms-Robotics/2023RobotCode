@@ -50,7 +50,7 @@ public class Conveyor extends SubsystemBase {
 		SmartDashboard.putBoolean("Back Sensor", getDebouncedSensor(1));
 	}
 
-	private void setOpenLoop(double percentOutput) {
+	public void setOpenLoop(double percentOutput) {
 		conveyorMotor.set(ControlMode.PercentOutput, percentOutput);
 	}
 

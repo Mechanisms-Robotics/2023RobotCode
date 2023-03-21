@@ -71,10 +71,7 @@ public class Intake extends SubsystemBase {
 	private static final double kD = 0.0; // 0.04
 	private static final double kP = 0.04; // 0.8
 
-	private boolean isBrakeMode = false;
 	private boolean zeroed = false;
-
-	private Position currentMode = Position.Retract;
 
 	public Intake() {
 		pivotRight.configFactoryDefault();
@@ -125,7 +122,7 @@ public class Intake extends SubsystemBase {
 		pivotLeft.selectProfileSlot(0, 0);
 	}
 
-	private void setOpenLoop(double percentOutput) {
+	public void setOpenLoop(double percentOutput) {
 		if (!zeroed) {
 			return;
 		}
@@ -152,14 +149,6 @@ public class Intake extends SubsystemBase {
 		pivotLeft.follow(pivotRight);
 	}
 
-	public void intake(double speed) {
-		setOpenLoop(speed);
-	}
-
-	public void outtake(double speed) {
-		setOpenLoop(speed);
-	}
-
 	@Override
 	public void periodic() {
 		double radians =
@@ -175,12 +164,10 @@ public class Intake extends SubsystemBase {
 	}
 
 	public void retract() {
-		currentMode = Position.Retract;
 		setClosedLoop(Position.Retract.position);
 	}
 
 	public void deploy() {
-		currentMode = Position.Deploy;
 		setClosedLoop(Position.Deploy.position);
 	}
 
@@ -194,7 +181,6 @@ public class Intake extends SubsystemBase {
 	}
 
 	public void hpStation() {
-		currentMode = Position.GamePieceStation;
 		setClosedLoop(Position.GamePieceStation.position);
 	}
 
