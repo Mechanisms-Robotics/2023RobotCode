@@ -103,6 +103,7 @@ public class Robot extends TimedRobot {
 		m_robotContainer.m_superstructure.idle();
 
 		m_robotContainer.m_swerve.resetModules();
+		m_robotContainer.m_swerve.unlock();
 
 		//		m_robotContainer.m_superstructure.setAutoScore(true);
 	}

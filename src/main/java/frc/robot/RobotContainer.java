@@ -20,7 +20,10 @@ import frc.robot.commands.goalTracker.SetTrackingMode;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.HPStationIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
+import frc.robot.commands.superstructure.ScoreCommand;
+import frc.robot.commands.swerve.AutoBalance;
 import frc.robot.commands.swerve.DriveCommand;
+import frc.robot.commands.swerve.LockCommand;
 import frc.robot.states.arm.Scoring;
 import frc.robot.states.arm.Stowed;
 import frc.robot.states.intake.Intaking;
@@ -276,6 +279,19 @@ public class RobotContainer {
 
 	private HashMap<String, Command> buildEventMap() {
 		var events = new HashMap<String, Command>();
+
+		events.put("scoreConeHigh", new ScoreCommand(m_superstructure, Element.Cone, 2));
+		events.put("scoreCubeHigh", new ScoreCommand(m_superstructure, Element.Cube, 2));
+
+		events.put("idle", new InstantCommand(m_superstructure::idle));
+		events.put("intake", new InstantCommand(m_superstructure::intake));
+
+		events.put("deploy", new DeployIntakeCommand(m_intake));
+		events.put("retract", new RetractIntakeCommand(m_intake));
+
+		events.put("autoBalance", new AutoBalance(m_swerve));
+		events.put("lockWheels", new LockCommand(m_swerve));
+
 		return events;
 	}
 

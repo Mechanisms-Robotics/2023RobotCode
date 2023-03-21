@@ -56,7 +56,7 @@ public class AutoBuilder extends SwerveAutoBuilder {
 				new ConditionalCommand(
 						this.resetPose(trajectory), Commands.none(), () -> isFirstPath),
 				Commands.runOnce(() -> setTrajectory(trajectory)),
-				super.followPathWithEvents(trajectory),
+				super.fullAuto(trajectory),
 				Commands.runOnce(() -> setRunning(false)));
 	}
 

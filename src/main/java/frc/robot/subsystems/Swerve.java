@@ -125,6 +125,8 @@ public class Swerve extends SubsystemBase {
 
 	private final SendableChooser<Boolean> m_swerveDisabledChooser;
 
+	private boolean m_locked = false;
+
 	public Swerve(SendableChooser<Boolean> swerveDisabledChooser) {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
 
@@ -286,7 +288,7 @@ public class Swerve extends SubsystemBase {
 			m_headingController.update(m_chassisSpeeds, getGyroHeading());
 		}
 
-		if (!Constants.SWERVE_DISABLED) {
+		if (!Constants.SWERVE_DISABLED && !m_locked) {
 			m_frontLeftModule.set(
 					(states[0].speedMetersPerSecond * MAX_VOLTAGE) / MAX_VELOCITY,
 					states[0].angle.getRadians());
@@ -303,23 +305,7 @@ public class Swerve extends SubsystemBase {
 
 		m_poseEstimator.update(getGyroHeading(), getModulePositions());
 
-		// TODO: Add StdDevs if needed
-
 		if (AprilTagTracker.getCamera().getLatestResult().hasTargets()) {
-			//      AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition())
-			//          .ifPresentOrElse(
-			//              estimatedRobotPose -> {
-			//                m_poseEstimator.addVisionMeasurement(
-			//                    estimatedRobotPose.estimatedPose.toPose2d(),
-			//                    estimatedRobotPose.timestampSeconds);
-			//                m_field
-			//                    .getObject("Cam Est Pos")
-			//                    .setPose(estimatedRobotPose.estimatedPose.toPose2d());
-			//              },
-			//              () -> {
-			//                //							System.out.println("NO APRIL TAGS");
-			//              });
-
 			Optional<EstimatedRobotPose> result =
 					AprilTagTracker.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
 
@@ -376,7 +362,7 @@ public class Swerve extends SubsystemBase {
 			m_headingController.update(m_chassisSpeeds, getGyroHeading());
 		}
 
-		if (!Constants.SWERVE_DISABLED) {
+		if (!Constants.SWERVE_DISABLED && !m_locked) {
 			m_frontLeftModule.setSim(states[0].speedMetersPerSecond, states[0].angle.getRadians());
 			m_frontRightModule.setSim(states[1].speedMetersPerSecond, states[1].angle.getRadians());
 			m_backLeftModule.setSim(states[2].speedMetersPerSecond, states[2].angle.getRadians());
@@ -431,6 +417,26 @@ public class Swerve extends SubsystemBase {
 
 	public void setRunningTrajectory(boolean isRunningTrajectory) {
 		m_isRunningTrajectory = isRunningTrajectory;
+	}
+
+	public void lock() {
+		m_locked = true;
+
+    if (RobotBase.isReal()) {
+      m_frontLeftModule.set(0.0, 0.785398);
+      m_frontRightModule.set(0.0, -0.785398);
+      m_backLeftModule.set(0.0, 2.35619);
+      m_backRightModule.set(0.0, -2.35619);
+		} else {
+			m_frontLeftModule.setSim(0.0, 0.785398);
+			m_frontRightModule.setSim(0.0, -0.785398);
+			m_backLeftModule.setSim(0.0, 2.35619);
+			m_backRightModule.setSim(0.0, -2.35619);
+		}
+	}
+
+	public void unlock() {
+		m_locked = false;
 	}
 
 	public boolean getRunningTrajectory() {

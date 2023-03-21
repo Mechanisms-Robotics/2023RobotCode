@@ -165,10 +165,12 @@ public class Intake extends SubsystemBase {
 
 	public void retract() {
 		setClosedLoop(Position.Retract.position);
+		SmartDashboard.putBoolean("Intake Deployed", false);
 	}
 
 	public void deploy() {
 		setClosedLoop(Position.Deploy.position);
+		SmartDashboard.putBoolean("Intake Deployed", true);
 	}
 
 	public boolean isDeployed() {

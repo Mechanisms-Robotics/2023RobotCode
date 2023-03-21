@@ -10,11 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Gripper extends SubsystemBase {
 
-	// TODO: find positions
-	private static final double OPEN_POSITION = -50;
-	private static final double CLOSED_POSITION = -3765;
-	private static final double CONE_POSITION = -3765;
-	private static final double CUBE_POSITION = -3000;
+	private static final double ALLOWABLE_ERROR = 250;
 
 	private static final double GRAB_TIME = 0.5;
 
@@ -46,6 +42,9 @@ public class Gripper extends SubsystemBase {
 
 	private boolean isOpen = true;
 
+	private double desiredPosition = 0.0;
+
+
 	public Gripper() {
 		gripperMotor.configAllSettings(GRIPPER_MOTOR_CONFIG);
 
@@ -66,48 +65,13 @@ public class Gripper extends SubsystemBase {
 			return;
 		}
 
+		this.desiredPosition = position;
+
 		gripperMotor.set(ControlMode.Position, position);
-	}
-
-	public void toggle() {
-		if (isOpen) {
-			isOpen = false;
-			close();
-		} else {
-			isOpen = true;
-			open();
-		}
-	}
-
-	public void open() {
-		setClosedLoop(OPEN_POSITION);
-	}
-
-	public void close() {
-		setClosedLoop(CLOSED_POSITION);
 	}
 
 	public void stop() {
 		setOpenLoop(0.0);
-	}
-
-	public void cone() {
-		setClosedLoop(CONE_POSITION);
-	}
-
-	public void cube() {
-		setClosedLoop(CUBE_POSITION);
-	}
-
-	public Command grabCube() {
-		return new FunctionalCommand(
-				() -> {
-					timer.start();
-					open();
-				},
-				() -> {},
-				(interrupted) -> cube(),
-				() -> timer.hasElapsed(GRAB_TIME));
 	}
 
 	public void zeroEncoder() {
@@ -117,5 +81,9 @@ public class Gripper extends SubsystemBase {
 
 		gripperMotor.setSelectedSensorPosition(0.0);
 		isZeroed = true;
+	}
+
+	public boolean atPosition() {
+		return Math.abs(desiredPosition - gripperMotor.getSelectedSensorPosition()) <= ALLOWABLE_ERROR;
 	}
 }
