@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Intake extends SubsystemBase {
 
 	private enum Position {
-		Retract(-3000),
-		Deploy(-37800),
+		Retract(-7500),
+		Deploy(-42000),
 		GamePieceStation(-16387);
 
 		private final double position;

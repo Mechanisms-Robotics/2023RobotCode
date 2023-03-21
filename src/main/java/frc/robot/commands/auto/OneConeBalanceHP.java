@@ -22,12 +22,11 @@ public class OneConeBalanceHP {
 				new InstantCommand(() -> superstructure.setElement(Element.Cone)),
 				new InstantCommand(() -> superstructure.setNode(2, 0)),
 				new InstantCommand(superstructure::idle),
-				new WaitCommand(0.75),
+				new WaitCommand(1.0),
 				new InstantCommand(superstructure::prep),
-				new WaitCommand(2.25),
+				new WaitCommand(2.5),
 				new InstantCommand(superstructure::score),
-				new WaitCommand(0.5),
-				new InstantCommand(superstructure::idle),
+				new WaitCommand(Superstructure.SCORE_TIME),
 				autoBuilder.followPath(ONE_CONE_BALANCE_HP, true),
 				new WaitCommand(1.0));
 	}

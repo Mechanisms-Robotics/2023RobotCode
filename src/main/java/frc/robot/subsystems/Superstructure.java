@@ -32,7 +32,7 @@ public class Superstructure extends SubsystemBase {
 					20000, 32500, 20000, 20000, 30000, 50000, 60000
 				}, // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cube
 				{
-					18000, 32500, 18000, 18000, 30000, 60000, 68500
+					17000, 32500, 17000, 17000, 30000, 62500, 68750
 				} // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cone
 			};
 
@@ -42,21 +42,21 @@ public class Superstructure extends SubsystemBase {
 					-250, -11500, -250, -0, -500, -3750, -17875
 				}, // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cube
 				{
-					-3250, -11500, -3250, -1500, -500, -3500, -17875
+					-3250, -11500, -3250, -1500, -500, -3500, -16500
 				} // Idling, Ground Pickup, Backstopping, Grabbing, Low, Mid, High | Cone
 			};
 
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
 				{
-					0, 0, 0, -10000, -10000
+					0, 0, 0, -12500, -12500
 				}, // Idling, Ground Pickup, Backstopping, Grabbing, Loose Grab | Cube
 				{
-					0, 0, 0, -20000, -17500
+					0, 0, 0, -20000, -18000
 				} // Idling, Ground Pickup, Backstopping, Grabbing, Loose Grab | Cone
 			};
 
-	private static final double SCORE_TIME = 0.5; // seconds
+	public static final double SCORE_TIME = 0.5; // seconds
 
 	private static final double CONE_POSITION_TIME = 1000;
 	private static final double CUBE_POSITION_TIME = 1000;
@@ -127,6 +127,9 @@ public class Superstructure extends SubsystemBase {
 
 	private boolean m_autoScore = false;
 	private boolean m_grab = false;
+
+	private double offset = 0.0;
+	private double gripperOffset = 0.0;
 
 	private final SendableChooser<Double> m_offsetChooser;
 	private final SendableChooser<Double> m_grabTightnessChooser;
@@ -263,6 +266,25 @@ public class Superstructure extends SubsystemBase {
 		m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][0]);
 	}
 
+	public void jogArm(boolean direction) {
+		if (direction) {
+			offset += 2000.0;
+		} else {
+			offset -= 2000.0;
+		}
+
+		SmartDashboard.putNumber("Arm Offset", offset);
+	}
+
+	public void jogGripper(boolean direction) {
+		if (direction) {
+			gripperOffset -= 250.0;
+		} else {
+			gripperOffset += 250.0;
+		}
+
+		SmartDashboard.putNumber("Gripper Offset", gripperOffset);
+	}
 	public void intake() {
 		if (m_intakeState != IntakeState.Intaking
 				&& m_intakeState != IntakeState.Positioning
@@ -419,7 +441,7 @@ public class Superstructure extends SubsystemBase {
 
 		if (m_element == Element.Cone) {
 			m_gripper.setClosedLoop(
-					GRIPPER_POSITIONS[m_element.index][3] + m_grabTightnessChooser.getSelected());
+					GRIPPER_POSITIONS[m_element.index][3] + m_grabTightnessChooser.getSelected() + gripperOffset);
 		} else {
 			m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][3]);
 		}
@@ -438,7 +460,7 @@ public class Superstructure extends SubsystemBase {
 		if (m_element == Element.Cone) {
 			m_arm.setArm(
 					ARM_POSITIONS[m_element.index][4 + m_targetNode[0]]
-							+ m_offsetChooser.getSelected(),
+							+ m_offsetChooser.getSelected() + offset,
 					EXTENSION_POSITIONS[m_element.index][4 + m_targetNode[0]],
 					m_armMotorChooser.getSelected());
 		} else {
@@ -452,7 +474,7 @@ public class Superstructure extends SubsystemBase {
 			if (m_element == Element.Cone) {
 				m_gripper.setClosedLoop(
 						GRIPPER_POSITIONS[m_element.index][3]
-								+ m_grabTightnessChooser.getSelected());
+								+ m_grabTightnessChooser.getSelected() + gripperOffset);
 			} else {
 				m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][3]);
 			}
@@ -460,7 +482,7 @@ public class Superstructure extends SubsystemBase {
 			if (m_element == Element.Cone) {
 				m_gripper.setClosedLoop(
 						GRIPPER_POSITIONS[m_element.index][4]
-								+ m_prepTightnessChooser.getSelected());
+								+ m_prepTightnessChooser.getSelected() + gripperOffset);
 			} else {
 				m_gripper.setClosedLoop(GRIPPER_POSITIONS[m_element.index][4]);
 			}
@@ -484,7 +506,7 @@ public class Superstructure extends SubsystemBase {
 		if (m_element == Element.Cone) {
 			m_arm.setArm(
 					ARM_POSITIONS[m_element.index][4 + m_targetNode[0]]
-							+ m_offsetChooser.getSelected(),
+							+ m_offsetChooser.getSelected() + offset,
 					EXTENSION_POSITIONS[m_element.index][4 + m_targetNode[0]],
 					m_armMotorChooser.getSelected());
 		} else {

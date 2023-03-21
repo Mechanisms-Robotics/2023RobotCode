@@ -7,10 +7,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Superstructure.State;
 
 public class Arm extends SubsystemBase {
 
-	private enum ArmState {
+	public enum ArmState {
 		Retracting,
 		Pivoting,
 		Deploying,
@@ -179,7 +180,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	public void setArm(double armPosition, double extendPosition, int selectedMotor) {
-		if (this.desiredPosition[0] != armPosition || this.desiredPosition[1] != extendPosition) {
+		if (this.desiredPosition[0] != armPosition || this.desiredPosition[1] != extendPosition || selectedMotor != this.selectedMotorNum) {
 			this.desiredPosition[0] = armPosition;
 			this.desiredPosition[1] = extendPosition;
 
@@ -190,7 +191,7 @@ public class Arm extends SubsystemBase {
 			} else {
 				this.selectedMotor = armMotorRight;
 			}
-      System.out.println("RETRACTED");
+
 			retract();
 		}
 	}
@@ -235,6 +236,10 @@ public class Arm extends SubsystemBase {
 
 		armState = ArmState.Retracting;
 		setExtensionClosedLoop(STOWED_POSITION);
+	}
+
+	public void setState(ArmState state) {
+		armState = state;
 	}
 
 	private void pivot() {
@@ -302,5 +307,9 @@ public class Arm extends SubsystemBase {
 	public void stop() {
 		setOpenLoop(0.0);
 		setExtensionOpenLoop(0.0);
+	}
+
+	public double[] getDesiredPosition() {
+		return desiredPosition;
 	}
 }

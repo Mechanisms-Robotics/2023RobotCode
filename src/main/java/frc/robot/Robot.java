@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.Superstructure.Element;
 import frc.robot.util.AprilTagTracker;
 import frc.robot.util.GoalTracker.TrackingMode;
@@ -73,6 +74,10 @@ public class Robot extends TimedRobot {
 
 		m_robotContainer.m_superstructure.setAutoScore(false);
 		m_robotContainer.m_intake.retract();
+
+		m_robotContainer.m_arm.setState(ArmState.Idle);
+		m_robotContainer.m_arm.setArm(0.0, 0.0, 1);
+		m_robotContainer.m_superstructure.idle();
 
 		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 

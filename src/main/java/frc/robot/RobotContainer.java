@@ -269,6 +269,22 @@ public class RobotContainer {
 										m_superstructure.getAutoScore()
 												&& !(m_goalTracker.getTrackingMode()
 														== TrackingMode.ClosestGoal)));
+
+		m_driverController.povUp().onTrue(new InstantCommand(
+				() -> m_superstructure.jogArm(true)
+		));
+
+		m_driverController.povDown().onTrue(new InstantCommand(
+				() -> m_superstructure.jogArm(false)
+		));
+
+		m_driverController.povRight().onTrue(new InstantCommand(
+				() -> m_superstructure.jogGripper(true)
+		));
+
+		m_driverController.povLeft().onTrue(new InstantCommand(
+				() -> m_superstructure.jogGripper(false)
+		));
 	}
 
 	private void configureDefaultCommands() {
