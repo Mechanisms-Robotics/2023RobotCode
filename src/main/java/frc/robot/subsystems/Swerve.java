@@ -9,6 +9,7 @@ import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
 import com.swervedrivespecialties.swervelib.MotorType;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import com.swervedrivespecialties.swervelib.ctre.CtreUtils;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -80,6 +81,8 @@ public class Swerve extends SubsystemBase {
 	private static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(-170.508); // rads
 	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(329.67); // rads
 
+	private static final double ALLOWABLE_ROTATION_ERROR = Math.toRadians(3.0); // rads
+
 	private final SwerveModule m_frontLeftModule;
 	private final SwerveModule m_frontRightModule;
 	private final SwerveModule m_backLeftModule;
@@ -126,6 +129,12 @@ public class Swerve extends SubsystemBase {
 	private final SendableChooser<Boolean> m_swerveDisabledChooser;
 
 	private boolean m_locked = false;
+
+	private PIDController m_rotationPIDController =
+			new PIDController(Constants.SWERVE_ROT_KP, 0.0, 0.0);
+
+	private Rotation2d m_desiredRotation = new Rotation2d();
+	private boolean m_reachedDesiredRotation = true;
 
 	public Swerve(SendableChooser<Boolean> swerveDisabledChooser) {
 		ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
@@ -235,8 +244,22 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
-		m_chassisSpeeds = chassisSpeeds;
-		m_headingController.stabiliseHeading();
+		if (m_reachedDesiredRotation) {
+			m_chassisSpeeds = chassisSpeeds;
+			m_headingController.stabiliseHeading();
+		} else {
+      m_chassisSpeeds =
+          new ChassisSpeeds(
+              chassisSpeeds.vxMetersPerSecond,
+              chassisSpeeds.vyMetersPerSecond,
+              m_rotationPIDController.calculate(
+                  getGyroHeading().getRadians(), m_desiredRotation.getRadians()));
+
+			if (Math.abs(m_desiredRotation.getRadians() - getGyroHeading().getRadians())
+					<= ALLOWABLE_ROTATION_ERROR) {
+				m_reachedDesiredRotation = true;
+			}
+		}
 	}
 
 	public void stop() {
@@ -419,14 +442,19 @@ public class Swerve extends SubsystemBase {
 		m_isRunningTrajectory = isRunningTrajectory;
 	}
 
+	public void turnToAngle(Rotation2d angle) {
+		m_desiredRotation = angle;
+		m_reachedDesiredRotation = false;
+	}
+
 	public void lock() {
 		m_locked = true;
 
-    if (RobotBase.isReal()) {
-      m_frontLeftModule.set(0.0, 0.785398);
-      m_frontRightModule.set(0.0, -0.785398);
-      m_backLeftModule.set(0.0, 2.35619);
-      m_backRightModule.set(0.0, -2.35619);
+		if (RobotBase.isReal()) {
+			m_frontLeftModule.set(0.0, 0.785398);
+			m_frontRightModule.set(0.0, -0.785398);
+			m_backLeftModule.set(0.0, 2.35619);
+			m_backRightModule.set(0.0, -2.35619);
 		} else {
 			m_frontLeftModule.setSim(0.0, 0.785398);
 			m_frontRightModule.setSim(0.0, -0.785398);

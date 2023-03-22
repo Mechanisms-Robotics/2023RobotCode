@@ -59,6 +59,11 @@ public class Feeder extends SubsystemBase {
 		rightFeederMotor.set(ControlMode.PercentOutput, percent);
 	}
 
+	public void setOpenLoop(double leftPercent, double rightPercent) {
+		leftFeederMotor.set(ControlMode.PercentOutput, leftPercent);
+		rightFeederMotor.set(ControlMode.PercentOutput, rightPercent);
+	}
+
 	/** Stops the feeder */
 	public void stop() {
 		leftFeederMotor.set(ControlMode.PercentOutput, 0.0);

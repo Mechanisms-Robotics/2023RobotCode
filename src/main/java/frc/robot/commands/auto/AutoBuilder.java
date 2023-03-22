@@ -6,15 +6,16 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.*;
+import frc.robot.Constants;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.ObstacleAvoidance;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -57,16 +58,6 @@ public class AutoBuilder extends SwerveAutoBuilder {
 						this.resetPose(trajectory), Commands.none(), () -> isFirstPath),
 				Commands.runOnce(() -> setTrajectory(trajectory)),
 				super.fullAuto(trajectory),
-				Commands.runOnce(() -> setRunning(false)));
-	}
-
-	public CommandBase followPathWithEvents(
-			List<PathPlannerTrajectory> pathGroup, boolean isFirstPath) {
-		return Commands.sequence(
-				new ConditionalCommand(
-						this.resetPose(pathGroup.get(0)), Commands.none(), () -> isFirstPath),
-				Commands.runOnce(() -> setTrajectory(pathGroup.get(0))),
-				super.followPathGroupWithEvents(pathGroup),
 				Commands.runOnce(() -> setRunning(false)));
 	}
 
@@ -117,6 +108,33 @@ public class AutoBuilder extends SwerveAutoBuilder {
 										.schedule(followPath(trajectory, false))));
 	}
 
+	public CommandBase followTrajectoryCommand(
+			PathPlannerTrajectory trajectory, boolean isFirstPath, Swerve swerve) {
+		return Commands.sequence(
+				new ConditionalCommand(
+						super.resetPose(trajectory), new InstantCommand(), () -> isFirstPath),
+				new InstantCommand(() -> swerve.setRunningTrajectory(true)),
+				new PPSwerveControllerCommand(
+						trajectory,
+						swerve::getPose,
+						new PIDController(
+								Constants.SWERVE_X_KP,
+								Constants.SWERVE_X_KI,
+								Constants.SWERVE_X_KD),
+						new PIDController(
+								Constants.SWERVE_Y_KP,
+								Constants.SWERVE_Y_KI,
+								Constants.SWERVE_Y_KD),
+						new PIDController(
+								Constants.SWERVE_ROT_KP,
+								Constants.SWERVE_ROT_KI,
+								Constants.SWERVE_ROT_KD),
+						swerve::drive,
+						true,
+						swerve),
+				new InstantCommand(() -> swerve.setRunningTrajectory(false)));
+	}
+
 	public CommandBase driveToAvoidObstaclesCommand(Pose2d goalPose, Swerve swerve) {
 		return new InstantCommand(
 						() -> {
@@ -129,22 +147,14 @@ public class AutoBuilder extends SwerveAutoBuilder {
 						new FunctionalCommand(
 								() -> {
 									CommandScheduler.getInstance()
-											.schedule(followPath(swerve.getTrajectory(), false));
+											.schedule(
+													followTrajectoryCommand(
+															swerve.getTrajectory(), false, swerve));
 								},
 								() -> {},
 								(interrupted) -> {},
 								() -> true,
 								swerve));
-	}
-
-	public CommandBase autoBalance() {
-		return driveToCommand(
-				new Pose2d(
-						new Translation2d(3.53, swerve.getPose().getY()),
-						Rotation2d.fromDegrees(0.0)),
-				new Rotation2d(0.0),
-				2.0,
-				2.0);
 	}
 
 	public void setTrajectory(PathPlannerTrajectory trajectory) {

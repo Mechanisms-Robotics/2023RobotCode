@@ -4,8 +4,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Gripper extends SubsystemBase {
@@ -43,7 +41,6 @@ public class Gripper extends SubsystemBase {
 	private boolean isOpen = true;
 
 	private double desiredPosition = 0.0;
-
 
 	public Gripper() {
 		gripperMotor.configAllSettings(GRIPPER_MOTOR_CONFIG);
@@ -84,6 +81,7 @@ public class Gripper extends SubsystemBase {
 	}
 
 	public boolean atPosition() {
-		return Math.abs(desiredPosition - gripperMotor.getSelectedSensorPosition()) <= ALLOWABLE_ERROR;
+		return Math.abs(desiredPosition - gripperMotor.getSelectedSensorPosition())
+				<= ALLOWABLE_ERROR;
 	}
 }

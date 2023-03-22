@@ -66,6 +66,7 @@ public class Robot extends TimedRobot {
 		m_robotContainer.m_swerve.zeroGyro();
 
 		m_robotContainer.m_swerve.resetModules();
+		m_robotContainer.m_swerve.unlock();
 
 		m_robotContainer.m_intake.zeroEncoders();
 		m_robotContainer.m_arm.init();

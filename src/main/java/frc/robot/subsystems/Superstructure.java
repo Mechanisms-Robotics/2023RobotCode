@@ -11,6 +11,7 @@ import frc.robot.states.arm.Stowed;
 import frc.robot.states.intake.Idling;
 import frc.robot.states.intake.Intaking;
 import frc.robot.states.intake.Outtaking;
+import frc.robot.states.intake.Unjamming;
 import frc.robot.util.LEDWrapper;
 
 public class Superstructure extends SubsystemBase {
@@ -153,6 +154,24 @@ public class Superstructure extends SubsystemBase {
 		}
 	}
 
+	public void unjam() {
+		if (m_intakeState.getClass() != Unjamming.class) {
+			m_intakeState = new Unjamming(m_intake, m_feeder, m_conveyor);
+			m_intakeState.init();
+		} else {
+			m_intakeState.periodic();
+		}
+
+		if (m_armState.getClass() != Stowed.class) {
+			m_armState = new Stowed(m_arm, m_gripper, m_element);
+			m_armState.init();
+
+			open();
+		} else {
+			m_armState.periodic();
+		}
+	}
+
 	public void score() {
 		if (m_intakeState.getClass() != Idling.class) {
 			m_intakeState = new Idling(m_intake, m_feeder, m_conveyor);
@@ -205,8 +224,8 @@ public class Superstructure extends SubsystemBase {
 	}
 
 	public boolean atPosition() {
-    if (RobotBase.isReal()) {
-      return m_arm.isAtPosition() && m_arm.extendAtPosition() && m_gripper.atPosition();
+		if (RobotBase.isReal()) {
+			return m_arm.isAtPosition() && m_arm.extendAtPosition() && m_gripper.atPosition();
 		} else {
 			return true;
 		}

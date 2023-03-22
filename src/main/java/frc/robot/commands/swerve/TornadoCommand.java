@@ -22,7 +22,7 @@ public class TornadoCommand extends CommandBase {
 	@Override
 	public void initialize() {
 		System.out.println("Overriding max_velocity...");
-    System.out.println("Extending arm LOL.");
+		System.out.println("Extending arm LOL.");
 
 		superstructure.setElement(Element.Cone);
 		superstructure.setNode(2, 0);

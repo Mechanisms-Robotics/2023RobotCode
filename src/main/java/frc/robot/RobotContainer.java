@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -10,6 +11,8 @@ import frc.robot.commands.auto.MobilityAutoHP;
 import frc.robot.commands.auto.MobilityAutoWall;
 import frc.robot.commands.auto.OneElementBalanceHP;
 import frc.robot.commands.auto.OneElementBalanceWall;
+import frc.robot.commands.auto.OneElementGrabBalanceHP;
+import frc.robot.commands.auto.OneElementGrabBalanceWall;
 import frc.robot.commands.auto.ThreeElementHP;
 import frc.robot.commands.auto.ThreeElementWall;
 import frc.robot.commands.auto.TwoElementBalanceHP;
@@ -20,6 +23,7 @@ import frc.robot.commands.goalTracker.SetTrackingMode;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.HPStationIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
+import frc.robot.commands.superstructure.AutoScoreCommand;
 import frc.robot.commands.superstructure.ScoreCommand;
 import frc.robot.commands.swerve.AutoBalance;
 import frc.robot.commands.swerve.DriveCommand;
@@ -28,6 +32,7 @@ import frc.robot.states.arm.Scoring;
 import frc.robot.states.arm.Stowed;
 import frc.robot.states.intake.Intaking;
 import frc.robot.states.intake.Outtaking;
+import frc.robot.states.intake.Unjamming;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Superstructure.Element;
 import frc.robot.util.GoalTracker;
@@ -88,6 +93,12 @@ public class RobotContainer {
 				"1ElementBalanceHP", OneElementBalanceHP.oneElementBalanceHP(m_autoBuilder));
 		autoChooser.addOption(
 				"1ElementBalanceWall", OneElementBalanceWall.oneElementBalanceWall(m_autoBuilder));
+		autoChooser.addOption(
+				"1ElementGrabBalanceHP",
+				OneElementGrabBalanceHP.oneElementGrabBalanceHP(m_autoBuilder));
+		autoChooser.addOption(
+				"1ElementGrabBalanceWall",
+				OneElementGrabBalanceWall.oneElementGrabBalanceWall(m_autoBuilder));
 		autoChooser.addOption("2ElementHP", TwoElementHP.twoElementHP(m_autoBuilder));
 		autoChooser.addOption("2ElementWall", TwoElementWall.twoElementWall(m_autoBuilder));
 		autoChooser.addOption(
@@ -134,22 +145,22 @@ public class RobotContainer {
 										m_superstructure.getIntakeState().getClass()
 												!= Outtaking.class));
 
-		//		m_driverController
-		//				.a()
-		//				.onTrue(
-		//						new ConditionalCommand(
-		//								new InstantCommand(
-		//										() -> {
-		//											CommandScheduler.getInstance()
-		//													.schedule(
-		//															new AutoScoreCommand(
-		//																	m_autoBuilder,
-		//																	m_swerve,
-		//																	m_goalTracker,
-		//																	m_superstructure));
-		//										}),
-		//								Commands.none(),
-		//								m_superstructure::getAutoScore));
+		m_driverController
+				.a()
+				.onTrue(
+						new ConditionalCommand(
+								new InstantCommand(
+										() -> {
+											CommandScheduler.getInstance()
+													.schedule(
+															new AutoScoreCommand(
+																	m_autoBuilder,
+																	m_swerve,
+																	m_goalTracker,
+																	m_superstructure));
+										}),
+								Commands.none(),
+								m_superstructure::getAutoScore));
 
 		m_driverController
 				.x()
@@ -158,6 +169,27 @@ public class RobotContainer {
 								new InstantCommand(() -> m_swerve.setClimbMode(false)),
 								new InstantCommand(() -> m_swerve.setClimbMode(true)),
 								m_swerve::getClimbMode));
+
+		m_driverController
+				.b()
+				.onTrue(
+						new ConditionalCommand(
+								new InstantCommand(m_superstructure::unjam),
+								new InstantCommand(m_superstructure::idle),
+								() ->
+										m_superstructure.getIntakeState().getClass()
+												!= Unjamming.class));
+
+		m_driverController
+				.rightStick()
+				.onTrue(
+						new InstantCommand(
+								() -> m_swerve.turnToAngle(Rotation2d.fromDegrees(0.0))));
+		m_driverController
+				.leftStick()
+				.onTrue(
+						new InstantCommand(
+								() -> m_swerve.turnToAngle(Rotation2d.fromDegrees(180.0))));
 
 		m_secondDriverController
 				.a()
@@ -175,7 +207,9 @@ public class RobotContainer {
 										() ->
 												m_superstructure.getArmState().getClass()
 														== Stowed.class),
-								() -> m_superstructure.getArmState().getClass() == Stowed.class && m_superstructure.getArmState().isOpen()));
+								() ->
+										m_superstructure.getArmState().getClass() == Stowed.class
+												&& m_superstructure.getArmState().isOpen()));
 
 		m_secondDriverController
 				.leftBumper()
