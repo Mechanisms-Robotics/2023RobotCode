@@ -47,11 +47,8 @@ public class AutoScoreCommand extends CommandBase {
 
 	@Override
 	public void execute() {
-		System.out.println("AAAAAAAAAAAAAAAAA");
-
 		if (m_state == null) {
 			if (!m_swerve.getRunningTrajectory()) {
-				System.out.println("AAAAAAAAAAAAAAAAAAAA");
 				CommandScheduler.getInstance()
 						.schedule(
 								m_autoBuilder.driveToAvoidObstaclesCommand(

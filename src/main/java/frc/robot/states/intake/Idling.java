@@ -1,5 +1,6 @@
 package frc.robot.states.intake;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.states.IntakeState;
 import frc.robot.subsystems.Conveyor;
 import frc.robot.subsystems.Feeder;
@@ -12,11 +13,15 @@ public class Idling extends IntakeState {
 
 	@Override
 	public void init() {
+		if (!DriverStation.isEnabled()) return;
+
 		m_intake.stop();
 		m_feeder.stop();
 		m_conveyor.stop();
 	}
 
 	@Override
-	public void periodic() {}
+	public void periodic() {
+		if (!DriverStation.isEnabled()) return;
+	}
 }

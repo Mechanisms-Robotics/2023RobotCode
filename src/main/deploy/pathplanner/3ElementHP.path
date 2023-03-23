@@ -191,9 +191,7 @@
     {
       "position": 2.0,
       "names": [
-        "idle",
-        "deploy",
-        "intake"
+        "idle"
       ]
     },
     {
@@ -201,6 +199,13 @@
       "names": [
         "retract",
         "scoreConeHigh"
+      ]
+    },
+    {
+      "position": 3.125,
+      "names": [
+        "deploy",
+        "intake"
       ]
     }
   ]

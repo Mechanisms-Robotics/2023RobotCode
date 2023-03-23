@@ -1,5 +1,7 @@
 package frc.robot.states;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
 
@@ -22,13 +24,7 @@ public abstract class ArmState implements State {
 		Extending
 	}
 
-	private enum GripperState {
-		Opened,
-		Closed
-	}
-
 	protected ArmAction m_currentAction = ArmAction.Idling;
-	protected GripperState m_gripperState = GripperState.Opened;
 
 	public ArmState(
 			Arm arm,
@@ -49,11 +45,17 @@ public abstract class ArmState implements State {
 
 	@Override
 	public void init() {
+		if (!DriverStation.isEnabled()) return;
+
 		retract();
 	}
 
 	@Override
 	public void periodic() {
+		if (!DriverStation.isEnabled()) return;
+
+		SmartDashboard.putString("Arm Action", m_currentAction.toString());
+
 		switch (m_currentAction) {
 			case Retracting:
 				retract();
@@ -87,6 +89,8 @@ public abstract class ArmState implements State {
 		} else if (m_arm.isAtPosition()) {
 			extend();
 		}
+
+		SmartDashboard.putBoolean("Arm At Position", m_arm.isAtPosition());
 	}
 
 	public void extend() {
@@ -100,24 +104,18 @@ public abstract class ArmState implements State {
 	}
 
 	public void open() {
-		if (m_gripperState != GripperState.Opened) {
-			m_gripperState = GripperState.Opened;
-			m_gripper.setClosedLoop(m_openPosition);
-		}
+		m_gripper.setClosedLoop(m_openPosition);
 	}
 
 	public void close() {
-		if (m_gripperState != GripperState.Closed) {
-			m_gripperState = GripperState.Closed;
-			m_gripper.setClosedLoop(m_closedPosition);
-		}
+		m_gripper.setClosedLoop(m_closedPosition);
 	}
 
 	public boolean isOpen() {
-		return m_gripperState == GripperState.Opened;
+		return m_gripper.isOpen();
 	}
 
 	public boolean isClosed() {
-		return m_gripperState == GripperState.Closed;
+		return m_gripper.isClosed();
 	}
 }

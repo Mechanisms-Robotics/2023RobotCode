@@ -17,6 +17,8 @@ import frc.robot.commands.auto.ThreeElementHP;
 import frc.robot.commands.auto.ThreeElementWall;
 import frc.robot.commands.auto.TwoElementBalanceHP;
 import frc.robot.commands.auto.TwoElementBalanceWall;
+import frc.robot.commands.auto.TwoElementGrabBalanceHP;
+import frc.robot.commands.auto.TwoElementGrabBalanceWall;
 import frc.robot.commands.auto.TwoElementHP;
 import frc.robot.commands.auto.TwoElementWall;
 import frc.robot.commands.goalTracker.SetTrackingMode;
@@ -24,7 +26,6 @@ import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.HPStationIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
 import frc.robot.commands.superstructure.AutoScoreCommand;
-import frc.robot.commands.superstructure.ScoreCommand;
 import frc.robot.commands.swerve.AutoBalance;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.commands.swerve.LockCommand;
@@ -105,6 +106,12 @@ public class RobotContainer {
 				"2ElementBalanceHP", TwoElementBalanceHP.twoElementBalanceHP(m_autoBuilder));
 		autoChooser.addOption(
 				"2ElementBalanceWall", TwoElementBalanceWall.twoElementBalanceWall(m_autoBuilder));
+		autoChooser.addOption(
+				"2ElementGrabBalanceHP",
+				TwoElementGrabBalanceHP.twoElementGrabBalanceHP(m_autoBuilder));
+		autoChooser.addOption(
+				"2ElementGrabBalanceWall",
+				TwoElementGrabBalanceWall.twoElementGrabBalanceWall(m_autoBuilder));
 		autoChooser.addOption("3ElementHP", ThreeElementHP.threeElementHP(m_autoBuilder));
 		autoChooser.addOption("3ElementWall", ThreeElementWall.threeElementWall(m_autoBuilder));
 
@@ -314,22 +321,23 @@ public class RobotContainer {
 	private HashMap<String, Command> buildEventMap() {
 		var events = new HashMap<String, Command>();
 
-		events.put("scoreConeHigh", new ScoreCommand(m_superstructure, Element.Cone, 2));
-		events.put("scoreCubeHigh", new ScoreCommand(m_superstructure, Element.Cube, 2));
+		//		events.put("scoreConeHigh", new ScoreCommand(m_superstructure, Element.Cone, 2));
+		//		events.put("scoreCubeHigh", new ScoreCommand(m_superstructure, Element.Cube, 2));
 
-		events.put("idle", new InstantCommand(m_superstructure::idle));
-		events.put("intake", new InstantCommand(m_superstructure::intake));
+		//		events.put("idle", new InstantCommand(m_superstructure::idle));
+		//		events.put("intake", new InstantCommand(m_superstructure::intake));
 
-		events.put("deploy", new DeployIntakeCommand(m_intake));
-		events.put("retract", new RetractIntakeCommand(m_intake));
+		//		events.put("deploy", new DeployIntakeCommand(m_intake));
+		//		events.put("retract", new RetractIntakeCommand(m_intake));
 
-		events.put("autoBalance", new AutoBalance(m_swerve));
-		events.put("lockWheels", new LockCommand(m_swerve));
+				events.put("autoBalance", new AutoBalance(m_swerve));
+				events.put("lockWheels", new LockCommand(m_swerve));
 
 		return events;
 	}
 
 	public Command getAutonomousCommand() {
-		return autoChooser.getSelected();
+		return TwoElementBalanceWall.twoElementBalanceWall(m_autoBuilder);
+//		return autoChooser.getSelected();
 	}
 }

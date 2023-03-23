@@ -81,7 +81,7 @@ public class Swerve extends SubsystemBase {
 	private static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(-170.508); // rads
 	private static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(329.67); // rads
 
-	private static final double ALLOWABLE_ROTATION_ERROR = Math.toRadians(3.0); // rads
+	private static final double ALLOWABLE_ROTATION_ERROR = Math.toRadians(0.5); // rads
 
 	private final SwerveModule m_frontLeftModule;
 	private final SwerveModule m_frontRightModule;
@@ -244,16 +244,20 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
+		if (chassisSpeeds.omegaRadiansPerSecond >= 0.1) {
+			m_reachedDesiredRotation = true;
+		}
+
 		if (m_reachedDesiredRotation) {
 			m_chassisSpeeds = chassisSpeeds;
 			m_headingController.stabiliseHeading();
 		} else {
-      m_chassisSpeeds =
-          new ChassisSpeeds(
-              chassisSpeeds.vxMetersPerSecond,
-              chassisSpeeds.vyMetersPerSecond,
-              m_rotationPIDController.calculate(
-                  getGyroHeading().getRadians(), m_desiredRotation.getRadians()));
+			m_chassisSpeeds =
+					new ChassisSpeeds(
+							chassisSpeeds.vxMetersPerSecond,
+							chassisSpeeds.vyMetersPerSecond,
+							m_rotationPIDController.calculate(
+									getGyroHeading().getRadians(), m_desiredRotation.getRadians()));
 
 			if (Math.abs(m_desiredRotation.getRadians() - getGyroHeading().getRadians())
 					<= ALLOWABLE_ROTATION_ERROR) {

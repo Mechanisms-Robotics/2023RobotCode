@@ -76,6 +76,7 @@ public class Robot extends TimedRobot {
 		m_robotContainer.m_intake.retract();
 
 		m_robotContainer.m_superstructure.idle();
+		m_robotContainer.m_superstructure.init();
 
 		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -102,6 +103,7 @@ public class Robot extends TimedRobot {
 
 		m_robotContainer.m_swerve.setNeutralMode(NeutralMode.Coast);
 		m_robotContainer.m_superstructure.idle();
+		m_robotContainer.m_superstructure.init();
 
 		m_robotContainer.m_swerve.resetModules();
 		m_robotContainer.m_swerve.unlock();
@@ -129,9 +131,9 @@ public class Robot extends TimedRobot {
 
 		if (!m_robotContainer.m_swerve.getClimbMode()) {
 			if (m_robotContainer.m_intake.isDeployed()) {
-				m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 2.5 : 2.0);
+				m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 4.5 : 2.0);
 			} else {
-				m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 2.0 : 1.5);
+				m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 4.0 : 1.5);
 			}
 		}
 	}

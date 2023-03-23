@@ -8,9 +8,9 @@ import frc.robot.subsystems.Swerve;
 /** Command to auto balance the robot on the switch. */
 public class AutoBalance extends CommandBase {
 
-	private static final double ALLOWABLE_PITCH_ERROR_DEGREES = 3.0;
-	private static final double BASE_SPEED_METERS_PER_SEC = 0.1;
-	private static final double VERIFY_BALANCED_DURATION_SEC = 0.5;
+	private static final double ALLOWABLE_PITCH_ERROR_DEGREES = 8.25;
+	private static final double BASE_SPEED_METERS_PER_SEC = -0.25;
+	private static final double VERIFY_BALANCED_DURATION_SEC = 0.15;
 
 	private final Swerve swerve;
 	private final Timer timer;
@@ -29,6 +29,8 @@ public class AutoBalance extends CommandBase {
 	public void execute() {
 		double pitchDegrees = swerve.getPitch().getDegrees();
 		double error = pitchDegrees;
+
+    System.out.println("pitch: " + pitchDegrees);
 
 		if (error > ALLOWABLE_PITCH_ERROR_DEGREES) {
 			swerve.drive(

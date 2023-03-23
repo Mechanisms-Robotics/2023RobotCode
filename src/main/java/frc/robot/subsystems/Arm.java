@@ -20,7 +20,7 @@ public class Arm extends SubsystemBase {
 	private static final double TICKS_PER_DEGREE = (2048.0 / 360.0) * 89.89;
 
 	private static final double ALLOWABLE_PIVOT_ERROR = 1000;
-	private static final double ALLOWABLE_EXTENSION_ERROR = 400;
+	private static final double ALLOWABLE_EXTENSION_ERROR = 1000;
 
 	private static final double kP = 0.2; // 0.2
 	private static final double kD = 0.0;
@@ -72,6 +72,7 @@ public class Arm extends SubsystemBase {
 
 		armMotor.configNeutralDeadband(0.001);
 		armMotor.configAllowableClosedloopError(0, 0.0);
+		armMotor.setInverted(true);
 
 		extenderMotor.configAllSettings(ARM_EXTENDER_MOTOR_CONFIG);
 
@@ -132,6 +133,8 @@ public class Arm extends SubsystemBase {
 			return;
 		}
 
+		desiredPosition[0] = position;
+
 		armMotor.set(ControlMode.MotionMagic, position);
 	}
 
@@ -139,6 +142,8 @@ public class Arm extends SubsystemBase {
 		if (!zeroed) {
 			return;
 		}
+
+		desiredPosition[1] = position;
 
 		extenderMotor.set(ControlMode.MotionMagic, position);
 	}

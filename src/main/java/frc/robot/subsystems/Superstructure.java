@@ -45,6 +45,16 @@ public class Superstructure extends SubsystemBase {
 
 	private boolean m_autoScore = false;
 
+	private enum SuperstructureState {
+		Idling,
+		Intaking,
+		Outtaking,
+		Unjamming,
+		Scoring
+	}
+
+	private SuperstructureState m_superstructureState = SuperstructureState.Idling;
+
 	public Superstructure(
 			Intake intake,
 			Feeder feeder,
@@ -60,6 +70,9 @@ public class Superstructure extends SubsystemBase {
 
 		m_intakeState = new Idling(m_intake, m_feeder, m_conveyor);
 		m_armState = new Stowed(m_arm, m_gripper, m_element);
+
+		m_intakeState.init();
+		m_armState.init();
 
 		m_ledWrapper = ledWrapper;
 	}
@@ -86,10 +99,26 @@ public class Superstructure extends SubsystemBase {
 			m_ledWrapper.setColor(false, true);
 		}
 
+		switch (m_superstructureState) {
+			case Idling:
+				idle();
+				break;
+			case Intaking:
+				intake();
+				break;
+			case Outtaking:
+				outtake();
+				break;
+			case Unjamming:
+				unjam();
+				break;
+			case Scoring:
+				score();
+				break;
+		}
+
 		SmartDashboard.putString("Intake State", m_intakeState.getClass().getSimpleName());
 		SmartDashboard.putString("Arm State", m_armState.getClass().getSimpleName());
-
-		SmartDashboard.putBoolean("Gripper", m_armState.isClosed());
 
 		SmartDashboard.putBoolean("AutoScore", m_autoScore);
 	}
@@ -100,7 +129,14 @@ public class Superstructure extends SubsystemBase {
 		periodic();
 	}
 
+	public void init() {
+		m_intakeState.init();
+		m_armState.init();
+	}
+
 	public void idle() {
+		m_superstructureState = SuperstructureState.Idling;
+
 		if (m_intakeState.getClass() != Idling.class) {
 			m_intakeState = new Idling(m_intake, m_feeder, m_conveyor);
 			m_intakeState.init();
@@ -119,6 +155,8 @@ public class Superstructure extends SubsystemBase {
 	}
 
 	public void intake() {
+		m_superstructureState = SuperstructureState.Intaking;
+
 		if (m_intakeState.getClass() != Intaking.class) {
 			m_intakeState = new Intaking(m_intake, m_feeder, m_conveyor, () -> m_element);
 			m_intakeState.init();
@@ -137,6 +175,8 @@ public class Superstructure extends SubsystemBase {
 	}
 
 	public void outtake() {
+		m_superstructureState = SuperstructureState.Outtaking;
+
 		if (m_intakeState.getClass() != Outtaking.class) {
 			m_intakeState = new Outtaking(m_intake, m_feeder, m_conveyor, () -> m_element);
 			m_intakeState.init();
@@ -155,6 +195,8 @@ public class Superstructure extends SubsystemBase {
 	}
 
 	public void unjam() {
+		m_superstructureState = SuperstructureState.Unjamming;
+
 		if (m_intakeState.getClass() != Unjamming.class) {
 			m_intakeState = new Unjamming(m_intake, m_feeder, m_conveyor);
 			m_intakeState.init();
@@ -173,6 +215,8 @@ public class Superstructure extends SubsystemBase {
 	}
 
 	public void score() {
+		m_superstructureState = SuperstructureState.Scoring;
+
 		if (m_intakeState.getClass() != Idling.class) {
 			m_intakeState = new Idling(m_intake, m_feeder, m_conveyor);
 			m_intakeState.init();

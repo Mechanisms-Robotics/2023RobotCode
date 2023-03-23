@@ -84,4 +84,12 @@ public class Gripper extends SubsystemBase {
 		return Math.abs(desiredPosition - gripperMotor.getSelectedSensorPosition())
 				<= ALLOWABLE_ERROR;
 	}
+
+	public boolean isOpen() {
+		return Math.abs(gripperMotor.getSelectedSensorPosition()) >= ALLOWABLE_ERROR;
+	}
+
+	public boolean isClosed() {
+		return Math.abs(gripperMotor.getSelectedSensorPosition()) <= ALLOWABLE_ERROR;
+	}
 }

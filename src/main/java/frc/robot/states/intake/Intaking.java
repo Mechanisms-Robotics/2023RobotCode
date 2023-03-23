@@ -1,5 +1,6 @@
 package frc.robot.states.intake;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.states.IntakeState;
 import frc.robot.subsystems.Conveyor;
 import frc.robot.subsystems.Feeder;
@@ -24,10 +25,14 @@ public class Intaking extends IntakeState {
 	}
 
 	@Override
-	public void init() {}
+	public void init() {
+		if (!DriverStation.isEnabled()) return;
+	}
 
 	@Override
 	public void periodic() {
+		if (!DriverStation.isEnabled()) return;
+
 		m_intake.setOpenLoop(INTAKE_SPEEDS[m_elementSupplier.get().index][0]);
 		m_feeder.setOpenLoop(INTAKE_SPEEDS[m_elementSupplier.get().index][1]);
 		m_conveyor.setOpenLoop(INTAKE_SPEEDS[m_elementSupplier.get().index][2]);
