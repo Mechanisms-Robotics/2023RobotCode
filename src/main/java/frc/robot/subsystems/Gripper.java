@@ -9,8 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Gripper extends SubsystemBase {
 
 	private static final double ALLOWABLE_ERROR = 250;
-
-	private static final double GRAB_TIME = 0.5;
+	private static final double CLOSED_THRESHOLD = 1000;
 
 	private static final TalonFXConfiguration GRIPPER_MOTOR_CONFIG = new TalonFXConfiguration();
 
@@ -23,8 +22,8 @@ public class Gripper extends SubsystemBase {
 
 		GRIPPER_MOTOR_CONFIG.reverseSoftLimitEnable = true;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitEnable = true;
-		// TODO: Find soft limits
-		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = -19384;
+
+		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = -19375;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitThreshold = 0;
 
 		GRIPPER_MOTOR_CONFIG.peakOutputReverse = -1.0;
@@ -33,7 +32,7 @@ public class Gripper extends SubsystemBase {
 
 	private final WPI_TalonFX gripperMotor = new WPI_TalonFX(60);
 
-	private static final double kP = 0.4;
+	private static final double kP = 0.6;
 	private static final double kD = 0.0;
 
 	private final Timer timer = new Timer();
@@ -47,6 +46,8 @@ public class Gripper extends SubsystemBase {
 
 		gripperMotor.config_kP(0, kP);
 		gripperMotor.config_kD(0, kD);
+
+		gripperMotor.configAllowableClosedloopError(0, ALLOWABLE_ERROR);
 	}
 
 	public void setOpenLoop(double percentOutput) {
@@ -80,16 +81,25 @@ public class Gripper extends SubsystemBase {
 		isZeroed = true;
 	}
 
+	public void init() {
+		if (isZeroed) {
+			return;
+		}
+
+		gripperMotor.setSelectedSensorPosition(-5.0);
+		isZeroed = true;
+	}
+
 	public boolean atPosition() {
 		return Math.abs(desiredPosition - gripperMotor.getSelectedSensorPosition())
 				<= ALLOWABLE_ERROR;
 	}
 
 	public boolean isOpen() {
-		return Math.abs(gripperMotor.getSelectedSensorPosition()) >= ALLOWABLE_ERROR;
+		return Math.abs(gripperMotor.getSelectedSensorPosition()) <= CLOSED_THRESHOLD;
 	}
 
 	public boolean isClosed() {
-		return Math.abs(gripperMotor.getSelectedSensorPosition()) <= ALLOWABLE_ERROR;
+		return Math.abs(gripperMotor.getSelectedSensorPosition()) >= CLOSED_THRESHOLD;
 	}
 }

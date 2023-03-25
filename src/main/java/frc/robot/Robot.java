@@ -51,6 +51,8 @@ public class Robot extends TimedRobot {
 		m_robotContainer.m_arm.stop();
 		m_robotContainer.m_gripper.stop();
 
+		m_robotContainer.m_superstructure.reset();
+
 		m_robotContainer.m_ledWrapper.turnOff();
 	}
 
@@ -70,13 +72,12 @@ public class Robot extends TimedRobot {
 
 		m_robotContainer.m_intake.zeroEncoders();
 		m_robotContainer.m_arm.init();
-		m_robotContainer.m_gripper.zeroEncoder();
+		m_robotContainer.m_gripper.init();
 
 		m_robotContainer.m_superstructure.setAutoScore(false);
 		m_robotContainer.m_intake.retract();
 
 		m_robotContainer.m_superstructure.idle();
-		m_robotContainer.m_superstructure.init();
 
 		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -103,7 +104,6 @@ public class Robot extends TimedRobot {
 
 		m_robotContainer.m_swerve.setNeutralMode(NeutralMode.Coast);
 		m_robotContainer.m_superstructure.idle();
-		m_robotContainer.m_superstructure.init();
 
 		m_robotContainer.m_swerve.resetModules();
 		m_robotContainer.m_swerve.unlock();
@@ -147,8 +147,7 @@ public class Robot extends TimedRobot {
 
 		m_robotContainer.m_intake.zeroEncoders();
 		m_robotContainer.m_arm.init();
-		//		m_robotContainer.m_arm.zeroEncoder();
-		m_robotContainer.m_gripper.zeroEncoder();
+		m_robotContainer.m_gripper.init();
 	}
 
 	/** This method is called periodically during test mode. */

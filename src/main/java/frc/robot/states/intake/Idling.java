@@ -23,5 +23,10 @@ public class Idling extends IntakeState {
 	@Override
 	public void periodic() {
 		if (!DriverStation.isEnabled()) return;
+
+		if (!m_initialized) {
+			init();
+			m_initialized = true;
+		}
 	}
 }

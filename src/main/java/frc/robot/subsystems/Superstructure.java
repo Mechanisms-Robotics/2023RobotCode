@@ -69,10 +69,7 @@ public class Superstructure extends SubsystemBase {
 		m_gripper = gripper;
 
 		m_intakeState = new Idling(m_intake, m_feeder, m_conveyor);
-		m_armState = new Stowed(m_arm, m_gripper, m_element);
-
-		m_intakeState.init();
-		m_armState.init();
+		m_armState = new Stowed(m_arm, m_gripper, () -> m_element);
 
 		m_ledWrapper = ledWrapper;
 	}
@@ -119,6 +116,7 @@ public class Superstructure extends SubsystemBase {
 
 		SmartDashboard.putString("Intake State", m_intakeState.getClass().getSimpleName());
 		SmartDashboard.putString("Arm State", m_armState.getClass().getSimpleName());
+		SmartDashboard.putBoolean("Gripper Closed", m_armState.isClosed());
 
 		SmartDashboard.putBoolean("AutoScore", m_autoScore);
 	}
@@ -129,26 +127,17 @@ public class Superstructure extends SubsystemBase {
 		periodic();
 	}
 
-	public void init() {
-		m_intakeState.init();
-		m_armState.init();
-	}
-
 	public void idle() {
 		m_superstructureState = SuperstructureState.Idling;
 
 		if (m_intakeState.getClass() != Idling.class) {
 			m_intakeState = new Idling(m_intake, m_feeder, m_conveyor);
-			m_intakeState.init();
 		} else {
 			m_intakeState.periodic();
 		}
 
 		if (m_armState.getClass() != Stowed.class) {
-			m_armState = new Stowed(m_arm, m_gripper, m_element);
-			m_armState.init();
-
-			open();
+			m_armState = new Stowed(m_arm, m_gripper, () -> m_element);
 		} else {
 			m_armState.periodic();
 		}
@@ -159,16 +148,12 @@ public class Superstructure extends SubsystemBase {
 
 		if (m_intakeState.getClass() != Intaking.class) {
 			m_intakeState = new Intaking(m_intake, m_feeder, m_conveyor, () -> m_element);
-			m_intakeState.init();
 		} else {
 			m_intakeState.periodic();
 		}
 
 		if (m_armState.getClass() != Stowed.class) {
-			m_armState = new Stowed(m_arm, m_gripper, m_element);
-			m_armState.init();
-
-			open();
+			m_armState = new Stowed(m_arm, m_gripper, () -> m_element);
 		} else {
 			m_armState.periodic();
 		}
@@ -179,16 +164,12 @@ public class Superstructure extends SubsystemBase {
 
 		if (m_intakeState.getClass() != Outtaking.class) {
 			m_intakeState = new Outtaking(m_intake, m_feeder, m_conveyor, () -> m_element);
-			m_intakeState.init();
 		} else {
 			m_intakeState.periodic();
 		}
 
 		if (m_armState.getClass() != Stowed.class) {
-			m_armState = new Stowed(m_arm, m_gripper, m_element);
-			m_armState.init();
-
-			open();
+			m_armState = new Stowed(m_arm, m_gripper, () -> m_element);
 		} else {
 			m_armState.periodic();
 		}
@@ -199,16 +180,12 @@ public class Superstructure extends SubsystemBase {
 
 		if (m_intakeState.getClass() != Unjamming.class) {
 			m_intakeState = new Unjamming(m_intake, m_feeder, m_conveyor);
-			m_intakeState.init();
 		} else {
 			m_intakeState.periodic();
 		}
 
 		if (m_armState.getClass() != Stowed.class) {
-			m_armState = new Stowed(m_arm, m_gripper, m_element);
-			m_armState.init();
-
-			open();
+			m_armState = new Stowed(m_arm, m_gripper, () -> m_element);
 		} else {
 			m_armState.periodic();
 		}
@@ -219,16 +196,12 @@ public class Superstructure extends SubsystemBase {
 
 		if (m_intakeState.getClass() != Idling.class) {
 			m_intakeState = new Idling(m_intake, m_feeder, m_conveyor);
-			m_intakeState.init();
 		} else {
 			m_intakeState.periodic();
 		}
 
 		if (m_armState.getClass() != Scoring.class) {
-			m_armState = new Scoring(m_arm, m_gripper, m_element, m_targetNode[0]);
-			m_armState.init();
-
-			close();
+			m_armState = new Scoring(m_arm, m_gripper, () -> m_element, () -> m_targetNode[0]);
 		} else {
 			m_armState.periodic();
 		}
@@ -240,6 +213,11 @@ public class Superstructure extends SubsystemBase {
 
 	public void close() {
 		m_armState.close();
+	}
+
+	public void reset() {
+		m_intakeState.reset();
+		m_armState.reset();
 	}
 
 	public void setElement(Element element) {

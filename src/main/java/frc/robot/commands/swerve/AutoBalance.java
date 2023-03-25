@@ -30,7 +30,7 @@ public class AutoBalance extends CommandBase {
 		double pitchDegrees = swerve.getPitch().getDegrees();
 		double error = pitchDegrees;
 
-    System.out.println("pitch: " + pitchDegrees);
+		System.out.println("pitch: " + pitchDegrees);
 
 		if (error > ALLOWABLE_PITCH_ERROR_DEGREES) {
 			swerve.drive(

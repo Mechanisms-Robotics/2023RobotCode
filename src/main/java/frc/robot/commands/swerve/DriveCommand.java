@@ -27,7 +27,7 @@ public class DriveCommand extends CommandBase {
 	private final SlewRateLimiter m_vyRateLimiter =
 			new SlewRateLimiter(
 					4.5 // m/s^2
-			);
+					);
 
 	private final SlewRateLimiter m_rotRateLimiter =
 			new SlewRateLimiter(

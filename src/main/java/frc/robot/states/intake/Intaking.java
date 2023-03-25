@@ -33,6 +33,11 @@ public class Intaking extends IntakeState {
 	public void periodic() {
 		if (!DriverStation.isEnabled()) return;
 
+		if (!m_initialized) {
+			init();
+			m_initialized = true;
+		}
+
 		m_intake.setOpenLoop(INTAKE_SPEEDS[m_elementSupplier.get().index][0]);
 		m_feeder.setOpenLoop(INTAKE_SPEEDS[m_elementSupplier.get().index][1]);
 		m_conveyor.setOpenLoop(INTAKE_SPEEDS[m_elementSupplier.get().index][2]);

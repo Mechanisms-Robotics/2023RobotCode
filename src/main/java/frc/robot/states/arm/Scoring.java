@@ -1,9 +1,11 @@
 package frc.robot.states.arm;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.states.ArmState;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Superstructure.Element;
+import java.util.function.Supplier;
 
 public class Scoring extends ArmState {
 	private static final double[][][] ARM_POSITIONS = {
@@ -22,16 +24,58 @@ public class Scoring extends ArmState {
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
 				{0, -12500}, // Open, Closed | Cube
-				{0, -18000} // Open, Closed | Cone
+				{0, -17500} // Open, Closed | Cone
 			};
 
-	public Scoring(Arm arm, Gripper gripper, Element element, int level) {
+	private final Supplier<Element> m_elementSupplier;
+	private final Supplier<Integer> m_levelSupplier;
+
+	private Element m_prevElement;
+	private int m_prevLevel;
+
+	public Scoring(Arm arm, Gripper gripper, Supplier<Element> elementSupplier, Supplier<Integer> levelSupplier) {
 		super(
 				arm,
 				gripper,
-				ARM_POSITIONS[element.index][level][0],
-				ARM_POSITIONS[element.index][level][1],
-				GRIPPER_POSITIONS[element.index][0],
-				GRIPPER_POSITIONS[element.index][1]);
+				ARM_POSITIONS[elementSupplier.get().index][levelSupplier.get()][0],
+				ARM_POSITIONS[elementSupplier.get().index][levelSupplier.get()][1],
+				GRIPPER_POSITIONS[elementSupplier.get().index][0],
+				GRIPPER_POSITIONS[elementSupplier.get().index][1]);
+
+		m_elementSupplier = elementSupplier;
+		m_levelSupplier = levelSupplier;
+
+		m_prevElement = m_elementSupplier.get();
+		m_prevLevel = m_levelSupplier.get();
+	}
+
+	@Override
+	public void init() {
+		if (!DriverStation.isEnabled()) return;
+
+		close();
+		super.init();
+	}
+
+	@Override
+	public void periodic() {
+		if (m_elementSupplier.get() != m_prevElement || m_levelSupplier.get() != m_prevLevel) {
+			m_desiredPosition = ARM_POSITIONS[m_elementSupplier.get().index][m_levelSupplier.get()][0];
+			m_desiredExtension = ARM_POSITIONS[m_elementSupplier.get().index][m_levelSupplier.get()][1];
+
+			m_openPosition = GRIPPER_POSITIONS[m_elementSupplier.get().index][0];
+			m_closedPosition = GRIPPER_POSITIONS[m_elementSupplier.get().index][1];
+
+			super.init();
+
+			m_prevElement = m_elementSupplier.get();
+			m_prevLevel = m_levelSupplier.get();
+		} else {
+			super.periodic();
+		}
+
+		if (m_currentAction == ArmAction.Extending) {
+			close();
+		}
 	}
 }

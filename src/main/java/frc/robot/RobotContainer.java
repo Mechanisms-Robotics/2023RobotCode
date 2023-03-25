@@ -202,7 +202,10 @@ public class RobotContainer {
 				.a()
 				.onTrue(
 						new ConditionalCommand(
-								new InstantCommand(m_superstructure::close),
+								new ParallelCommandGroup(
+										new InstantCommand(m_superstructure::idle),
+										new InstantCommand(m_superstructure::close)
+								),
 								new ConditionalCommand(
 										new InstantCommand(m_superstructure::score),
 										new ConditionalCommand(
@@ -213,7 +216,7 @@ public class RobotContainer {
 																== Scoring.class),
 										() ->
 												m_superstructure.getArmState().getClass()
-														== Stowed.class),
+														== Stowed.class && m_superstructure.getArmState().isClosed()),
 								() ->
 										m_superstructure.getArmState().getClass() == Stowed.class
 												&& m_superstructure.getArmState().isOpen()));
@@ -330,14 +333,14 @@ public class RobotContainer {
 		//		events.put("deploy", new DeployIntakeCommand(m_intake));
 		//		events.put("retract", new RetractIntakeCommand(m_intake));
 
-				events.put("autoBalance", new AutoBalance(m_swerve));
-				events.put("lockWheels", new LockCommand(m_swerve));
+		events.put("autoBalance", new AutoBalance(m_swerve));
+		events.put("lockWheels", new LockCommand(m_swerve));
 
 		return events;
 	}
 
 	public Command getAutonomousCommand() {
 		return TwoElementBalanceWall.twoElementBalanceWall(m_autoBuilder);
-//		return autoChooser.getSelected();
+		//		return autoChooser.getSelected();
 	}
 }

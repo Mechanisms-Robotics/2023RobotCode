@@ -11,13 +11,15 @@ public abstract class ArmState implements State {
 	protected final Arm m_arm;
 	protected final Gripper m_gripper;
 
-	protected final double m_desiredPosition;
-	protected final double m_desiredExtension;
+	protected double m_desiredPosition;
+	protected double m_desiredExtension;
 
-	protected final double m_openPosition;
-	protected final double m_closedPosition;
+	protected double m_openPosition;
+	protected double m_closedPosition;
 
-	private enum ArmAction {
+	protected boolean m_initialized = false;
+
+	protected enum ArmAction {
 		Idling,
 		Retracting,
 		Pivoting,
@@ -50,9 +52,18 @@ public abstract class ArmState implements State {
 		retract();
 	}
 
+	public void reset() {
+		m_initialized = false;
+	}
+
 	@Override
 	public void periodic() {
 		if (!DriverStation.isEnabled()) return;
+
+		if (!m_initialized) {
+			init();
+			m_initialized = true;
+		}
 
 		SmartDashboard.putString("Arm Action", m_currentAction.toString());
 
