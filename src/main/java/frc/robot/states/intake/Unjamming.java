@@ -16,7 +16,7 @@ public class Unjamming extends IntakeState {
 		if (!DriverStation.isEnabled()) return;
 
 		m_intake.stop();
-		m_feeder.setOpenLoop(0.5, -0.5);
+		m_feeder.setOpenLoop(1.0, -1.0);
 		m_conveyor.stop();
 	}
 

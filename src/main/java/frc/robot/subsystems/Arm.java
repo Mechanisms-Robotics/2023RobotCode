@@ -34,8 +34,8 @@ public class Arm extends SubsystemBase {
 		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = TICKS_PER_DEGREE * 33.0;
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 75000;
 
-		ARM_MOTOR_CONFIG.motionCruiseVelocity = 20000;
-		ARM_MOTOR_CONFIG.motionAcceleration = 15000; // 30000
+		ARM_MOTOR_CONFIG.motionCruiseVelocity = 30000;
+		ARM_MOTOR_CONFIG.motionAcceleration = 25000; // 30000
 		ARM_MOTOR_CONFIG.motionCurveStrength = 8;
 
 		ARM_MOTOR_CONFIG.neutralDeadband = 0.001;
@@ -45,9 +45,11 @@ public class Arm extends SubsystemBase {
 		ARM_EXTENDER_MOTOR_CONFIG.reverseSoftLimitThreshold = -17500;
 		ARM_EXTENDER_MOTOR_CONFIG.forwardSoftLimitThreshold = 0;
 
-		ARM_EXTENDER_MOTOR_CONFIG.motionCruiseVelocity = 10000;
-		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 7000;
+		ARM_EXTENDER_MOTOR_CONFIG.motionCruiseVelocity = 15000;
+		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 10000;
 		ARM_EXTENDER_MOTOR_CONFIG.motionCurveStrength = 2;
+
+		ARM_EXTENDER_MOTOR_CONFIG.voltageCompSaturation = 10.0;
 	}
 
 	private final WPI_TalonFX armMotor = new WPI_TalonFX(51);
@@ -90,6 +92,8 @@ public class Arm extends SubsystemBase {
 				new SupplyCurrentLimitConfiguration(true, 20.0, 18.0, 1.0));
 
 		extenderMotor.configSetParameter(ParamEnum.eContinuousCurrentLimitAmps, 30, 30, 0);
+
+		extenderMotor.enableVoltageCompensation(true);
 
 		armMotor.selectProfileSlot(0, 0);
 		extenderMotor.selectProfileSlot(0, 0);
@@ -153,9 +157,21 @@ public class Arm extends SubsystemBase {
 				<= ALLOWABLE_PIVOT_ERROR;
 	}
 
+	public boolean isAtPosition(double pos) {
+		return Math.abs(armMotor.getSelectedSensorPosition() - desiredPosition[0] / pos)
+				<= ALLOWABLE_PIVOT_ERROR;
+	}
+	public boolean isAtMiddlePosition() {
+		return Math.abs(armMotor.getSelectedSensorPosition() - desiredPosition[0] / 2) <= ALLOWABLE_PIVOT_ERROR;
+	}
+
 	public boolean extendAtPosition() {
 		return Math.abs(extenderMotor.getSelectedSensorPosition() - desiredPosition[1])
 				<= ALLOWABLE_EXTENSION_ERROR;
+	}
+
+	public boolean isExtended () {
+		return extenderMotor.getSelectedSensorPosition() <= START_EXTENSION_POSITION;
 	}
 
 	public void zeroEncoder() {

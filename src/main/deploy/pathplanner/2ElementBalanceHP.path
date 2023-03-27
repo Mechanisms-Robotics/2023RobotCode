@@ -18,7 +18,7 @@
       "stopEvent": {
         "names": [
           "scoreConeHigh",
-          "idle",
+          "release",
           "deploy",
           "intake"
         ],
@@ -119,8 +119,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "autoBalance",
-          "lockWheels"
+          "autoBalanceClose"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -142,7 +141,7 @@
     {
       "position": 2.0,
       "names": [
-        "idle"
+        "release"
       ]
     }
   ]

@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
+import frc.robot.subsystems.Superstructure.Element;
+import java.util.function.Supplier;
 
 public abstract class ArmState implements State {
 	private static final double RETRACTED_POSITION = -500;
@@ -14,9 +16,9 @@ public abstract class ArmState implements State {
 	protected double m_desiredPosition;
 	protected double m_desiredExtension;
 
-	protected double m_openPosition;
-	protected double m_closedPosition;
-
+	protected double[][] m_positions;
+	protected Supplier<Element> m_ElementSupplier;
+	
 	protected boolean m_initialized = false;
 
 	protected enum ArmAction {
@@ -33,16 +35,16 @@ public abstract class ArmState implements State {
 			Gripper gripper,
 			double desiredPosition,
 			double desiredExtension,
-			double openPosition,
-			double closedPosition) {
+			double[][] positions,
+			Supplier<Element> elementSupplier) {
 		m_arm = arm;
 		m_gripper = gripper;
 
 		m_desiredPosition = desiredPosition;
 		m_desiredExtension = desiredExtension;
 
-		m_openPosition = openPosition;
-		m_closedPosition = closedPosition;
+		m_positions = positions;
+		m_ElementSupplier = elementSupplier;
 	}
 
 	@Override
@@ -115,11 +117,21 @@ public abstract class ArmState implements State {
 	}
 
 	public void open() {
-		m_gripper.setClosedLoop(m_openPosition);
+		m_gripper.setOpenLoop(0.15);
+		m_gripper.setDesiredPosition(0.0);
 	}
 
 	public void close() {
-		m_gripper.setClosedLoop(m_closedPosition);
+		if (DriverStation.isAutonomousEnabled()) {
+      System.out.println("AUTO POSITION: " + m_positions[m_ElementSupplier.get().index][2]);
+			m_gripper.setClosedLoop(m_positions[m_ElementSupplier.get().index][2]);
+		} else {
+			m_gripper.setClosedLoop(m_positions[m_ElementSupplier.get().index][1]);
+		}
+	}
+
+	public void close(double position) {
+		m_gripper.setClosedLoop(position);
 	}
 
 	public boolean isOpen() {

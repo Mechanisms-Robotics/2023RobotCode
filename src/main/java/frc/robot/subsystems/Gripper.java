@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Gripper extends SubsystemBase {
 
-	private static final double ALLOWABLE_ERROR = 250;
+	private static final double ALLOWABLE_ERROR = 750; // 750
 	private static final double CLOSED_THRESHOLD = 1000;
 
 	private static final TalonFXConfiguration GRIPPER_MOTOR_CONFIG = new TalonFXConfiguration();
@@ -28,12 +28,14 @@ public class Gripper extends SubsystemBase {
 
 		GRIPPER_MOTOR_CONFIG.peakOutputReverse = -1.0;
 		GRIPPER_MOTOR_CONFIG.peakOutputForward = 0.75;
+
+		GRIPPER_MOTOR_CONFIG.voltageCompSaturation = 12.0;
 	}
 
 	private final WPI_TalonFX gripperMotor = new WPI_TalonFX(60);
 
-	private static final double kP = 0.6;
-	private static final double kD = 0.0;
+	private static final double kP = 0.1; // 0.4
+	private static final double kD = 0.025;
 
 	private final Timer timer = new Timer();
 
@@ -48,6 +50,7 @@ public class Gripper extends SubsystemBase {
 		gripperMotor.config_kD(0, kD);
 
 		gripperMotor.configAllowableClosedloopError(0, ALLOWABLE_ERROR);
+		gripperMotor.enableVoltageCompensation(true);
 	}
 
 	public void setOpenLoop(double percentOutput) {
@@ -93,6 +96,10 @@ public class Gripper extends SubsystemBase {
 	public boolean atPosition() {
 		return Math.abs(desiredPosition - gripperMotor.getSelectedSensorPosition())
 				<= ALLOWABLE_ERROR;
+	}
+
+	public void setDesiredPosition(double position) {
+		desiredPosition = position;
 	}
 
 	public boolean isOpen() {

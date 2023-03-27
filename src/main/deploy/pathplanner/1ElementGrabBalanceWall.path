@@ -18,7 +18,7 @@
       "stopEvent": {
         "names": [
           "scoreConeHigh",
-          "idle"
+          "release"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -52,15 +52,15 @@
     },
     {
       "anchorPoint": {
-        "x": 6.0,
+        "x": 5.75,
         "y": 2.6875
       },
       "prevControl": {
-        "x": 5.008705822752328,
+        "x": 4.758705822752328,
         "y": 2.6875
       },
       "nextControl": {
-        "x": 6.2431874695696195,
+        "x": 5.9931874695696195,
         "y": 2.6875
       },
       "holonomicAngle": 0.0,
@@ -77,16 +77,16 @@
     },
     {
       "anchorPoint": {
-        "x": 6.645416550932323,
-        "y": 2.407162
+        "x": 7.281717525873041,
+        "y": 2.5395226410580394
       },
       "prevControl": {
-        "x": 6.4159052386616455,
-        "y": 2.6321516166309107
+        "x": 6.8840294165350935,
+        "y": 2.6361040390401134
       },
       "nextControl": {
-        "x": 6.4159052386616455,
-        "y": 2.6321516166309107
+        "x": 6.8840294165350935,
+        "y": 2.6361040390401134
       },
       "holonomicAngle": -35.0,
       "isReversal": true,
@@ -102,16 +102,16 @@
     },
     {
       "anchorPoint": {
-        "x": 6.0,
-        "y": 2.6875
+        "x": 5.75,
+        "y": 2.69
       },
       "prevControl": {
-        "x": 6.318487348420651,
-        "y": 2.7460323613398274
+        "x": 6.019603801916966,
+        "y": 2.6843365631029323
       },
       "nextControl": {
-        "x": 5.681512651579349,
-        "y": 2.6289676386601726
+        "x": 5.426250132401611,
+        "y": 2.696800857156095
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -142,8 +142,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "autoBalance",
-          "lockWheels"
+          "autoBalanceFar"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -154,5 +153,20 @@
   "maxVelocity": 2.0,
   "maxAcceleration": 2.0,
   "isReversed": null,
-  "markers": []
+  "markers": [
+    {
+      "position": 1.85,
+      "names": [
+        "deploy",
+        "intake"
+      ]
+    },
+    {
+      "position": 4.34,
+      "names": [
+        "retract",
+        "idle"
+      ]
+    }
+  ]
 }

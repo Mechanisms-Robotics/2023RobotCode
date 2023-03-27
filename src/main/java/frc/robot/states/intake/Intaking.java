@@ -11,8 +11,8 @@ import java.util.function.Supplier;
 public class Intaking extends IntakeState {
 	private static final double[][] INTAKE_SPEEDS =
 			new double[][] {
-				{0.45, -0.75, 0.45}, // Intake, Feeder, Conveyor | Cube
-				{0.4, -0.2, 0.4} // Intake, Feeder, Conveyor | Cone
+				{1.0, -1.0, 1.0}, // Intake, Feeder, Conveyor | Cube  0.75
+				{1.0, -0.2, 0.4} // Intake, Feeder, Conveyor | Cone    0.5
 			};
 
 	private final Supplier<Element> m_elementSupplier;

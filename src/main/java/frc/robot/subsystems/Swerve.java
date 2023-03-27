@@ -40,7 +40,7 @@ public class Swerve extends SubsystemBase {
 
 	private static final boolean IS_PITCH_AND_ROLL_INVERTED = false;
 
-	private static final double DT_TRACKWIDTH = 0.36195; // m
+	private static final double DT_TRACKWIDTH = 0.464; // m
 	private static final double DT_WHEELBASE = 0.76835; // m
 
 	private static final Translation2d[] MODULE_TRANSLATIONS = {

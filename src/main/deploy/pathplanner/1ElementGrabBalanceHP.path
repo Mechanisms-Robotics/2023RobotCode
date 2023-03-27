@@ -18,7 +18,7 @@
       "stopEvent": {
         "names": [
           "scoreConeHigh",
-          "idle"
+          "release"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -52,15 +52,15 @@
     },
     {
       "anchorPoint": {
-        "x": 6.0,
+        "x": 5.75,
         "y": 2.6875
       },
       "prevControl": {
-        "x": 5.008705822752328,
+        "x": 4.758705822752328,
         "y": 2.6875
       },
       "nextControl": {
-        "x": 6.2431874695696195,
+        "x": 5.9931874695696195,
         "y": 2.6875
       },
       "holonomicAngle": 0.0,
@@ -77,16 +77,16 @@
     },
     {
       "anchorPoint": {
-        "x": 6.645416550932323,
-        "y": 3.0849234767215106
+        "x": 7.168092351776483,
+        "y": 2.994023337444265
       },
       "prevControl": {
-        "x": 6.415893699257282,
-        "y": 2.859945632010327
+        "x": 6.918116968764059,
+        "y": 2.857673128528398
       },
       "nextControl": {
-        "x": 6.415893699257282,
-        "y": 2.859945632010327
+        "x": 6.918116968764059,
+        "y": 2.857673128528398
       },
       "holonomicAngle": 35.0,
       "isReversal": true,
@@ -102,16 +102,16 @@
     },
     {
       "anchorPoint": {
-        "x": 6.0,
-        "y": 2.6875
+        "x": 5.75,
+        "y": 2.69
       },
       "prevControl": {
-        "x": 6.318487348420651,
-        "y": 2.7460323613398274
+        "x": 6.151147043612303,
+        "y": 2.727004178317358
       },
       "nextControl": {
-        "x": 5.681512651579349,
-        "y": 2.6289676386601726
+        "x": 5.42754772609737,
+        "y": 2.660255093157654
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -142,8 +142,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "autoBalance",
-          "lockWheels"
+          "autoBalanceFar"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -165,7 +164,8 @@
     {
       "position": 4.345,
       "names": [
-        "retract"
+        "retract",
+        "idle"
       ]
     }
   ]

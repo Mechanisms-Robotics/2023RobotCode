@@ -59,7 +59,8 @@ public class DriveCommand extends CommandBase {
 
 		if (Math.abs(tilt) >= 10.0
 				&& !m_swerveSubsystem.getClimbMode()
-				&& !DriverStation.isAutonomousEnabled()) {
+				&& !DriverStation.isAutonomousEnabled()
+				&& DriverStation.getMatchTime() <= 125.0) {
 			if (tilt > 0) {
 				m_swerveSubsystem.drive(new ChassisSpeeds(0.0, ANTI_TIP_SPEED, 0.0));
 			} else {

@@ -3,15 +3,21 @@ package frc.robot.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public class GoalTracker extends SubsystemBase {
-	private static final Translation2d LEFT_LOW_POSITION = new Translation2d(1.16, 0.48);
-	private static final Translation2d UP_OFFSET = new Translation2d(0.0, 0.565);
+	private static final Translation2d LEFT_LOW_POSITION = new Translation2d(
+			1.16 - 0.75,
+			0.3625 + ((DriverStation.getAlliance() == Alliance.Red) ? Constants.RED_Y_OFFSET : 0.0)
+	);
+	private static final Translation2d UP_OFFSET = new Translation2d(0.0, 0.575);
 
 	private final Field2d m_field;
 

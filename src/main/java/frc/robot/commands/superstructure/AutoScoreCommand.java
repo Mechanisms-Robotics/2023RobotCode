@@ -14,9 +14,9 @@ import frc.robot.util.GoalTracker;
 
 public class AutoScoreCommand extends CommandBase {
 	private static final Transform2d LINEUP_OFFSET =
-			new Transform2d(new Translation2d(1.25, 0.0), new Rotation2d());
+			new Transform2d(new Translation2d(1.625, 0.0), new Rotation2d());
 	private static final Transform2d PLACE_OFFSET =
-			new Transform2d(new Translation2d(0.75, 0.0), new Rotation2d());
+			new Transform2d(new Translation2d(0.0, 0.0), new Rotation2d());
 
 	private enum ScoreState {
 		DrivingTo,
@@ -59,9 +59,9 @@ public class AutoScoreCommand extends CommandBase {
 			}
 		} else if (m_state == ScoreState.DrivingTo) {
 			if (!m_swerve.getRunningTrajectory()) {
-				m_state = ScoreState.Prepping;
+				m_state = ScoreState.Done;
 
-				m_superstructure.score();
+//				m_superstructure.score();
 			}
 		} else if (m_state == ScoreState.Prepping) {
 			if (m_superstructure.atPosition() || RobotBase.isSimulation()) {

@@ -7,7 +7,10 @@ import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
 import java.util.ArrayList;
 
@@ -17,18 +20,32 @@ public class ObstacleAvoidance {
 
 	private static final double BORDER_1_Y = 2.75;
 
+	private static final double ACTUAL_X_OFFSET = -0.4;
+
 	private static final Pose2d UPPER_RIGHT_CONTROL_POINT =
-			new Pose2d(new Translation2d(5.50, 4.75), Rotation2d.fromDegrees(180.0));
+			new Pose2d(new Translation2d(
+					5.50 + ACTUAL_X_OFFSET,
+					4.75 + ((DriverStation.getAlliance() == Alliance.Red) ? Constants.RED_Y_OFFSET : 0.0)
+			), Rotation2d.fromDegrees(180.0));
 	private static final Pose2d UPPER_LEFT_CONTROL_POINT =
-			new Pose2d(new Translation2d(2.625, 4.75), Rotation2d.fromDegrees(180.0 + 45.0));
+			new Pose2d(new Translation2d(
+					2.625 + ACTUAL_X_OFFSET,
+					4.75 + ((DriverStation.getAlliance() == Alliance.Red) ? Constants.RED_Y_OFFSET : 0.0)
+			), Rotation2d.fromDegrees(180.0 + 90.0));
 
 	private static final Pose2d LOWER_RIGHT_CONTROL_POINT =
-			new Pose2d(new Translation2d(5.50, 0.75), Rotation2d.fromDegrees(180.0));
+			new Pose2d(new Translation2d(
+					5.50 + ACTUAL_X_OFFSET,
+					0.75 + ((DriverStation.getAlliance() == Alliance.Red) ? Constants.RED_Y_OFFSET : 0.0)
+			), Rotation2d.fromDegrees(180.0));
 	private static final Pose2d LOWER_LEFT_CONTROL_POINT =
-			new Pose2d(new Translation2d(2.625, 0.75), Rotation2d.fromDegrees(180.0 - 45.0));
+			new Pose2d(new Translation2d(
+					2.625 + ACTUAL_X_OFFSET,
+					0.75 + ((DriverStation.getAlliance() == Alliance.Red) ? Constants.RED_Y_OFFSET : 0.0)
+			), Rotation2d.fromDegrees(180.0 - 90.0));
 
 	private static final Pose2d HP_CONTROL_POINT =
-			new Pose2d(new Translation2d(10.5, 6.0), Rotation2d.fromDegrees(20.0));
+			new Pose2d(new Translation2d(10.5 + ACTUAL_X_OFFSET, 6.0), Rotation2d.fromDegrees(20.0));
 
 	private static final Pose2d[] CONTROL_POINTS = {
 		UPPER_LEFT_CONTROL_POINT,

@@ -26,6 +26,8 @@ import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.HPStationIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
 import frc.robot.commands.superstructure.AutoScoreCommand;
+import frc.robot.commands.superstructure.ReleaseCommand;
+import frc.robot.commands.superstructure.ScoreCommand;
 import frc.robot.commands.swerve.AutoBalance;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.commands.swerve.LockCommand;
@@ -204,19 +206,24 @@ public class RobotContainer {
 						new ConditionalCommand(
 								new ParallelCommandGroup(
 										new InstantCommand(m_superstructure::idle),
-										new InstantCommand(m_superstructure::close)
-								),
+										new InstantCommand(m_superstructure::close)),
 								new ConditionalCommand(
 										new InstantCommand(m_superstructure::score),
 										new ConditionalCommand(
-												new InstantCommand(m_superstructure::idle),
+												new SequentialCommandGroup(
+														new InstantCommand(m_superstructure::open),
+														new WaitCommand(0.5),
+														new InstantCommand(m_superstructure::idle)),
 												Commands.none(),
 												() ->
 														m_superstructure.getArmState().getClass()
 																== Scoring.class),
 										() ->
 												m_superstructure.getArmState().getClass()
-														== Stowed.class && m_superstructure.getArmState().isClosed()),
+																== Stowed.class
+														&& m_superstructure
+																.getArmState()
+																.isClosed()),
 								() ->
 										m_superstructure.getArmState().getClass() == Stowed.class
 												&& m_superstructure.getArmState().isOpen()));
@@ -308,6 +315,8 @@ public class RobotContainer {
 										m_superstructure.getAutoScore()
 												&& !(m_goalTracker.getTrackingMode()
 														== TrackingMode.ClosestGoal)));
+
+		m_secondDriverController.povDown().onTrue(new InstantCommand(m_superstructure::open));
 	}
 
 	private void configureDefaultCommands() {
@@ -324,23 +333,26 @@ public class RobotContainer {
 	private HashMap<String, Command> buildEventMap() {
 		var events = new HashMap<String, Command>();
 
-		//		events.put("scoreConeHigh", new ScoreCommand(m_superstructure, Element.Cone, 2));
-		//		events.put("scoreCubeHigh", new ScoreCommand(m_superstructure, Element.Cube, 2));
+		events.put("scoreConeHigh", new ScoreCommand(m_superstructure, Element.Cone, 2));
+		events.put("scoreCubeHigh", new ScoreCommand(m_superstructure, Element.Cube, 2));
+		events.put("release", new ReleaseCommand(m_superstructure));
 
-		//		events.put("idle", new InstantCommand(m_superstructure::idle));
-		//		events.put("intake", new InstantCommand(m_superstructure::intake));
+		events.put("idle", new InstantCommand(m_superstructure::idle));
+		events.put("intake", new InstantCommand(m_superstructure::intake));
 
-		//		events.put("deploy", new DeployIntakeCommand(m_intake));
-		//		events.put("retract", new RetractIntakeCommand(m_intake));
+		events.put("deploy", new DeployIntakeCommand(m_intake));
+		events.put("retract", new RetractIntakeCommand(m_intake));
 
-		events.put("autoBalance", new AutoBalance(m_swerve));
-		events.put("lockWheels", new LockCommand(m_swerve));
+		events.put("open", new InstantCommand(m_superstructure::open));
+		events.put("close", new InstantCommand(m_superstructure::close));
+
+		events.put("autoBalanceClose", new AutoBalance(m_swerve, true));
+		events.put("autoBalanceFar", new AutoBalance(m_swerve, false));
 
 		return events;
 	}
 
 	public Command getAutonomousCommand() {
-		return TwoElementBalanceWall.twoElementBalanceWall(m_autoBuilder);
-		//		return autoChooser.getSelected();
+		return autoChooser.getSelected();
 	}
 }
