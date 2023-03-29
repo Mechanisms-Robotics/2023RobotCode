@@ -23,7 +23,6 @@ import frc.robot.commands.auto.TwoElementHP;
 import frc.robot.commands.auto.TwoElementWall;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
-import frc.robot.commands.superstructure.AutoScoreCommand;
 import frc.robot.commands.superstructure.ReleaseCommand;
 import frc.robot.commands.superstructure.ScoreCommand;
 import frc.robot.commands.swerve.AutoBalance;
@@ -32,6 +31,7 @@ import frc.robot.states.arm.Scoring;
 import frc.robot.states.arm.Stowed;
 import frc.robot.states.intake.Intaking;
 import frc.robot.states.intake.Outtaking;
+import frc.robot.states.intake.Shooting;
 import frc.robot.states.intake.Unjamming;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Superstructure.Element;
@@ -162,18 +162,11 @@ public class RobotContainer {
 				.a()
 				.onTrue(
 						new ConditionalCommand(
-								new InstantCommand(
-										() -> {
-											CommandScheduler.getInstance()
-													.schedule(
-															new AutoScoreCommand(
-																	m_autoBuilder,
-																	m_swerve,
-																	m_goalTracker,
-																	m_superstructure));
-										}),
 								new InstantCommand(m_superstructure::shoot),
-								m_superstructure::getAutoScore));
+								new InstantCommand(m_superstructure::idle),
+								() ->
+										m_superstructure.getIntakeState().getClass()
+												!= Shooting.class));
 
 		m_driverController
 				.x()
