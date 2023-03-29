@@ -8,16 +8,16 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure.Element;
 import java.util.function.Supplier;
 
-public class Outtaking extends IntakeState {
-	private static final double[][] OUTTAKE_SPEEDS =
+public class Shooting extends IntakeState {
+	private static final double[][] SHOOT_SPEEDS =
 			new double[][] {
-				{-0.15, 0.5, -0.75}, // Intake, Feeder, Conveyor | Cube
-				{-0.3, 0.1, -0.5} // Intake, Feeder, Conveyor | Cone
+				{-1.0, 1.0, -1.0}, // Intake, Feeder, Conveyor | Cube
+				{-1.0, 1.0, -1.0} // Intake, Feeder, Conveyor | Cone
 			};
 
 	private final Supplier<Element> m_elementSupplier;
 
-	public Outtaking(
+	public Shooting(
 			Intake intake, Feeder feeder, Conveyor conveyor, Supplier<Element> elementSupplier) {
 		super(intake, feeder, conveyor);
 
@@ -38,8 +38,8 @@ public class Outtaking extends IntakeState {
 			m_initialized = true;
 		}
 
-		m_intake.setOpenLoop(OUTTAKE_SPEEDS[m_elementSupplier.get().index][0]);
-		m_feeder.setOpenLoop(OUTTAKE_SPEEDS[m_elementSupplier.get().index][1]);
-		m_conveyor.setOpenLoop(OUTTAKE_SPEEDS[m_elementSupplier.get().index][2]);
+		m_intake.setOpenLoop(SHOOT_SPEEDS[m_elementSupplier.get().index][0]);
+		m_feeder.setOpenLoop(SHOOT_SPEEDS[m_elementSupplier.get().index][1]);
+		m_conveyor.setOpenLoop(SHOOT_SPEEDS[m_elementSupplier.get().index][2]);
 	}
 }

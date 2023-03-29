@@ -22,7 +22,6 @@ import frc.robot.commands.auto.TwoElementGrabBalanceWall;
 import frc.robot.commands.auto.TwoElementHP;
 import frc.robot.commands.auto.TwoElementWall;
 import frc.robot.commands.intake.DeployIntakeCommand;
-import frc.robot.commands.intake.HPStationIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
 import frc.robot.commands.superstructure.AutoScoreCommand;
 import frc.robot.commands.superstructure.ReleaseCommand;
@@ -137,7 +136,7 @@ public class RobotContainer {
 		m_driverController.leftBumper().onTrue(new RetractIntakeCommand(m_intake));
 		m_driverController.rightBumper().onTrue(new DeployIntakeCommand(m_intake));
 
-		m_driverController.leftTrigger().onTrue(new HPStationIntakeCommand(m_intake));
+		m_driverController.leftTrigger().onTrue(new InstantCommand(m_intake::shoot));
 
 		m_driverController
 				.rightTrigger()

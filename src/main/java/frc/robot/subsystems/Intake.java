@@ -11,6 +11,7 @@ public class Intake extends SubsystemBase {
 	private enum Position {
 		Retract(-7500),
 		Deploy(-42000),
+		Shoot(-30000),
 		GamePieceStation(-16387);
 
 		private final double position;
@@ -184,6 +185,10 @@ public class Intake extends SubsystemBase {
 
 	public void hpStation() {
 		setClosedLoop(Position.GamePieceStation.position);
+	}
+
+	public void shoot() {
+		setClosedLoop(Position.Shoot.position);
 	}
 
 	public void zeroEncoders() {

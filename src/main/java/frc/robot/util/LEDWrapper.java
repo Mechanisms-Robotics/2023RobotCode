@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LEDWrapper extends SubsystemBase {
-	private static final double BLINK_TIME = 0.5; // seconds
+	private static final double BLINK_TIME = 0.25; // seconds
 
 	private final DigitalOutput m_ledRed = new DigitalOutput(1);
 	private final DigitalOutput m_ledGreen = new DigitalOutput(2);
