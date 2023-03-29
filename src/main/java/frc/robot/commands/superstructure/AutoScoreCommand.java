@@ -61,7 +61,7 @@ public class AutoScoreCommand extends CommandBase {
 			if (!m_swerve.getRunningTrajectory()) {
 				m_state = ScoreState.Done;
 
-//				m_superstructure.score();
+				//				m_superstructure.score();
 			}
 		} else if (m_state == ScoreState.Prepping) {
 			if (m_superstructure.atPosition() || RobotBase.isSimulation()) {

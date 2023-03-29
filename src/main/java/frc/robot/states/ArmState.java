@@ -18,7 +18,7 @@ public abstract class ArmState implements State {
 
 	protected double[][] m_positions;
 	protected Supplier<Element> m_ElementSupplier;
-	
+
 	protected boolean m_initialized = false;
 
 	protected enum ArmAction {
@@ -117,13 +117,12 @@ public abstract class ArmState implements State {
 	}
 
 	public void open() {
-		m_gripper.setOpenLoop(0.15);
+		m_gripper.setOpenLoop(0.1);
 		m_gripper.setDesiredPosition(0.0);
 	}
 
 	public void close() {
 		if (DriverStation.isAutonomousEnabled()) {
-      System.out.println("AUTO POSITION: " + m_positions[m_ElementSupplier.get().index][2]);
 			m_gripper.setClosedLoop(m_positions[m_ElementSupplier.get().index][2]);
 		} else {
 			m_gripper.setClosedLoop(m_positions[m_ElementSupplier.get().index][1]);

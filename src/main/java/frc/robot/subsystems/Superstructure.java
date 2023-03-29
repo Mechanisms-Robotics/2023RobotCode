@@ -13,6 +13,7 @@ import frc.robot.states.intake.Intaking;
 import frc.robot.states.intake.Outtaking;
 import frc.robot.states.intake.Unjamming;
 import frc.robot.util.LEDWrapper;
+import java.util.function.Supplier;
 
 public class Superstructure extends SubsystemBase {
 	public enum Element {
@@ -39,6 +40,8 @@ public class Superstructure extends SubsystemBase {
 
 	private final LEDWrapper m_ledWrapper;
 
+	private final Supplier<Double> m_loosenSupplier;
+
 	private final int[] m_targetNode = {0, 0};
 
 	private final Timer m_scoreTimer = new Timer();
@@ -61,7 +64,8 @@ public class Superstructure extends SubsystemBase {
 			Conveyor conveyor,
 			Arm arm,
 			Gripper gripper,
-			LEDWrapper ledWrapper) {
+			LEDWrapper ledWrapper,
+			Supplier<Double> loosenSupplier) {
 		m_intake = intake;
 		m_feeder = feeder;
 		m_conveyor = conveyor;
@@ -72,6 +76,8 @@ public class Superstructure extends SubsystemBase {
 		m_armState = new Stowed(m_arm, m_gripper, () -> m_element);
 
 		m_ledWrapper = ledWrapper;
+
+		m_loosenSupplier = loosenSupplier;
 	}
 
 	@Override
@@ -90,10 +96,19 @@ public class Superstructure extends SubsystemBase {
 				break;
 		}
 
-		if (m_element == Element.Cone) {
-			m_ledWrapper.setColor(true, false);
-		} else if (m_element == Element.Cube) {
-			m_ledWrapper.setColor(false, true);
+		if (m_intakeState.getClass() != Outtaking.class
+				&& m_intakeState.getClass() != Unjamming.class) {
+			if (m_armState.getClass() != Scoring.class) {
+				if (m_element == Element.Cone) {
+					m_ledWrapper.setColor(new boolean[] {true, true, false});
+				} else if (m_element == Element.Cube) {
+					m_ledWrapper.setColor(new boolean[] {true, false, true});
+				}
+			} else {
+				m_ledWrapper.setColor(new boolean[] {false, false, true});
+			}
+		} else {
+			m_ledWrapper.setColor(new boolean[] {true, false, false});
 		}
 
 		switch (m_superstructureState) {
@@ -141,6 +156,8 @@ public class Superstructure extends SubsystemBase {
 		} else {
 			m_armState.periodic();
 		}
+
+		m_ledWrapper.setBlinking(false);
 	}
 
 	public void intake() {
@@ -157,6 +174,8 @@ public class Superstructure extends SubsystemBase {
 		} else {
 			m_armState.periodic();
 		}
+
+		m_ledWrapper.setBlinking(true);
 	}
 
 	public void outtake() {
@@ -173,6 +192,8 @@ public class Superstructure extends SubsystemBase {
 		} else {
 			m_armState.periodic();
 		}
+
+		m_ledWrapper.setBlinking(true);
 	}
 
 	public void unjam() {
@@ -189,6 +210,8 @@ public class Superstructure extends SubsystemBase {
 		} else {
 			m_armState.periodic();
 		}
+
+		m_ledWrapper.setBlinking(true);
 	}
 
 	public void score() {
@@ -201,10 +224,18 @@ public class Superstructure extends SubsystemBase {
 		}
 
 		if (m_armState.getClass() != Scoring.class) {
-			m_armState = new Scoring(m_arm, m_gripper, () -> m_element, () -> m_targetNode[0]);
+			m_armState =
+					new Scoring(
+							m_arm,
+							m_gripper,
+							() -> m_element,
+							() -> m_targetNode[0],
+							m_loosenSupplier);
 		} else {
 			m_armState.periodic();
 		}
+
+		m_ledWrapper.setBlinking(false);
 	}
 
 	public void open() {

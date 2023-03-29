@@ -34,23 +34,20 @@ public class AutoBalance extends CommandBase {
 		double pitchDegrees = m_swerve.getPitch().getDegrees();
 		double error = pitchDegrees;
 
-
 		double dt = pitchDt(error);
-		System.out.println("error: " + error + " dt: " + dt);
 
 		if (Math.abs(error) > ALLOWABLE_PITCH_ERROR_DEGREES && dt <= BALANCE_PITCH_THRESHOLD) {
-			System.out.println("BBBB");
 			m_swerve.drive(
 					ChassisSpeeds.fromFieldRelativeSpeeds(
 							BASE_SPEED_METERS_PER_SEC, 0.0, 0.0, m_swerve.getGyroHeading()));
-		} else if (Math.abs(error) <= ALLOWABLE_PITCH_ERROR_DEGREES && dt > BALANCE_PITCH_THRESHOLD){
-			System.out.println("CCCC");
+		} else if (Math.abs(error) <= ALLOWABLE_PITCH_ERROR_DEGREES
+				&& dt > BALANCE_PITCH_THRESHOLD) {
 			finished = true;
 			m_swerve.stop();
 		}
 
-    if (error > ALLOWABLE_PITCH_ERROR_DEGREES || error < -ALLOWABLE_PITCH_ERROR_DEGREES)
-      System.out.println("---- ALLOWABLE PITCH-----------");
+		if (error > ALLOWABLE_PITCH_ERROR_DEGREES || error < -ALLOWABLE_PITCH_ERROR_DEGREES)
+			System.out.println("---- ALLOWABLE PITCH-----------");
 
 		m_prevError = error;
 	}

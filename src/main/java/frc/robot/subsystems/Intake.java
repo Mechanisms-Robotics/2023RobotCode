@@ -194,7 +194,6 @@ public class Intake extends SubsystemBase {
 		pivotLeft.setSelectedSensorPosition(0.0);
 		pivotRight.setSelectedSensorPosition(0.0);
 		zeroed = true;
-		System.out.println("---Intake encoders zeroed---");
 	}
 
 	public void stop() {

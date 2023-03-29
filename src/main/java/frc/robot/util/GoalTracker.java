@@ -13,10 +13,13 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public class GoalTracker extends SubsystemBase {
-	private static final Translation2d LEFT_LOW_POSITION = new Translation2d(
-			1.16 - 0.75,
-			0.3625 + ((DriverStation.getAlliance() == Alliance.Red) ? Constants.RED_Y_OFFSET : 0.0)
-	);
+	private static final Translation2d LEFT_LOW_POSITION =
+			new Translation2d(
+					1.16 - 0.75,
+					0.3625
+							+ ((DriverStation.getAlliance() == Alliance.Red)
+									? Constants.RED_Y_OFFSET
+									: 0.0));
 	private static final Translation2d UP_OFFSET = new Translation2d(0.0, 0.575);
 
 	private final Field2d m_field;

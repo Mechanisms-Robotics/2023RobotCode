@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Gripper extends SubsystemBase {
 
 	private static final double ALLOWABLE_ERROR = 750; // 750
-	private static final double CLOSED_THRESHOLD = 1000;
+	private static final double CLOSED_THRESHOLD = 5000;
 
 	private static final TalonFXConfiguration GRIPPER_MOTOR_CONFIG = new TalonFXConfiguration();
 

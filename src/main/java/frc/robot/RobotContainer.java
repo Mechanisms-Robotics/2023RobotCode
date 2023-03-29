@@ -21,7 +21,6 @@ import frc.robot.commands.auto.TwoElementGrabBalanceHP;
 import frc.robot.commands.auto.TwoElementGrabBalanceWall;
 import frc.robot.commands.auto.TwoElementHP;
 import frc.robot.commands.auto.TwoElementWall;
-import frc.robot.commands.goalTracker.SetTrackingMode;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.HPStationIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
@@ -30,7 +29,6 @@ import frc.robot.commands.superstructure.ReleaseCommand;
 import frc.robot.commands.superstructure.ScoreCommand;
 import frc.robot.commands.swerve.AutoBalance;
 import frc.robot.commands.swerve.DriveCommand;
-import frc.robot.commands.swerve.LockCommand;
 import frc.robot.states.arm.Scoring;
 import frc.robot.states.arm.Stowed;
 import frc.robot.states.intake.Intaking;
@@ -58,13 +56,20 @@ public class RobotContainer {
 
 	public final LEDWrapper m_ledWrapper = new LEDWrapper();
 
-	public final Superstructure m_superstructure =
-			new Superstructure(m_intake, m_feeder, m_conveyor, m_arm, m_gripper, m_ledWrapper);
-
 	private final CommandXboxController m_driverController =
 			new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
 	private final CommandXboxController m_secondDriverController =
 			new CommandXboxController(Constants.SECOND_DRIVER_CONTROLLER_PORT);
+
+	public final Superstructure m_superstructure =
+			new Superstructure(
+					m_intake,
+					m_feeder,
+					m_conveyor,
+					m_arm,
+					m_gripper,
+					m_ledWrapper,
+					m_secondDriverController::getLeftTriggerAxis);
 
 	private final SendableChooser<CommandBase> autoChooser;
 
@@ -228,16 +233,16 @@ public class RobotContainer {
 										m_superstructure.getArmState().getClass() == Stowed.class
 												&& m_superstructure.getArmState().isOpen()));
 
+		//		m_secondDriverController
+		//				.leftBumper()
+		//				.onTrue(new SetTrackingMode(m_goalTracker, TrackingMode.BestGoal));
+		//
+		//		m_secondDriverController
+		//				.rightBumper()
+		//				.onTrue(new SetTrackingMode(m_goalTracker, TrackingMode.ClosestGoal));
+
 		m_secondDriverController
 				.leftBumper()
-				.onTrue(new SetTrackingMode(m_goalTracker, TrackingMode.BestGoal));
-
-		m_secondDriverController
-				.rightBumper()
-				.onTrue(new SetTrackingMode(m_goalTracker, TrackingMode.ClosestGoal));
-
-		m_secondDriverController
-				.leftTrigger()
 				.onTrue(
 						new ConditionalCommand(
 								new InstantCommand(
@@ -251,7 +256,7 @@ public class RobotContainer {
 														== TrackingMode.ClosestGoal)));
 
 		m_secondDriverController
-				.rightTrigger()
+				.rightBumper()
 				.onTrue(
 						new ConditionalCommand(
 								new InstantCommand(

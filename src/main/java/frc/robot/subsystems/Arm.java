@@ -34,8 +34,8 @@ public class Arm extends SubsystemBase {
 		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = TICKS_PER_DEGREE * 33.0;
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 75000;
 
-		ARM_MOTOR_CONFIG.motionCruiseVelocity = 30000;
-		ARM_MOTOR_CONFIG.motionAcceleration = 25000; // 30000
+		ARM_MOTOR_CONFIG.motionCruiseVelocity = 20000;
+		ARM_MOTOR_CONFIG.motionAcceleration = 15000; // 30000
 		ARM_MOTOR_CONFIG.motionCurveStrength = 8;
 
 		ARM_MOTOR_CONFIG.neutralDeadband = 0.001;
@@ -161,8 +161,10 @@ public class Arm extends SubsystemBase {
 		return Math.abs(armMotor.getSelectedSensorPosition() - desiredPosition[0] / pos)
 				<= ALLOWABLE_PIVOT_ERROR;
 	}
+
 	public boolean isAtMiddlePosition() {
-		return Math.abs(armMotor.getSelectedSensorPosition() - desiredPosition[0] / 2) <= ALLOWABLE_PIVOT_ERROR;
+		return Math.abs(armMotor.getSelectedSensorPosition() - desiredPosition[0] / 2)
+				<= ALLOWABLE_PIVOT_ERROR;
 	}
 
 	public boolean extendAtPosition() {
@@ -170,7 +172,7 @@ public class Arm extends SubsystemBase {
 				<= ALLOWABLE_EXTENSION_ERROR;
 	}
 
-	public boolean isExtended () {
+	public boolean isExtended() {
 		return extenderMotor.getSelectedSensorPosition() <= START_EXTENSION_POSITION;
 	}
 

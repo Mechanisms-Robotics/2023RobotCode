@@ -36,7 +36,7 @@ import org.photonvision.EstimatedRobotPose;
 public class Swerve extends SubsystemBase {
 	private static final double MAX_VOLTAGE = 12.0; // volts
 	private static final double MAX_VELOCITY = 4.5;
-	public static final double ANGULAR_VELOCITY_RANGE = Math.PI / 2; // rad/s
+	public static final double ANGULAR_VELOCITY_RANGE = Math.PI; // rad/s
 
 	private static final boolean IS_PITCH_AND_ROLL_INVERTED = false;
 
