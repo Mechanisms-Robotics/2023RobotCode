@@ -172,7 +172,7 @@ public class RobotContainer {
 																	m_goalTracker,
 																	m_superstructure));
 										}),
-								Commands.none(),
+								new InstantCommand(m_superstructure::shoot),
 								m_superstructure::getAutoScore));
 
 		m_driverController
