@@ -329,6 +329,9 @@ public class Superstructure extends SubsystemBase {
 
 	public boolean atPosition() {
 		if (RobotBase.isReal()) {
+			System.out.println("ARM AT POSITION: " + m_arm.isAtPosition());
+			System.out.println("EXTENSION AT POSITION: " + m_arm.extendAtPosition());
+			System.out.println("GRIPPER AT POSITION: " + m_gripper.atPosition());
 			return m_arm.isAtPosition() && m_arm.extendAtPosition() && m_gripper.atPosition();
 		} else {
 			return true;

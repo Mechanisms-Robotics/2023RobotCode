@@ -17,7 +17,7 @@ public class Scoring extends ArmState {
 		},
 		{
 			{35000, -1500}, // Low  | Cone
-			{62500, -3750}, // Mid  | Cone
+			{60000, -4000}, // Mid  | Cone
 			{70000, -17500}, // High | Cone
 		}
 	};
@@ -114,7 +114,7 @@ public class Scoring extends ArmState {
 			}
 		} else if (m_elementSupplier.get() != Element.Cube) {
 			double desiredPosition =
-					GRIPPER_POSITIONS[1][2] + (2500 * Math.pow(m_loosenSupplier.get(), 2));
+					GRIPPER_POSITIONS[1][2] + (2750 * Math.pow(m_loosenSupplier.get(), 2));
 			close(desiredPosition);
 		}
 	}

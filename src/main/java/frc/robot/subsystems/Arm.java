@@ -34,8 +34,8 @@ public class Arm extends SubsystemBase {
 		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = TICKS_PER_DEGREE * 33.0;
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 75000;
 
-		ARM_MOTOR_CONFIG.motionCruiseVelocity = 20000;
-		ARM_MOTOR_CONFIG.motionAcceleration = 15000; // 30000
+		ARM_MOTOR_CONFIG.motionCruiseVelocity = 25000; // 20000
+		ARM_MOTOR_CONFIG.motionAcceleration = 20000; // 15000
 		ARM_MOTOR_CONFIG.motionCurveStrength = 8;
 
 		ARM_MOTOR_CONFIG.neutralDeadband = 0.001;
@@ -45,8 +45,8 @@ public class Arm extends SubsystemBase {
 		ARM_EXTENDER_MOTOR_CONFIG.reverseSoftLimitThreshold = -17500;
 		ARM_EXTENDER_MOTOR_CONFIG.forwardSoftLimitThreshold = 0;
 
-		ARM_EXTENDER_MOTOR_CONFIG.motionCruiseVelocity = 15000;
-		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 10000;
+		ARM_EXTENDER_MOTOR_CONFIG.motionCruiseVelocity = 20000; // 15000
+		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 15000;		// 10000
 		ARM_EXTENDER_MOTOR_CONFIG.motionCurveStrength = 2;
 
 		ARM_EXTENDER_MOTOR_CONFIG.voltageCompSaturation = 10.0;

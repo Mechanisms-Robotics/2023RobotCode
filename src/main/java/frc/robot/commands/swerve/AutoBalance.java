@@ -8,11 +8,11 @@ import frc.robot.subsystems.Swerve;
 /** Command to auto balance the robot on the switch. */
 public class AutoBalance extends CommandBase {
 
-	private static final double ALLOWABLE_PITCH_ERROR_DEGREES = 6.0; // 6.5
+	private static final double ALLOWABLE_PITCH_ERROR_DEGREES = 6.5; // 6.5
 	private static final double BASE_SPEED_METERS_PER_SEC = -0.35;
 	private static final double VERIFY_BALANCED_DURATION_SEC = 0.25;
 
-	private static final double BALANCE_PITCH_THRESHOLD = 0.5;
+	private static final double BALANCE_PITCH_THRESHOLD = 0.35; // 0.4
 
 	private final Swerve m_swerve;
 	private final Timer m_timer;
@@ -36,7 +36,7 @@ public class AutoBalance extends CommandBase {
 
 		double dt = pitchDt(error);
 
-		if (Math.abs(error) > ALLOWABLE_PITCH_ERROR_DEGREES && dt <= BALANCE_PITCH_THRESHOLD) {
+		if (Math.abs(error) > ALLOWABLE_PITCH_ERROR_DEGREES || dt <= BALANCE_PITCH_THRESHOLD) {
 			m_swerve.drive(
 					ChassisSpeeds.fromFieldRelativeSpeeds(
 							BASE_SPEED_METERS_PER_SEC, 0.0, 0.0, m_swerve.getGyroHeading()));

@@ -127,11 +127,11 @@
     },
     {
       "anchorPoint": {
-        "x": 3.8,
+        "x": 3.875,
         "y": 2.6875
       },
       "prevControl": {
-        "x": 4.513585160734042,
+        "x": 4.588585160734043,
         "y": 2.6875
       },
       "nextControl": null,
@@ -162,7 +162,7 @@
       ]
     },
     {
-      "position": 4.34,
+      "position": 4.0,
       "names": [
         "retract",
         "idle"
