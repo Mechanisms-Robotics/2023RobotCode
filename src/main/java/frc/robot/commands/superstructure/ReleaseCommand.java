@@ -16,7 +16,6 @@ public class ReleaseCommand extends SequentialCommandGroup {
 				new InstantCommand(superstructure::open),
 				new WaitCommand(0.1875),
 				new InstantCommand(superstructure::idle),
-				new PrintCommand("--- RELEASED ---")
-		);
+				new PrintCommand("--- RELEASED ---"));
 	}
 }

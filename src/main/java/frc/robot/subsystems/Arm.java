@@ -46,7 +46,7 @@ public class Arm extends SubsystemBase {
 		ARM_EXTENDER_MOTOR_CONFIG.forwardSoftLimitThreshold = 0;
 
 		ARM_EXTENDER_MOTOR_CONFIG.motionCruiseVelocity = 20000; // 15000
-		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 15000;		// 10000
+		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 15000; // 10000
 		ARM_EXTENDER_MOTOR_CONFIG.motionCurveStrength = 2;
 
 		ARM_EXTENDER_MOTOR_CONFIG.voltageCompSaturation = 10.0;

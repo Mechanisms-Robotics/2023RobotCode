@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Auto;
 import frc.robot.commands.auto.AutoBuilder;
+import frc.robot.commands.auto.BalanceTune;
 import frc.robot.commands.auto.MobilityAutoHP;
 import frc.robot.commands.auto.MobilityAutoWall;
 import frc.robot.commands.auto.OneElementBalanceHP;
@@ -120,6 +121,7 @@ public class RobotContainer {
 				TwoElementGrabBalanceWall.twoElementGrabBalanceWall(m_autoBuilder));
 		autoChooser.addOption("3ElementHP", ThreeElementHP.threeElementHP(m_autoBuilder));
 		autoChooser.addOption("3ElementWall", ThreeElementWall.threeElementWall(m_autoBuilder));
+		autoChooser.addOption("BalanceTune", BalanceTune.balanceTune(m_autoBuilder));
 
 		SmartDashboard.putData("Auto Chooser", autoChooser);
 
