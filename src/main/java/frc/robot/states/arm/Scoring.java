@@ -112,7 +112,7 @@ public class Scoring extends ArmState {
 				m_looseTimer.stop();
 				m_looseTimer.reset();
 			}
-		} else if (m_elementSupplier.get() != Element.Cube) {
+		} else if (m_elementSupplier.get() != Element.Cube && m_desiredGripper) {
 			double desiredPosition =
 					GRIPPER_POSITIONS[1][2] + (2750 * Math.pow(m_loosenSupplier.get(), 2));
 			close(desiredPosition);

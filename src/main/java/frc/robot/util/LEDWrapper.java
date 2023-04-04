@@ -8,8 +8,8 @@ public class LEDWrapper extends SubsystemBase {
 	private static final double BLINK_TIME = 0.25; // seconds
 
 	private final DigitalOutput m_ledRed = new DigitalOutput(1);
-	private final DigitalOutput m_ledGreen = new DigitalOutput(2);
-	private final DigitalOutput m_ledBlue = new DigitalOutput(3);
+	private final DigitalOutput m_ledGreen = new DigitalOutput(3);
+	private final DigitalOutput m_ledBlue = new DigitalOutput(2);
 
 	private boolean[] m_color = new boolean[] {false, false, false};
 

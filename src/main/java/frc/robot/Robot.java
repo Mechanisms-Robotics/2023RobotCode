@@ -31,6 +31,7 @@ public class Robot extends TimedRobot {
 		AprilTagTracker.getCamera().setLED(VisionLEDMode.kOff);
 
 		m_robotContainer.m_swerve.resetModules();
+		m_robotContainer.m_limelight.setLEDs(true);
 	}
 
 	@Override

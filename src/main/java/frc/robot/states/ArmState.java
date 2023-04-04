@@ -15,6 +15,7 @@ public abstract class ArmState implements State {
 
 	protected double m_desiredPosition;
 	protected double m_desiredExtension;
+	protected boolean m_desiredGripper;
 
 	protected double[][] m_positions;
 	protected Supplier<Element> m_ElementSupplier;
@@ -42,6 +43,7 @@ public abstract class ArmState implements State {
 
 		m_desiredPosition = desiredPosition;
 		m_desiredExtension = desiredExtension;
+		m_desiredGripper = false;
 
 		m_positions = positions;
 		m_ElementSupplier = elementSupplier;
@@ -119,6 +121,8 @@ public abstract class ArmState implements State {
 	public void open() {
 		m_gripper.setOpenLoop(0.1);
 		m_gripper.setDesiredPosition(0.0);
+
+		m_desiredGripper = false;
 	}
 
 	public void close() {
@@ -127,6 +131,8 @@ public abstract class ArmState implements State {
 		} else {
 			m_gripper.setClosedLoop(m_positions[m_ElementSupplier.get().index][1]);
 		}
+
+		m_desiredGripper = true;
 	}
 
 	public void close(double position) {
