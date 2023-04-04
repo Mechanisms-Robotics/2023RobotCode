@@ -27,18 +27,19 @@ import frc.robot.commands.intake.RetractIntakeCommand;
 import frc.robot.commands.superstructure.ReleaseCommand;
 import frc.robot.commands.superstructure.ScoreCommand;
 import frc.robot.commands.swerve.AutoBalance;
+import frc.robot.commands.swerve.AutoLineup;
 import frc.robot.commands.swerve.DriveCommand;
 import frc.robot.states.arm.Scoring;
 import frc.robot.states.arm.Stowed;
 import frc.robot.states.intake.Intaking;
 import frc.robot.states.intake.Outtaking;
-import frc.robot.states.intake.Shooting;
 import frc.robot.states.intake.Unjamming;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Superstructure.Element;
 import frc.robot.util.GoalTracker;
 import frc.robot.util.GoalTracker.TrackingMode;
 import frc.robot.util.LEDWrapper;
+import frc.robot.util.Limelight;
 import java.util.HashMap;
 
 public class RobotContainer {
@@ -50,6 +51,8 @@ public class RobotContainer {
 	public final Gripper m_gripper = new Gripper();
 	public final Feeder m_feeder = new Feeder();
 	public final Conveyor m_conveyor = new Conveyor();
+
+	public final Limelight m_limelight = new Limelight();
 
 	public final GoalTracker m_goalTracker =
 			new GoalTracker(m_swerve.getField(), m_swerve::getPose);
@@ -160,15 +163,7 @@ public class RobotContainer {
 										m_superstructure.getIntakeState().getClass()
 												!= Outtaking.class));
 
-		m_driverController
-				.a()
-				.onTrue(
-						new ConditionalCommand(
-								new InstantCommand(m_superstructure::shoot),
-								new InstantCommand(m_superstructure::idle),
-								() ->
-										m_superstructure.getIntakeState().getClass()
-												!= Shooting.class));
+		m_driverController.a().onTrue(new AutoLineup(m_swerve, m_limelight));
 
 		m_driverController
 				.x()
@@ -347,6 +342,13 @@ public class RobotContainer {
 
 		events.put("autoBalanceClose", new AutoBalance(m_swerve, true));
 		events.put("autoBalanceFar", new AutoBalance(m_swerve, false));
+
+		events.put("coneMode", new InstantCommand(() -> m_superstructure.setElement(Element.Cone)));
+		events.put("cubeMode", new InstantCommand(() -> m_superstructure.setElement(Element.Cube)));
+
+		events.put("wait1", new WaitCommand(1.0));
+		events.put("wait3", new WaitCommand(3.0));
+		events.put("wait5", new WaitCommand(5.0));
 
 		return events;
 	}

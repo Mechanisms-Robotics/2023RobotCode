@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.804025956790673,
-        "y": 0.7292188599642853
+        "x": 2.8085937587804377,
+        "y": 0.4996729462485481
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -30,15 +30,15 @@
     {
       "anchorPoint": {
         "x": 7.1,
-        "y": 0.58716
+        "y": 0.75
       },
       "prevControl": {
         "x": 5.893049774686552,
-        "y": 0.5871599999999998
+        "y": 0.7499999999999998
       },
       "nextControl": {
         "x": 5.893049774686552,
-        "y": 0.5871599999999998
+        "y": 0.7499999999999998
       },
       "holonomicAngle": 0,
       "isReversal": true,
@@ -54,12 +54,12 @@
     },
     {
       "anchorPoint": {
-        "x": 2.0,
-        "y": 1.107
+        "x": 1.9,
+        "y": 0.79
       },
       "prevControl": {
-        "x": 2.145859656708683,
-        "y": 0.30126950732002045
+        "x": 2.6899799047385704,
+        "y": 0.1474551621669627
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -69,6 +69,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
+          "wait1",
           "release"
         ],
         "executionBehavior": "sequential",
@@ -82,9 +83,15 @@
   "isReversed": null,
   "markers": [
     {
-      "position": 1.38,
+      "position": 1.875,
       "names": [
         "scoreCubeHigh"
+      ]
+    },
+    {
+      "position": 0.0,
+      "names": [
+        "cubeMode"
       ]
     }
   ]

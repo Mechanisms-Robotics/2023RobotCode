@@ -12,9 +12,9 @@ public class ScoreCommand extends SequentialCommandGroup {
 				new InstantCommand(() -> superstructure.setElement(element)),
 				new InstantCommand(() -> superstructure.setNode(level, 0)),
 				new InstantCommand(superstructure::idle),
-				new WaitUntilCommand(superstructure::atPosition),
+				new WaitUntilCommand(superstructure::atPosition).withTimeout(1.0),
 				new InstantCommand(superstructure::close),
-				new WaitUntilCommand(superstructure::atPosition),
+				new WaitUntilCommand(superstructure::atPosition).withTimeout(3.0),
 				new InstantCommand(superstructure::score));
 	}
 }
