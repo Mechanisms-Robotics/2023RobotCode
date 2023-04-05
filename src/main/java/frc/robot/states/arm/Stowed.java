@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 public class Stowed extends ArmState {
 	private static final double[][] ARM_POSITIONS = {
 		{26000, -250}, // Pivot, Extension | Cube
-		{17000, -500} // Pivot, Extension | Cone
+		{17000, -750} // Pivot, Extension | Cone
 	};
 
 	private static final double[][] GRIPPER_POSITIONS =

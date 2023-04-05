@@ -154,7 +154,7 @@ public abstract class ArmState implements State {
 
 		if (m_closedPosition != closedPosition) {
 			m_closedPosition = closedPosition;
-			m_openAmount = 1000.0;
+			m_openAmount = 1250.0;
 		}
 
     if ((m_closedPosition + m_openAmount) <= -15500) {

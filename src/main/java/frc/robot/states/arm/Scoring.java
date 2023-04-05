@@ -18,7 +18,7 @@ public class Scoring extends ArmState {
 		{
 			{40000, -1500}, // Low  | Cone
 			{63500, -4000}, // Mid  | Cone
-			{71500, -17500}, // High | Cone
+			{72500, -17500}, // High | Cone
 		}
 	};
 
@@ -28,7 +28,7 @@ public class Scoring extends ArmState {
 				{0, -17500, -20000} // Open, Closed, Auto | Cone
 			};
 
-	private static final double OPEN_INCREMENT = 10;
+	private static final double OPEN_INCREMENT = 15;
 	private static final double LOOSE_TIME = 3.0;
 
 	private final Supplier<Element> m_elementSupplier;

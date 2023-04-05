@@ -5,23 +5,26 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.Limelight;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class AutoLineup extends CommandBase {
-	private static final double TARGET_AREA = 0.28;
-	private static final double TARGET_YAW = 12.0;
+	private static final double TARGET_AREA = 0.32;
+	private static final double TARGET_YAW = 9.0;
 	private static final double TARGET_GYRO = 0.0;
 
 	private static final double ALLOWABLE_AREA_ERROR = 0.05;
-	private static final double ALLOWABLE_YAW_ERROR = 0.5;
+	private static final double ALLOWABLE_YAW_ERROR = 0.25;
 	private static final double ALLOWABLE_GYRO_ERROR = 0.05;
 
-	private static final double MIN_DISTANCE_VALUE = 0.25;
-	private static final double MIN_STRAFE_VALUE = 0.1875;
-	private static final double MIN_ROTATION_VALUE = 0.1875;
+	private static final double MIN_DISTANCE_VALUE = 0.0; // 0.25
+	private static final double MIN_STRAFE_VALUE = 0.19; // 0.175
+	private static final double MIN_ROTATION_VALUE = 0.1875; // 0.1875
+
+	private static final double AT_POSITION_TIME = 0.01; // seconds
 
 	private final Swerve m_swerve;
 	private final Limelight m_limelight;
@@ -30,26 +33,30 @@ public class AutoLineup extends CommandBase {
 	private final ProfiledPIDController m_distancePIDController;
 	private final ProfiledPIDController m_rotationPIDController;
 
+	private final Timer m_atPositionTimer = new Timer();
+
 	private double areaError = 1000.0;
 	private double yawError = 1000.0;
 	private double gyroError = 1000.0;
+
+	private boolean m_atPosition = false;
 
 	public AutoLineup(Swerve swerve, Limelight limelight) {
 		m_swerve = swerve;
 		m_limelight = limelight;
 
 		m_strafePIDController = new ProfiledPIDController(
-				0.05,
+				0.0275,
 				0.0,
 				0.0,
 				new Constraints(
 						2.0, // m/s
-						1.0            // m/s
+						2.0            // m/s
 				)
 		); // 0.075
 
 		m_distancePIDController = new ProfiledPIDController(
-				6.0,
+				5.0,
 				0.0,
 				0.0,
 				new Constraints(
@@ -59,7 +66,7 @@ public class AutoLineup extends CommandBase {
 		); // 6.0
 
 		m_rotationPIDController = new ProfiledPIDController(
-				3.5,
+				4.0,
 				0.0,
 				0.0,
 				new Constraints(
@@ -79,6 +86,11 @@ public class AutoLineup extends CommandBase {
 	public void initialize() {
 		m_swerve.setNeutralMode(NeutralMode.Brake);
 		m_limelight.setLEDs(true);
+
+		m_atPositionTimer.stop();
+		m_atPositionTimer.reset();
+
+		m_atPosition = false;
 	}
 
 	@Override
@@ -96,6 +108,21 @@ public class AutoLineup extends CommandBase {
 		areaError = TARGET_AREA - bestTarget.getArea();
 		yawError = TARGET_YAW - bestTarget.getYaw();
 		gyroError = TARGET_GYRO - m_swerve.getGyroHeading().getRadians();
+
+		boolean atPosition = (Math.abs(areaError) <= ALLOWABLE_AREA_ERROR
+				&& Math.abs(yawError) <= ALLOWABLE_YAW_ERROR
+				&& Math.abs(gyroError) <= ALLOWABLE_GYRO_ERROR);
+
+		if (atPosition && !m_atPositionTimer.hasElapsed(0.01)) {
+			m_atPositionTimer.start();
+		} else if (!atPosition && m_atPositionTimer.hasElapsed(0.01)) {
+			m_atPositionTimer.stop();
+			m_atPositionTimer.reset();
+		}
+
+		if (m_atPositionTimer.hasElapsed(AT_POSITION_TIME)) {
+			m_atPosition = true;
+		}
 
 		double vx = !(Math.abs(areaError) <= ALLOWABLE_AREA_ERROR) ? m_distancePIDController.calculate(areaError) : 0.0;
 		double vy = !(Math.abs(yawError) <= ALLOWABLE_YAW_ERROR) ? m_strafePIDController.calculate(yawError) : 0.0;
@@ -138,9 +165,7 @@ public class AutoLineup extends CommandBase {
 
 	@Override
 	public boolean isFinished() {
-		return (Math.abs(areaError) <= ALLOWABLE_AREA_ERROR
-				&& Math.abs(yawError) <= ALLOWABLE_YAW_ERROR
-				&& Math.abs(gyroError) <= ALLOWABLE_GYRO_ERROR);
+		return m_atPosition;
 	}
 
 	@Override

@@ -12,7 +12,8 @@ public class Intaking extends IntakeState {
 	private static final double[][] INTAKE_SPEEDS =
 			new double[][] {
 				{0.5, -0.5, 0.5}, // Intake, Feeder, Conveyor | Cube  0.75
-				{0.75, -0.2, 0.5} // Intake, Feeder, Conveyor | Cone
+				{0.75, -0.2, 0.35} // Intake, Feeder, Conveyor | Cone
+
 			};
 
 	private final Supplier<Element> m_elementSupplier;
