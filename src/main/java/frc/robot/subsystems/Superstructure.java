@@ -297,6 +297,10 @@ public class Superstructure extends SubsystemBase {
 		m_armState.close();
 	}
 
+	public void autoRelease() {
+		m_armState.autoRelease();
+	}
+
 	public void reset() {
 		m_intakeState.reset();
 		m_armState.reset();

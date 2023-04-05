@@ -130,7 +130,7 @@ public class Robot extends TimedRobot {
 			}
 		}
 
-		if (!m_robotContainer.m_swerve.getClimbMode()) {
+		if (!m_robotContainer.m_swerve.getClimbMode() && !m_robotContainer.m_swerve.getLineupMode()) {
 			if (m_robotContainer.m_intake.isDeployed()) {
 				m_robotContainer.m_swerve.setMaxVelocity(RobotBase.isReal() ? 4.5 : 2.0);
 			} else {

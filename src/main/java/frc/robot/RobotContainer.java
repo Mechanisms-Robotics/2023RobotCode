@@ -163,8 +163,6 @@ public class RobotContainer {
 										m_superstructure.getIntakeState().getClass()
 												!= Outtaking.class));
 
-		m_driverController.a().onTrue(new AutoLineup(m_swerve, m_limelight));
-
 		m_driverController
 				.x()
 				.onTrue(
@@ -172,6 +170,12 @@ public class RobotContainer {
 								new InstantCommand(() -> m_swerve.setClimbMode(false)),
 								new InstantCommand(() -> m_swerve.setClimbMode(true)),
 								m_swerve::getClimbMode));
+
+		m_driverController.rightStick().onTrue(new ConditionalCommand(
+				new InstantCommand(() -> m_swerve.setLineupMode(false)),
+				new InstantCommand(() -> m_swerve.setLineupMode(true)),
+				m_swerve::getLineupMode
+		));
 
 		m_driverController
 				.b()
@@ -222,6 +226,8 @@ public class RobotContainer {
 										m_superstructure.getArmState().getClass() == Stowed.class
 												&& m_superstructure.getArmState().isOpen()));
 
+		m_secondDriverController.y().onTrue(new InstantCommand(m_superstructure::autoRelease));
+
 		//		m_secondDriverController
 		//				.leftBumper()
 		//				.onTrue(new SetTrackingMode(m_goalTracker, TrackingMode.BestGoal));
@@ -258,13 +264,13 @@ public class RobotContainer {
 												|| m_goalTracker.getTrackingMode()
 														== TrackingMode.ClosestGoal)));
 
-		m_secondDriverController
-				.y()
-				.onTrue(
-						new InstantCommand(
-								() ->
-										m_superstructure.setAutoScore(
-												!m_superstructure.getAutoScore())));
+//		m_secondDriverController
+//				.y()
+//				.onTrue(
+//						new InstantCommand(
+//								() ->
+//										m_superstructure.setAutoScore(
+//												!m_superstructure.getAutoScore())));
 
 		m_secondDriverController.povDown().onTrue(new InstantCommand(m_superstructure::idle));
 
@@ -311,6 +317,19 @@ public class RobotContainer {
 														== TrackingMode.ClosestGoal)));
 
 		m_secondDriverController.povDown().onTrue(new InstantCommand(m_superstructure::open));
+
+		m_secondDriverController.rightTrigger().whileTrue(
+				new SequentialCommandGroup(
+						new AutoLineup(m_swerve, m_limelight),
+						new InstantCommand(m_superstructure::autoRelease)
+				)
+		).onFalse(
+				new SequentialCommandGroup(
+						new InstantCommand(m_superstructure::open),
+						new WaitCommand(0.5),
+						new InstantCommand(m_superstructure::idle)
+				)
+		);
 	}
 
 	private void configureDefaultCommands() {

@@ -16,9 +16,9 @@ public class Scoring extends ArmState {
 			{65000, -17500}, // High | Cube
 		},
 		{
-			{35000, -1500}, // Low  | Cone
-			{60000, -4000}, // Mid  | Cone
-			{70000, -17500}, // High | Cone
+			{40000, -1500}, // Low  | Cone
+			{63500, -4000}, // Mid  | Cone
+			{71500, -17500}, // High | Cone
 		}
 	};
 
@@ -28,6 +28,7 @@ public class Scoring extends ArmState {
 				{0, -17500, -20000} // Open, Closed, Auto | Cone
 			};
 
+	private static final double OPEN_INCREMENT = 10;
 	private static final double LOOSE_TIME = 3.0;
 
 	private final Supplier<Element> m_elementSupplier;
@@ -97,25 +98,29 @@ public class Scoring extends ArmState {
 			super.periodic();
 		}
 
-		if (m_loosenSupplier == null) {
-			if (m_arm.isExtended() && m_arm.extendAtPosition() && !m_hasLoosened) {
-				close();
+    if (!m_autoReleasing) {
+      if (m_loosenSupplier == null) {
+        if (m_arm.isExtended() && m_arm.extendAtPosition() && !m_hasLoosened) {
+          close();
 
-				m_looseTimer.start();
+          m_looseTimer.start();
 
-				m_hasLoosened = true;
-			}
+          m_hasLoosened = true;
+        }
 
-			if (m_looseTimer.hasElapsed(LOOSE_TIME)) {
-				close(GRIPPER_POSITIONS[m_elementSupplier.get().index][2]);
+        if (m_looseTimer.hasElapsed(LOOSE_TIME)) {
+          close(GRIPPER_POSITIONS[m_elementSupplier.get().index][2]);
 
-				m_looseTimer.stop();
-				m_looseTimer.reset();
-			}
-		} else if (m_elementSupplier.get() != Element.Cube && m_desiredGripper) {
-			double desiredPosition =
-					GRIPPER_POSITIONS[1][2] + (2750 * Math.pow(m_loosenSupplier.get(), 2));
-			close(desiredPosition);
+          m_looseTimer.stop();
+          m_looseTimer.reset();
+        }
+      } else if (m_elementSupplier.get() != Element.Cube) { // TODO: Reimplement m_desiredGripper
+        double desiredPosition =
+            GRIPPER_POSITIONS[1][2] + (2500 * Math.pow(m_loosenSupplier.get(), 2));
+        close(desiredPosition);
+      }
+		} else {
+			autoRelease(GRIPPER_POSITIONS[1][2], OPEN_INCREMENT);
 		}
 	}
 }

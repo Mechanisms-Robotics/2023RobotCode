@@ -23,7 +23,7 @@ public class Gripper extends SubsystemBase {
 		GRIPPER_MOTOR_CONFIG.reverseSoftLimitEnable = true;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitEnable = true;
 
-		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = -19375;
+		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = -20875;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitThreshold = 0;
 
 		GRIPPER_MOTOR_CONFIG.peakOutputReverse = -1.0;

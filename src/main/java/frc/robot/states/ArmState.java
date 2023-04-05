@@ -22,6 +22,11 @@ public abstract class ArmState implements State {
 
 	protected boolean m_initialized = false;
 
+	protected boolean m_autoReleasing = false;
+
+	private double m_closedPosition = 0.0;
+	private double m_openAmount = 0.0;
+
 	protected enum ArmAction {
 		Idling,
 		Retracting,
@@ -137,6 +142,28 @@ public abstract class ArmState implements State {
 
 	public void close(double position) {
 		m_gripper.setClosedLoop(position);
+	}
+
+	public void autoRelease() {
+		m_autoReleasing = true;
+	}
+
+	protected void autoRelease(double closedPosition, double openIncrement) {
+		System.out.println("Current Position: " + m_closedPosition + m_openAmount);
+    System.out.println("");
+
+		if (m_closedPosition != closedPosition) {
+			m_closedPosition = closedPosition;
+			m_openAmount = 1000.0;
+		}
+
+    if ((m_closedPosition + m_openAmount) <= -15500) {
+      close(m_closedPosition + m_openAmount);
+		} else {
+			close();
+		}
+
+		m_openAmount += openIncrement;
 	}
 
 	public boolean isOpen() {

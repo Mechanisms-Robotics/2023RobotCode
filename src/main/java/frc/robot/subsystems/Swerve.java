@@ -125,6 +125,7 @@ public class Swerve extends SubsystemBase {
 	private Rotation2d m_swerveRobotRelativeHeading = new Rotation2d();
 
 	private boolean m_climbMode = false;
+	private boolean m_lineupMode = false;
 
 	private final SendableChooser<Boolean> m_swerveDisabledChooser;
 
@@ -284,6 +285,9 @@ public class Swerve extends SubsystemBase {
 		if (m_climbMode) {
 			setNeutralMode(NeutralMode.Brake);
 			setMaxVelocity(1.5);
+		} else if (m_lineupMode) {
+			setNeutralMode(NeutralMode.Brake);
+			setMaxVelocity(0.75);
 		} else if (!DriverStation.isAutonomousEnabled()) {
 			setNeutralMode(NeutralMode.Coast);
 		}
@@ -494,9 +498,15 @@ public class Swerve extends SubsystemBase {
 		m_climbMode = climbMode;
 	}
 
+	public void setLineupMode(boolean lineupMode) {
+		m_lineupMode = lineupMode;
+	}
+
 	public boolean getClimbMode() {
 		return m_climbMode;
 	}
+
+	public boolean getLineupMode() { return m_lineupMode; }
 
 	public void resetModules() {
 		m_frontLeftModule.reset();
