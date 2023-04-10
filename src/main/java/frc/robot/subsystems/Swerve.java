@@ -506,7 +506,9 @@ public class Swerve extends SubsystemBase {
 		return m_climbMode;
 	}
 
-	public boolean getLineupMode() { return m_lineupMode; }
+	public boolean getLineupMode() {
+		return m_lineupMode;
+	}
 
 	public void resetModules() {
 		m_frontLeftModule.reset();

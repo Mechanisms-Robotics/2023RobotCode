@@ -22,7 +22,7 @@ public class Unjamming extends IntakeState {
 		if (!DriverStation.isEnabled()) return;
 
 		m_intake.setOpenLoop(-0.3);
-		m_conveyor.setOpenLoop(-0.5);
+		m_conveyor.setOpenLoop(-0.75);
 
 		m_rotateTimer.start();
 	}

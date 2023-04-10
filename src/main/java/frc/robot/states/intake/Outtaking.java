@@ -9,10 +9,10 @@ import frc.robot.subsystems.Superstructure.Element;
 import java.util.function.Supplier;
 
 public class Outtaking extends IntakeState {
-	private static final double[][] OUTTAKE_SPEEDS =
+	public static final double[][] OUTTAKE_SPEEDS =
 			new double[][] {
-				{-0.15, 0.5, -0.75}, // Intake, Feeder, Conveyor | Cube
-				{-0.3, 0.1, -0.5} // Intake, Feeder, Conveyor | Cone
+				{-0.15, 0.2, -0.75}, // Intake, Feeder, Conveyor | Cube
+				{-0.3, 0.1, -0.25} // Intake, Feeder, Conveyor | Cone
 			};
 
 	private final Supplier<Element> m_elementSupplier;

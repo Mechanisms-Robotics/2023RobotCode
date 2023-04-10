@@ -13,27 +13,29 @@ public class Scoring extends ArmState {
 		{
 			{35000, -750}, // Low  | Cube
 			{55000, -3750}, // Mid  | Cube
-			{65000, -17500}, // High | Cube
+			{65000, -18000}, // High | Cube
 		},
 		{
 			{40000, -1500}, // Low  | Cone
 			{63500, -4000}, // Mid  | Cone
-			{72500, -17500}, // High | Cone
+			{71000, -18000}, // High | Cone
+			{67500, -18000}, // Sanic | Cone
 		}
 	};
 
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
 				{0, -14000, -14000}, // Open, Closed, Auto | Cube
-				{0, -17500, -20000} // Open, Closed, Auto | Cone
+				{0, -20000, -20000} // Open, Closed, Auto | Cone
 			};
 
-	private static final double OPEN_INCREMENT = 15;
+	private static final double OPEN_INCREMENT = 7.5;
 	private static final double LOOSE_TIME = 3.0;
 
 	private final Supplier<Element> m_elementSupplier;
 	private final Supplier<Integer> m_levelSupplier;
 	private Supplier<Double> m_loosenSupplier;
+	private Supplier<Double> m_jogSupplier;
 
 	private Element m_prevElement;
 	private int m_prevLevel;
@@ -53,7 +55,8 @@ public class Scoring extends ArmState {
 				ARM_POSITIONS[elementSupplier.get().index][levelSupplier.get()][0],
 				ARM_POSITIONS[elementSupplier.get().index][levelSupplier.get()][1],
 				GRIPPER_POSITIONS,
-				elementSupplier);
+				elementSupplier,
+				() -> levelSupplier.get() == 3);
 
 		m_elementSupplier = elementSupplier;
 		m_levelSupplier = levelSupplier;
@@ -62,6 +65,7 @@ public class Scoring extends ArmState {
 		m_prevLevel = m_levelSupplier.get();
 
 		m_loosenSupplier = null;
+		m_jogSupplier = null;
 	}
 
 	public Scoring(
@@ -69,10 +73,12 @@ public class Scoring extends ArmState {
 			Gripper gripper,
 			Supplier<Element> elementSupplier,
 			Supplier<Integer> levelSupplier,
-			Supplier<Double> loosenSupplier) {
+			Supplier<Double> loosenSupplier,
+			Supplier<Double> jogSupplier) {
 		this(arm, gripper, elementSupplier, levelSupplier);
 
 		m_loosenSupplier = loosenSupplier;
+		m_jogSupplier = jogSupplier;
 	}
 
 	@Override
@@ -98,27 +104,33 @@ public class Scoring extends ArmState {
 			super.periodic();
 		}
 
-    if (!m_autoReleasing) {
-      if (m_loosenSupplier == null) {
-        if (m_arm.isExtended() && m_arm.extendAtPosition() && !m_hasLoosened) {
-          close();
+		if (!m_autoReleasing) {
+			if (m_jogSupplier != null && Math.abs(m_jogSupplier.get()) >= 0.1) {
+				m_arm.jogArm(m_jogSupplier.get(), m_elementSupplier);
+				m_arm.setClosedLoop(m_desiredPosition);
+			}
 
-          m_looseTimer.start();
+			if (m_loosenSupplier == null) {
+				if (m_arm.isExtended() && m_arm.extendAtPosition() && !m_hasLoosened) {
+					close();
 
-          m_hasLoosened = true;
-        }
+					m_looseTimer.start();
 
-        if (m_looseTimer.hasElapsed(LOOSE_TIME)) {
-          close(GRIPPER_POSITIONS[m_elementSupplier.get().index][2]);
+					m_hasLoosened = true;
+				}
 
-          m_looseTimer.stop();
-          m_looseTimer.reset();
-        }
-      } else if (m_elementSupplier.get() != Element.Cube) { // TODO: Reimplement m_desiredGripper
-        double desiredPosition =
-            GRIPPER_POSITIONS[1][2] + (2500 * Math.pow(m_loosenSupplier.get(), 2));
-        close(desiredPosition);
-      }
+				if (m_looseTimer.hasElapsed(LOOSE_TIME)) {
+					close(GRIPPER_POSITIONS[m_elementSupplier.get().index][2]);
+
+					m_looseTimer.stop();
+					m_looseTimer.reset();
+				}
+			} else if (m_elementSupplier.get()
+					!= Element.Cube) { // TODO: Reimplement m_desiredGripper
+				double desiredPosition =
+						GRIPPER_POSITIONS[1][2] + (2500 * Math.pow(m_loosenSupplier.get(), 2));
+				close(desiredPosition);
+			}
 		} else {
 			autoRelease(GRIPPER_POSITIONS[1][2], OPEN_INCREMENT);
 		}

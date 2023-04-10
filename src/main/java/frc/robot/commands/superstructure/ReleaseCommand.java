@@ -10,9 +10,9 @@ public class ReleaseCommand extends SequentialCommandGroup {
 	public ReleaseCommand(Superstructure superstructure) {
 		super(
 				new WaitUntilCommand(superstructure::atPosition).withTimeout(3.0),
-				new WaitCommand(0.375),
+				new WaitCommand(1.0),
 				new InstantCommand(superstructure::open),
-				new WaitCommand(0.1875),
+				new WaitCommand(0.25),
 				new InstantCommand(superstructure::idle));
 	}
 }

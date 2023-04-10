@@ -6,6 +6,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Superstructure.Element;
+import java.util.function.Supplier;
 
 public class Arm extends SubsystemBase {
 
@@ -21,6 +23,8 @@ public class Arm extends SubsystemBase {
 
 	private static final double ALLOWABLE_PIVOT_ERROR = 1000;
 	private static final double ALLOWABLE_EXTENSION_ERROR = 1000;
+
+	private static final double JOG_INCREMENT = 30;
 
 	private static final double kP = 0.2; // 0.2
 	private static final double kD = 0.0;
@@ -58,6 +62,9 @@ public class Arm extends SubsystemBase {
 	private final double[] desiredPosition = {0.0, 0.0};
 
 	private boolean zeroed = false;
+	private double m_jogAmount = 0.0;
+
+	private Supplier<Element> m_elementSupplier = () -> Element.Cube;
 
 	public Arm() {
 		armMotor.configFactoryDefault();
@@ -137,9 +144,15 @@ public class Arm extends SubsystemBase {
 			return;
 		}
 
-		desiredPosition[0] = position;
+		if (position >= 30000 && m_elementSupplier.get() == Element.Cone) {
+			desiredPosition[0] = position + m_jogAmount;
+		} else {
+			desiredPosition[0] = position;
+		}
 
-		armMotor.set(ControlMode.MotionMagic, position);
+		System.out.println("DESIRED POSITION: " + desiredPosition[0]);
+
+		armMotor.set(ControlMode.MotionMagic, desiredPosition[0]);
 	}
 
 	public void setExtensionClosedLoop(double position) {
@@ -174,6 +187,18 @@ public class Arm extends SubsystemBase {
 
 	public boolean isExtended() {
 		return extenderMotor.getSelectedSensorPosition() <= START_EXTENSION_POSITION;
+	}
+
+	public void jogArm(double joyValue, Supplier<Element> elementSupplier) {
+		System.out.println("JOG AMOUNT: " + m_jogAmount);
+
+		if (joyValue > 0.0) {
+			m_jogAmount += JOG_INCREMENT;
+		} else {
+			m_jogAmount -= JOG_INCREMENT;
+		}
+
+		m_elementSupplier = elementSupplier;
 	}
 
 	public void zeroEncoder() {

@@ -12,11 +12,25 @@ public class Limelight extends SubsystemBase {
 	public PhotonTrackedTarget getBestTarget() {
 		PhotonPipelineResult result = m_limelight.getLatestResult();
 
+		PhotonTrackedTarget bestTarget = null;
+
 		if (result.hasTargets()) {
-			return result.getBestTarget();
+			for (int i = 0; i < result.getTargets().size(); i++) {
+				if (bestTarget != null) {
+					if (Math.abs(result.getTargets().get(i).getYaw())
+									< Math.abs(bestTarget.getYaw())
+							&& result.getTargets().get(i).getPitch() < 0.0) {
+						bestTarget = result.getTargets().get(i);
+					}
+				} else {
+					if (result.getTargets().get(i).getPitch() < 0.0) {
+						bestTarget = result.getTargets().get(i);
+					}
+				}
+			}
 		}
 
-		return null;
+		return bestTarget;
 	}
 
 	public void setLEDs(boolean on) {

@@ -72,7 +72,9 @@ public class RobotContainer {
 					m_arm,
 					m_gripper,
 					m_ledWrapper,
-					m_secondDriverController::getLeftTriggerAxis);
+					() -> m_secondDriverController.y().getAsBoolean(),
+					m_secondDriverController::getLeftTriggerAxis,
+					() -> -m_secondDriverController.getLeftY());
 
 	private final SendableChooser<CommandBase> autoChooser;
 
@@ -171,11 +173,13 @@ public class RobotContainer {
 								new InstantCommand(() -> m_swerve.setClimbMode(true)),
 								m_swerve::getClimbMode));
 
-		m_driverController.rightStick().onTrue(new ConditionalCommand(
-				new InstantCommand(() -> m_swerve.setLineupMode(false)),
-				new InstantCommand(() -> m_swerve.setLineupMode(true)),
-				m_swerve::getLineupMode
-		));
+		m_driverController
+				.rightStick()
+				.onTrue(
+						new ConditionalCommand(
+								new InstantCommand(() -> m_swerve.setLineupMode(false)),
+								new InstantCommand(() -> m_swerve.setLineupMode(true)),
+								m_swerve::getLineupMode));
 
 		m_driverController
 				.b()
@@ -187,11 +191,11 @@ public class RobotContainer {
 										m_superstructure.getIntakeState().getClass()
 												!= Unjamming.class));
 
-		m_driverController
-				.rightStick()
-				.onTrue(
-						new InstantCommand(
-								() -> m_swerve.turnToAngle(Rotation2d.fromDegrees(0.0))));
+		//		m_driverController
+		//				.rightStick()
+		//				.onTrue(
+		//						new InstantCommand(
+		//								() -> m_swerve.turnToAngle(Rotation2d.fromDegrees(0.0))));
 		m_driverController
 				.leftStick()
 				.onTrue(
@@ -264,13 +268,13 @@ public class RobotContainer {
 												|| m_goalTracker.getTrackingMode()
 														== TrackingMode.ClosestGoal)));
 
-//		m_secondDriverController
-//				.y()
-//				.onTrue(
-//						new InstantCommand(
-//								() ->
-//										m_superstructure.setAutoScore(
-//												!m_superstructure.getAutoScore())));
+		//		m_secondDriverController
+		//				.y()
+		//				.onTrue(
+		//						new InstantCommand(
+		//								() ->
+		//										m_superstructure.setAutoScore(
+		//												!m_superstructure.getAutoScore())));
 
 		m_secondDriverController.povDown().onTrue(new InstantCommand(m_superstructure::idle));
 
@@ -316,20 +320,25 @@ public class RobotContainer {
 												&& !(m_goalTracker.getTrackingMode()
 														== TrackingMode.ClosestGoal)));
 
+		m_secondDriverController
+				.x()
+				.onTrue(
+						new ConditionalCommand(
+								new InstantCommand(() -> {}),
+								new InstantCommand(
+										() -> {
+											m_superstructure.setNode(3, 0);
+										}),
+								() ->
+										m_superstructure.getAutoScore()
+												&& !(m_goalTracker.getTrackingMode()
+														== TrackingMode.ClosestGoal)));
+
 		m_secondDriverController.povDown().onTrue(new InstantCommand(m_superstructure::open));
 
-		m_secondDriverController.rightTrigger().whileTrue(
-				new SequentialCommandGroup(
-						new AutoLineup(m_swerve, m_limelight),
-						new InstantCommand(m_superstructure::autoRelease)
-				)
-		).onFalse(
-				new SequentialCommandGroup(
-						new InstantCommand(m_superstructure::open),
-						new WaitCommand(0.5),
-						new InstantCommand(m_superstructure::idle)
-				)
-		);
+		m_secondDriverController
+				.rightTrigger()
+				.whileTrue(new SequentialCommandGroup(new AutoLineup(m_swerve, m_limelight)));
 	}
 
 	private void configureDefaultCommands() {

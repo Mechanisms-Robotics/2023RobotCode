@@ -26,6 +26,7 @@ public abstract class ArmState implements State {
 
 	private double m_closedPosition = 0.0;
 	private double m_openAmount = 0.0;
+	private Supplier<Boolean> m_skipRetract = () -> false;
 
 	protected enum ArmAction {
 		Idling,
@@ -54,11 +55,36 @@ public abstract class ArmState implements State {
 		m_ElementSupplier = elementSupplier;
 	}
 
+	public ArmState(
+			Arm arm,
+			Gripper gripper,
+			double desiredPosition,
+			double desiredExtension,
+			double[][] positions,
+			Supplier<Element> elementSupplier,
+			Supplier<Boolean> skipRetract) {
+		m_arm = arm;
+		m_gripper = gripper;
+
+		m_desiredPosition = desiredPosition;
+		m_desiredExtension = desiredExtension;
+		m_desiredGripper = false;
+
+		m_positions = positions;
+		m_ElementSupplier = elementSupplier;
+
+		m_skipRetract = skipRetract;
+	}
+
 	@Override
 	public void init() {
 		if (!DriverStation.isEnabled()) return;
 
-		retract();
+		if (m_skipRetract.get()) {
+			pivot();
+		} else {
+			retract();
+		}
 	}
 
 	public void reset() {
@@ -124,23 +150,31 @@ public abstract class ArmState implements State {
 	}
 
 	public void open() {
-		m_gripper.setOpenLoop(0.1);
-		m_gripper.setDesiredPosition(0.0);
+		if (m_desiredGripper) {
+			return;
+		}
 
-		m_desiredGripper = false;
+		m_gripper.setOpenLoop(0.15);
+		m_gripper.setDesiredPosition(0.0);
 	}
 
 	public void close() {
+		if (!m_desiredGripper) {
+			return;
+		}
+
 		if (DriverStation.isAutonomousEnabled()) {
 			m_gripper.setClosedLoop(m_positions[m_ElementSupplier.get().index][2]);
 		} else {
 			m_gripper.setClosedLoop(m_positions[m_ElementSupplier.get().index][1]);
 		}
-
-		m_desiredGripper = true;
 	}
 
 	public void close(double position) {
+		if (!m_desiredGripper) {
+			return;
+		}
+
 		m_gripper.setClosedLoop(position);
 	}
 
@@ -150,19 +184,14 @@ public abstract class ArmState implements State {
 
 	protected void autoRelease(double closedPosition, double openIncrement) {
 		System.out.println("Current Position: " + m_closedPosition + m_openAmount);
-    System.out.println("");
+		System.out.println("");
 
 		if (m_closedPosition != closedPosition) {
 			m_closedPosition = closedPosition;
-			m_openAmount = 1250.0;
+			m_openAmount = 1100.0;
 		}
 
-    if ((m_closedPosition + m_openAmount) <= -15500) {
-      close(m_closedPosition + m_openAmount);
-		} else {
-			close();
-		}
-
+		close(m_closedPosition + m_openAmount);
 		m_openAmount += openIncrement;
 	}
 
@@ -172,5 +201,9 @@ public abstract class ArmState implements State {
 
 	public boolean isClosed() {
 		return m_gripper.isClosed();
+	}
+
+	public void setDeisredGripper(boolean desiredGripper) {
+		m_desiredGripper = desiredGripper;
 	}
 }

@@ -43,7 +43,9 @@ public class Superstructure extends SubsystemBase {
 
 	private final LEDWrapper m_ledWrapper;
 
+	private final Supplier<Boolean> m_reverseSupplier;
 	private final Supplier<Double> m_loosenSupplier;
+	private final Supplier<Double> m_jogSupplier;
 
 	private final int[] m_targetNode = {0, 0};
 
@@ -70,7 +72,9 @@ public class Superstructure extends SubsystemBase {
 			Arm arm,
 			Gripper gripper,
 			LEDWrapper ledWrapper,
-			Supplier<Double> loosenSupplier) {
+			Supplier<Boolean> reverseSupplier,
+			Supplier<Double> loosenSupplier,
+			Supplier<Double> jogSupplier) {
 		m_intake = intake;
 		m_feeder = feeder;
 		m_conveyor = conveyor;
@@ -82,7 +86,9 @@ public class Superstructure extends SubsystemBase {
 
 		m_ledWrapper = ledWrapper;
 
+		m_reverseSupplier = reverseSupplier;
 		m_loosenSupplier = loosenSupplier;
+		m_jogSupplier = jogSupplier;
 	}
 
 	@Override
@@ -178,6 +184,7 @@ public class Superstructure extends SubsystemBase {
 
 		if (m_armState.getClass() != Stowed.class) {
 			m_armState = new Stowed(m_arm, m_gripper, () -> m_element);
+			m_armState.setDeisredGripper(false);
 		} else {
 			m_armState.periodic();
 		}
@@ -189,7 +196,9 @@ public class Superstructure extends SubsystemBase {
 		m_superstructureState = SuperstructureState.Intaking;
 
 		if (m_intakeState.getClass() != Intaking.class) {
-			m_intakeState = new Intaking(m_intake, m_feeder, m_conveyor, () -> m_element);
+			m_intakeState =
+					new Intaking(
+							m_intake, m_feeder, m_conveyor, () -> m_element, m_reverseSupplier);
 		} else {
 			m_intakeState.periodic();
 		}
@@ -267,13 +276,19 @@ public class Superstructure extends SubsystemBase {
 		}
 
 		if (m_armState.getClass() != Scoring.class) {
+			if (m_element == Element.Cube && m_targetNode[0] == 3) {
+				m_targetNode[0] = 2;
+			}
+
 			m_armState =
 					new Scoring(
 							m_arm,
 							m_gripper,
 							() -> m_element,
 							() -> m_targetNode[0],
-							m_loosenSupplier);
+							m_loosenSupplier,
+							m_jogSupplier);
+			m_armState.setDeisredGripper(true);
 		} else {
 			m_armState.periodic();
 		}
@@ -282,6 +297,8 @@ public class Superstructure extends SubsystemBase {
 	}
 
 	public void open() {
+		m_armState.setDeisredGripper(false);
+
 		if (m_armState.getClass() == Scoring.class) {
 			m_ledWrapper.setColor(new boolean[] {false, true, false});
 			m_ledWrapper.setBlinking(true);
@@ -294,6 +311,7 @@ public class Superstructure extends SubsystemBase {
 	}
 
 	public void close() {
+		m_armState.setDeisredGripper(true);
 		m_armState.close();
 	}
 

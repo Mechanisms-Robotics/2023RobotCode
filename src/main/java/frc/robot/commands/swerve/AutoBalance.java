@@ -12,7 +12,7 @@ public class AutoBalance extends CommandBase {
 	private static final double BASE_SPEED_METERS_PER_SEC = -0.375;
 	private static final double VERIFY_BALANCED_DURATION_SEC = 0.25;
 
-	private static final double BALANCE_PITCH_THRESHOLD = 0.35; // 0.4
+	private static final double BALANCE_PITCH_THRESHOLD = 0.25; // 0.4
 
 	private final Swerve m_swerve;
 	private final Timer m_timer;
