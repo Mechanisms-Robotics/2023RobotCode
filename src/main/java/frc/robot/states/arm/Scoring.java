@@ -11,15 +11,15 @@ import java.util.function.Supplier;
 public class Scoring extends ArmState {
 	private static final double[][][] ARM_POSITIONS = {
 		{
-			{35000, -750}, // Low  | Cube
-			{55000, -3750}, // Mid  | Cube
-			{65000, -18000}, // High | Cube
+			{10000, -750}, // Low  | Cube
+			{22500, -3750}, // Mid  | Cube
+			{29000, -18000}, // High | Cube
 		},
 		{
-			{40000, -1500}, // Low  | Cone
-			{63500, -4000}, // Mid  | Cone
-			{71000, -18000}, // High | Cone
-			{67500, -18000}, // Sanic | Cone
+			{10000, -1500}, // Low  | Cone
+			{26386, -4000}, // Mid  | Cone
+			{32000, -18000}, // High | Cone
+			{20386, -18000}, // Sanic | Cone
 		}
 	};
 

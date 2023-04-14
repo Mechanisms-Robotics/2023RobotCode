@@ -17,14 +17,12 @@ public class Arm extends SubsystemBase {
 
 	private static final double START_EXTENSION_POSITION = -6341;
 
-	private static final double START_ARM_POSITION = 19000;
-
-	private static final double TICKS_PER_DEGREE = (2048.0 / 360.0) * 89.89;
+	private static final double START_ARM_POSITION = 1985;
 
 	private static final double ALLOWABLE_PIVOT_ERROR = 1000;
 	private static final double ALLOWABLE_EXTENSION_ERROR = 1000;
 
-	private static final double JOG_INCREMENT = 30;
+	private static final double JOG_INCREMENT = 3;
 
 	private static final double kP = 0.2; // 0.2
 	private static final double kD = 0.0;
@@ -35,12 +33,12 @@ public class Arm extends SubsystemBase {
 	static {
 		ARM_MOTOR_CONFIG.reverseSoftLimitEnable = true;
 		ARM_MOTOR_CONFIG.forwardSoftLimitEnable = true;
-		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = TICKS_PER_DEGREE * 33.0;
-		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 75000;
+		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = 0;
+		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 37500;
 
-		ARM_MOTOR_CONFIG.motionCruiseVelocity = 25000; // 20000
-		ARM_MOTOR_CONFIG.motionAcceleration = 20000; // 15000
-		ARM_MOTOR_CONFIG.motionCurveStrength = 8;
+		ARM_MOTOR_CONFIG.motionCruiseVelocity = 60000; // 25000
+		ARM_MOTOR_CONFIG.motionAcceleration = 65000; // 20000
+		ARM_MOTOR_CONFIG.motionCurveStrength = 7;
 
 		ARM_MOTOR_CONFIG.neutralDeadband = 0.001;
 
@@ -81,7 +79,8 @@ public class Arm extends SubsystemBase {
 
 		armMotor.configNeutralDeadband(0.001);
 		armMotor.configAllowableClosedloopError(0, 0.0);
-		armMotor.setInverted(true);
+		armMotor.setInverted(false);
+		armMotor.setSensorPhase(true);
 
 		extenderMotor.configAllSettings(ARM_EXTENDER_MOTOR_CONFIG);
 
@@ -144,7 +143,7 @@ public class Arm extends SubsystemBase {
 			return;
 		}
 
-		if (position >= 30000 && m_elementSupplier.get() == Element.Cone) {
+		if (position >= 3000 && m_elementSupplier.get() == Element.Cone) {
 			desiredPosition[0] = position + m_jogAmount;
 		} else {
 			desiredPosition[0] = position;
@@ -206,7 +205,7 @@ public class Arm extends SubsystemBase {
 			return;
 		}
 
-		armMotor.setSelectedSensorPosition(TICKS_PER_DEGREE * 33.0);
+		armMotor.setSelectedSensorPosition(0);
 		extenderMotor.setSelectedSensorPosition(0.0);
 		zeroed = true;
 	}
