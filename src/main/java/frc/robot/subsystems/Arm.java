@@ -24,7 +24,7 @@ public class Arm extends SubsystemBase {
 
 	private static final double JOG_INCREMENT = 3;
 
-	private static final double kP = 0.2; // 0.2
+	private static final double kP = 0.075; // 0.2
 	private static final double kD = 0.0;
 	private static final double kF = 0.0; // 0.01
 
@@ -36,8 +36,8 @@ public class Arm extends SubsystemBase {
 		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = 0;
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 37500;
 
-		ARM_MOTOR_CONFIG.motionCruiseVelocity = 60000; // 25000
-		ARM_MOTOR_CONFIG.motionAcceleration = 65000; // 20000
+		ARM_MOTOR_CONFIG.motionCruiseVelocity = 50000; // 25000
+		ARM_MOTOR_CONFIG.motionAcceleration = 45000; // 20000
 		ARM_MOTOR_CONFIG.motionCurveStrength = 7;
 
 		ARM_MOTOR_CONFIG.neutralDeadband = 0.001;

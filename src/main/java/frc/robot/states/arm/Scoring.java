@@ -25,8 +25,8 @@ public class Scoring extends ArmState {
 
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
-				{0, -14000, -14000}, // Open, Closed, Auto | Cube
-				{0, -20000, -20000} // Open, Closed, Auto | Cone
+				{0, -12000, -12000}, // Open, Closed, Auto | Cube
+				{0, -25000, -25000} // Open, Closed, Auto | Cone
 			};
 
 	private static final double OPEN_INCREMENT = 7.5;

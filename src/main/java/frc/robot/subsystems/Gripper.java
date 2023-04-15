@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Gripper extends SubsystemBase {
 
-	private static final double ALLOWABLE_ERROR = 1500; // 750
-	private static final double CLOSED_THRESHOLD = 5000;
+	private static final double ALLOWABLE_ERROR = 300; // 750
+	private static final double CLOSED_THRESHOLD = 6000;
 
 	private static final TalonFXConfiguration GRIPPER_MOTOR_CONFIG = new TalonFXConfiguration();
 
@@ -23,18 +23,18 @@ public class Gripper extends SubsystemBase {
 		GRIPPER_MOTOR_CONFIG.reverseSoftLimitEnable = true;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitEnable = true;
 
-		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = -20875;
+		GRIPPER_MOTOR_CONFIG.reverseSoftLimitThreshold = -30000;
 		GRIPPER_MOTOR_CONFIG.forwardSoftLimitThreshold = 0;
 
 		GRIPPER_MOTOR_CONFIG.peakOutputReverse = -1.0;
-		GRIPPER_MOTOR_CONFIG.peakOutputForward = 0.75;
+		GRIPPER_MOTOR_CONFIG.peakOutputForward = 1.0;
 
 		GRIPPER_MOTOR_CONFIG.voltageCompSaturation = 12.0;
 	}
 
 	private final WPI_TalonFX gripperMotor = new WPI_TalonFX(60);
 
-	private static final double kP = 0.1; // 0.4
+	private static final double kP = 0.4; // 0.4
 	private static final double kD = 0.025;
 
 	private final Timer timer = new Timer();
