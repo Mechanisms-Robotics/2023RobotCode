@@ -55,4 +55,6 @@ public final class Constants {
 	}
 
 	public static final boolean SWERVE_DISABLED = false;
+
+	public static final boolean SHWALTON_MODE = true;
 }

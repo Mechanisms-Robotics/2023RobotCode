@@ -11,8 +11,8 @@ import java.util.function.Supplier;
 public class Shooting extends IntakeState {
 	private static final double[][] SHOOT_SPEEDS =
 			new double[][] {
-				{-1.0, 1.0, -1.0}, // Intake, Feeder, Conveyor | Cube
-				{-1.0, 1.0, -1.0} // Intake, Feeder, Conveyor | Cone
+				{-1.0, 0.0, -0.0}, // Intake, Feeder, Conveyor | Cube
+				{-1.0, 0.0, -0.0} // Intake, Feeder, Conveyor | Cone
 			};
 
 	private final Supplier<Element> m_elementSupplier;
@@ -27,6 +27,8 @@ public class Shooting extends IntakeState {
 	@Override
 	public void init() {
 		if (!DriverStation.isEnabled()) return;
+
+		m_intake.setBrakeMode(false);
 	}
 
 	@Override

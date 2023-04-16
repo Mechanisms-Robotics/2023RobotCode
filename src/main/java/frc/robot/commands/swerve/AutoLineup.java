@@ -6,13 +6,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.Limelight;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class AutoLineup extends CommandBase {
-	private static final double TARGET_AREA = 0.24;
-	private static final double TARGET_YAW = 10.0;
+	private static final double TARGET_AREA = Constants.SHWALTON_MODE ? 0.34 : 0.24;
+	private static final double TARGET_YAW = Constants.SHWALTON_MODE ? 8.0 : 10.0;
 	private static final double TARGET_GYRO = 0.0;
 
 	private static final double ALLOWABLE_AREA_ERROR = 0.02; // 0.02

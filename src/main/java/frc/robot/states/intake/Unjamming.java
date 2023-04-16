@@ -25,6 +25,8 @@ public class Unjamming extends IntakeState {
 		m_conveyor.setOpenLoop(-0.75);
 
 		m_rotateTimer.start();
+
+		m_intake.setBrakeMode(false);
 	}
 
 	@Override

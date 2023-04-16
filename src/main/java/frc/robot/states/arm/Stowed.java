@@ -9,14 +9,14 @@ import java.util.function.Supplier;
 
 public class Stowed extends ArmState {
 	private static final double[][] ARM_POSITIONS = {
-		{3000, -250}, // Pivot, Extension | Cube
+		{3500, -250}, // Pivot, Extension | Cube
 		{500, -750} // Pivot, Extension | Cone
 	};
 
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
-				{0, -12000, -12000}, // Open, Closed, Auto | Cube
-				{0, -25000, -25000} // Open, Closed, Auto | Cone
+				{0, -17500, -17500}, // Open, Closed, Auto | Cube
+				{0, -27500, -27500} // Open, Closed, Auto | Cone
 			};
 
 	private final Supplier<Element> m_elementSupplier;

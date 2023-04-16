@@ -24,7 +24,7 @@ public class Arm extends SubsystemBase {
 
 	private static final double JOG_INCREMENT = 3;
 
-	private static final double kP = 0.075; // 0.2
+	private static final double kP = 0.2; // 0.2
 	private static final double kD = 0.0;
 	private static final double kF = 0.0; // 0.01
 
@@ -151,7 +151,7 @@ public class Arm extends SubsystemBase {
 
 		System.out.println("DESIRED POSITION: " + desiredPosition[0]);
 
-		armMotor.set(ControlMode.MotionMagic, desiredPosition[0]);
+		armMotor.set(ControlMode.MotionMagic, desiredPosition[0], DemandType.ArbitraryFeedForward, 0.05);
 	}
 
 	public void setExtensionClosedLoop(double position) {

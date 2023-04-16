@@ -18,6 +18,8 @@ public class Idling extends IntakeState {
 		m_intake.stop();
 		m_feeder.stop();
 		m_conveyor.stop();
+
+		m_intake.setBrakeMode(true);
 	}
 
 	@Override

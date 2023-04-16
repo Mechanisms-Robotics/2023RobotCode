@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -12,7 +13,8 @@ public class Intake extends SubsystemBase {
 		Retract(-7500),
 		Deploy(-42000),
 		Shoot(-35000),
-		GamePieceStation(-16387);
+		GamePieceStation(-16387),
+		Mid(-16500);
 
 		private final double position;
 
@@ -74,6 +76,11 @@ public class Intake extends SubsystemBase {
 
 	private boolean zeroed = false;
 
+	private double m_desiredOpenPercent = 0.0;
+	private final SlewRateLimiter m_openPercentLimiter = new SlewRateLimiter(
+			0.5, -0.5, 0.0
+	);
+
 	public Intake() {
 		pivotRight.configFactoryDefault();
 		pivotLeft.configFactoryDefault();
@@ -128,8 +135,7 @@ public class Intake extends SubsystemBase {
 			return;
 		}
 
-		spinRight.set(ControlMode.PercentOutput, percentOutput);
-		spinLeft.follow(spinRight);
+		m_desiredOpenPercent = percentOutput;
 	}
 
 	private void setClosedLoop(double position) {
@@ -162,6 +168,9 @@ public class Intake extends SubsystemBase {
 
 		SmartDashboard.putNumber(
 				"Intake Roller Rot/Sec", (spinRight.getSelectedSensorVelocity() / (2048 * 4)) * 10);
+
+		spinLeft.set(ControlMode.PercentOutput, m_openPercentLimiter.calculate(m_desiredOpenPercent));
+		spinRight.set(ControlMode.PercentOutput, m_openPercentLimiter.calculate(m_desiredOpenPercent));
 	}
 
 	public void retract() {
@@ -187,6 +196,10 @@ public class Intake extends SubsystemBase {
 		setClosedLoop(Position.GamePieceStation.position);
 	}
 
+	public void mid() {
+    setClosedLoop(Position.Mid.position);
+	}
+
 	public void shoot() {
 		setClosedLoop(Position.Shoot.position);
 	}
@@ -199,6 +212,16 @@ public class Intake extends SubsystemBase {
 		pivotLeft.setSelectedSensorPosition(0.0);
 		pivotRight.setSelectedSensorPosition(0.0);
 		zeroed = true;
+	}
+
+	public void setBrakeMode(boolean brakeMode) {
+		if (brakeMode) {
+			spinLeft.setNeutralMode(NeutralMode.Brake);
+			spinRight.setNeutralMode(NeutralMode.Brake);
+		} else {
+			spinLeft.setNeutralMode(NeutralMode.Coast);
+			spinRight.setNeutralMode(NeutralMode.Coast);
+		}
 	}
 
 	public void stop() {

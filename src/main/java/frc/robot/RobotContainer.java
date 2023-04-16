@@ -33,6 +33,7 @@ import frc.robot.states.arm.Scoring;
 import frc.robot.states.arm.Stowed;
 import frc.robot.states.intake.Intaking;
 import frc.robot.states.intake.Outtaking;
+import frc.robot.states.intake.Shlurping;
 import frc.robot.states.intake.Unjamming;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Superstructure.Element;
@@ -143,7 +144,16 @@ public class RobotContainer {
 		m_driverController.leftBumper().onTrue(new RetractIntakeCommand(m_intake));
 		m_driverController.rightBumper().onTrue(new DeployIntakeCommand(m_intake));
 
-		m_driverController.leftTrigger().onTrue(new InstantCommand(m_intake::shoot));
+		m_driverController.leftTrigger().onTrue(
+				new ConditionalCommand(
+						new InstantCommand(m_superstructure::shlurp),
+						new InstantCommand(m_superstructure::idle),
+						() -> m_superstructure.getIntakeState().getClass() != Shlurping.class
+				)
+		);
+
+		m_driverController.povRight().onTrue(new InstantCommand(m_intake::mid));
+		m_driverController.povUp().onTrue(new InstantCommand(m_superstructure::shoot));
 
 		m_driverController
 				.rightTrigger()
@@ -338,7 +348,10 @@ public class RobotContainer {
 
 		m_secondDriverController
 				.rightTrigger()
-				.whileTrue(new SequentialCommandGroup(new AutoLineup(m_swerve, m_limelight)));
+				.whileTrue(new SequentialCommandGroup(new AutoLineup(m_swerve, m_limelight),
+						new InstantCommand(m_superstructure::open),
+						new WaitCommand(0.5),
+						new InstantCommand(m_superstructure::idle)));
 	}
 
 	private void configureDefaultCommands() {

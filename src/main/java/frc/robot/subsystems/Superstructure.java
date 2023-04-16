@@ -11,6 +11,7 @@ import frc.robot.states.arm.Stowed;
 import frc.robot.states.intake.Idling;
 import frc.robot.states.intake.Intaking;
 import frc.robot.states.intake.Outtaking;
+import frc.robot.states.intake.Shlurping;
 import frc.robot.states.intake.Shooting;
 import frc.robot.states.intake.Unjamming;
 import frc.robot.util.LEDWrapper;
@@ -57,6 +58,7 @@ public class Superstructure extends SubsystemBase {
 	private enum SuperstructureState {
 		Idling,
 		Intaking,
+		Shlurping,
 		Outtaking,
 		Unjamming,
 		Shooting,
@@ -121,10 +123,14 @@ public class Superstructure extends SubsystemBase {
 				}
 
 				if (!m_scoreBlinking) {
-					if (m_element == Element.Cone) {
-						m_ledWrapper.setColor(new boolean[] {true, true, false});
-					} else if (m_element == Element.Cube) {
-						m_ledWrapper.setColor(new boolean[] {true, false, true});
+          if (m_intakeState.getClass() != Shlurping.class) {
+            if (m_element == Element.Cone) {
+              m_ledWrapper.setColor(new boolean[] {true, true, false});
+            } else if (m_element == Element.Cube) {
+              m_ledWrapper.setColor(new boolean[] {true, false, true});
+            }
+					} else {
+						m_ledWrapper.setColor(new boolean[] {true, true, true});
 					}
 				}
 			} else {
@@ -145,6 +151,9 @@ public class Superstructure extends SubsystemBase {
 				break;
 			case Intaking:
 				intake();
+				break;
+			case Shlurping:
+				shlurp();
 				break;
 			case Outtaking:
 				outtake();
@@ -199,6 +208,24 @@ public class Superstructure extends SubsystemBase {
 			m_intakeState =
 					new Intaking(
 							m_intake, m_feeder, m_conveyor, () -> m_element, m_reverseSupplier);
+		} else {
+			m_intakeState.periodic();
+		}
+
+		if (m_armState.getClass() != Stowed.class) {
+			m_armState = new Stowed(m_arm, m_gripper, () -> m_element);
+		} else {
+			m_armState.periodic();
+		}
+
+		m_ledWrapper.setBlinking(true);
+	}
+
+	public void shlurp() {
+		m_superstructureState = SuperstructureState.Shlurping;
+
+		if (m_intakeState.getClass() != Shlurping.class) {
+			m_intakeState = new Shlurping(m_intake, m_feeder, m_conveyor);
 		} else {
 			m_intakeState.periodic();
 		}

@@ -27,6 +27,8 @@ public class Outtaking extends IntakeState {
 	@Override
 	public void init() {
 		if (!DriverStation.isEnabled()) return;
+
+		m_intake.setBrakeMode(false);
 	}
 
 	@Override
