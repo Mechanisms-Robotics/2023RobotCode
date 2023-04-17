@@ -154,7 +154,7 @@ public abstract class ArmState implements State {
 			return;
 		}
 
-		m_gripper.setOpenLoop(0.08);
+		m_gripper.setOpenLoop(0.1);
 		m_gripper.setDesiredPosition(0.0);
 	}
 

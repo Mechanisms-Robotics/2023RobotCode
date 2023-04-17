@@ -36,81 +36,6 @@
         "x": 5.753049774686552,
         "y": 4.68
       },
-      "nextControl": {
-        "x": 5.753049774686552,
-        "y": 4.68
-      },
-      "holonomicAngle": 0,
-      "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 2.0,
-        "y": 4.19
-      },
-      "prevControl": {
-        "x": 2.1214135761883908,
-        "y": 4.87857060729199
-      },
-      "nextControl": {
-        "x": 1.8785864238116095,
-        "y": 3.501429392708011
-      },
-      "holonomicAngle": 0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 2.26,
-        "y": 3.28
-      },
-      "prevControl": {
-        "x": 2.0478724943415068,
-        "y": 3.28
-      },
-      "nextControl": {
-        "x": 2.4710301296345873,
-        "y": 3.28
-      },
-      "holonomicAngle": 0.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 4.1,
-        "y": 3.28
-      },
-      "prevControl": {
-        "x": 3.608484714206552,
-        "y": 3.28
-      },
       "nextControl": null,
       "holonomicAngle": 0,
       "isReversal": false,
@@ -118,10 +43,8 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "autoBalanceClose"
-        ],
-        "executionBehavior": "sequential",
+        "names": [],
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -130,19 +53,5 @@
   "maxVelocity": 2.0,
   "maxAcceleration": 2.0,
   "isReversed": null,
-  "markers": [
-    {
-      "position": 1.6145454545455231,
-      "names": [
-        "retract",
-        "scoreCubeHigh"
-      ]
-    },
-    {
-      "position": 2.0,
-      "names": [
-        "release"
-      ]
-    }
-  ]
+  "markers": []
 }

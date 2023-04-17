@@ -20,6 +20,7 @@ import frc.robot.commands.auto.TwoElementBalanceHP;
 import frc.robot.commands.auto.TwoElementBalanceWall;
 import frc.robot.commands.auto.TwoElementGrabBalanceHP;
 import frc.robot.commands.auto.TwoElementGrabBalanceWall;
+import frc.robot.commands.auto.TwoElementGrabHP;
 import frc.robot.commands.auto.TwoElementHP;
 import frc.robot.commands.auto.TwoElementWall;
 import frc.robot.commands.intake.DeployIntakeCommand;
@@ -115,17 +116,18 @@ public class RobotContainer {
 				OneElementGrabBalanceWall.oneElementGrabBalanceWall(m_autoBuilder));
 		autoChooser.addOption("2ElementHP", TwoElementHP.twoElementHP(m_autoBuilder));
 		autoChooser.addOption("2ElementWall", TwoElementWall.twoElementWall(m_autoBuilder));
-		autoChooser.addOption(
-				"2ElementBalanceHP", TwoElementBalanceHP.twoElementBalanceHP(m_autoBuilder));
-		autoChooser.addOption(
-				"2ElementBalanceWall", TwoElementBalanceWall.twoElementBalanceWall(m_autoBuilder));
-		autoChooser.addOption(
-				"2ElementGrabBalanceHP",
-				TwoElementGrabBalanceHP.twoElementGrabBalanceHP(m_autoBuilder));
-		autoChooser.addOption(
-				"2ElementGrabBalanceWall",
-				TwoElementGrabBalanceWall.twoElementGrabBalanceWall(m_autoBuilder));
-		autoChooser.addOption("3ElementHP", ThreeElementHP.threeElementHP(m_autoBuilder));
+		autoChooser.addOption("2ElementGrabHP", TwoElementGrabHP.twoElementGrabHP(m_autoBuilder, m_swerve));
+//		autoChooser.addOption(
+//				"2ElementBalanceHP", TwoElementBalanceHP.twoElementBalanceHP(m_autoBuilder));
+//		autoChooser.addOption(
+//				"2ElementBalanceWall", TwoElementBalanceWall.twoElementBalanceWall(m_autoBuilder));
+//		autoChooser.addOption(
+//				"2ElementGrabBalanceHP",
+//				TwoElementGrabBalanceHP.twoElementGrabBalanceHP(m_autoBuilder));
+//		autoChooser.addOption(
+//				"2ElementGrabBalanceWall",
+//				TwoElementGrabBalanceWall.twoElementGrabBalanceWall(m_autoBuilder));
+		autoChooser.addOption("3ElementHP", ThreeElementHP.threeElementHP(m_autoBuilder, m_swerve));
 		autoChooser.addOption("3ElementWall", ThreeElementWall.threeElementWall(m_autoBuilder));
 		autoChooser.addOption("BalanceTune", BalanceTune.balanceTune(m_autoBuilder));
 
@@ -370,6 +372,8 @@ public class RobotContainer {
 
 		events.put("scoreConeHigh", new ScoreCommand(m_superstructure, Element.Cone, 2));
 		events.put("scoreCubeHigh", new ScoreCommand(m_superstructure, Element.Cube, 2));
+		events.put("scoreConeMid", new ScoreCommand(m_superstructure, Element.Cone, 1));
+		events.put("scoreCubeMid", new ScoreCommand(m_superstructure, Element.Cube, 1));
 		events.put("release", new ReleaseCommand(m_superstructure));
 
 		events.put("idle", new InstantCommand(m_superstructure::idle));

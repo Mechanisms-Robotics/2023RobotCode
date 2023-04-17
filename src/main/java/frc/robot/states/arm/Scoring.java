@@ -13,12 +13,12 @@ public class Scoring extends ArmState {
 		{
 			{12000, -750}, // Low  | Cube
 			{23000, -3750}, // Mid  | Cube
-			{30000, -18000}, // High | Cube
+			{32500, -18000}, // High | Cube | 30000
 		},
 		{
 			{12000, -1500}, // Low  | Cone
 			{27000, -4000}, // Mid  | Cone
-			{33000, -18000}, // High | Cone
+			{35000, -18000}, // High | Cone | 33000
 			{30000, -18000}, // Place | Cone
 		}
 	};

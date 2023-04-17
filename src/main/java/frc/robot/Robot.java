@@ -152,6 +152,9 @@ public class Robot extends TimedRobot {
 		m_robotContainer.m_intake.zeroEncoders();
 		m_robotContainer.m_arm.init();
 		m_robotContainer.m_gripper.init();
+
+//		m_robotContainer.m_feeder.setOpenLoop(-0.35);
+//		m_robotContainer.m_conveyor.setOpenLoop(0.75);
 	}
 
 	/** This method is called periodically during test mode. */

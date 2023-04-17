@@ -45,7 +45,7 @@ public final class Constants {
 	public static final double SWERVE_Y_KI = 0.0;
 	public static final double SWERVE_Y_KD = 0.0;
 
-	public static final double SWERVE_ROT_KP = RobotBase.isReal() ? 1.75 : 2.5;
+	public static final double SWERVE_ROT_KP = RobotBase.isReal() ? 2.75 : 2.5;
 	public static final double SWERVE_ROT_KI = 0.0;
 	public static final double SWERVE_ROT_KD = 0.0;
 
@@ -56,5 +56,5 @@ public final class Constants {
 
 	public static final boolean SWERVE_DISABLED = false;
 
-	public static final boolean SHWALTON_MODE = true;
+	public static final boolean SHWALTON_MODE = false;
 }
