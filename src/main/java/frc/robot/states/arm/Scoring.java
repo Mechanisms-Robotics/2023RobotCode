@@ -13,12 +13,12 @@ public class Scoring extends ArmState {
 		{
 			{12000, -750}, // Low  | Cube
 			{23000, -3750}, // Mid  | Cube
-			{32500, -18000}, // High | Cube | 30000
+			{30000, -18000}, // High | Cube
 		},
 		{
 			{12000, -1500}, // Low  | Cone
 			{27000, -4000}, // Mid  | Cone
-			{35000, -18000}, // High | Cone | 33000
+			{33000, -18000}, // High | Cone
 			{30000, -18000}, // Place | Cone
 		}
 	};
@@ -26,7 +26,7 @@ public class Scoring extends ArmState {
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
 				{0, -17500, -17500}, // Open, Closed, Auto | Cube
-				{0, -27500, -27500} // Open, Closed, Auto | Cone
+				{0, -26500, -26500} // Open, Closed, Auto | Cone
 			};
 
 	private static final double OPEN_INCREMENT = 7.5;

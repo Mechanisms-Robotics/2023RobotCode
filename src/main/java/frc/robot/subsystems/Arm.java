@@ -34,7 +34,7 @@ public class Arm extends SubsystemBase {
 		ARM_MOTOR_CONFIG.reverseSoftLimitEnable = true;
 		ARM_MOTOR_CONFIG.forwardSoftLimitEnable = true;
 		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = 0;
-		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 37500;
+		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 33000;
 
 		ARM_MOTOR_CONFIG.motionCruiseVelocity = 50000; // 25000
 		ARM_MOTOR_CONFIG.motionAcceleration = 45000; // 20000

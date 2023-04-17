@@ -16,7 +16,7 @@ public class Stowed extends ArmState {
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
 				{0, -17500, -17500}, // Open, Closed, Auto | Cube
-				{0, -27500, -27500} // Open, Closed, Auto | Cone
+				{0, -26500, -26500} // Open, Closed, Auto | Cone
 			};
 
 	private final Supplier<Element> m_elementSupplier;

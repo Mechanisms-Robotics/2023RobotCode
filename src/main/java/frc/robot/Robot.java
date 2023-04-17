@@ -52,6 +52,9 @@ public class Robot extends TimedRobot {
 		m_robotContainer.m_arm.stop();
 		m_robotContainer.m_gripper.stop();
 
+		m_robotContainer.m_intake.stop();
+		m_robotContainer.m_intake.resetRateLimiter();
+
 		m_robotContainer.m_superstructure.reset();
 
 		m_robotContainer.m_ledWrapper.turnOff();

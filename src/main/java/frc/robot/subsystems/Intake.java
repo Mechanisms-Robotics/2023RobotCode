@@ -228,6 +228,10 @@ public class Intake extends SubsystemBase {
 		setOpenLoop(0.0);
 	}
 
+	public void resetRateLimiter() {
+		m_openPercentLimiter.reset(0.0);
+	}
+
 	public void stopPivot() {
 		pivotLeft.set(ControlMode.PercentOutput, 0.0);
 		pivotRight.set(ControlMode.PercentOutput, 0.0);
