@@ -151,7 +151,8 @@ public class Arm extends SubsystemBase {
 
 		System.out.println("DESIRED POSITION: " + desiredPosition[0]);
 
-		armMotor.set(ControlMode.MotionMagic, desiredPosition[0], DemandType.ArbitraryFeedForward, 0.05);
+		armMotor.set(
+				ControlMode.MotionMagic, desiredPosition[0], DemandType.ArbitraryFeedForward, 0.05);
 	}
 
 	public void setExtensionClosedLoop(double position) {

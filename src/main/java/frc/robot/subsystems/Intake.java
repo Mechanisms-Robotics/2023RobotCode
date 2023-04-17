@@ -77,9 +77,7 @@ public class Intake extends SubsystemBase {
 	private boolean zeroed = false;
 
 	private double m_desiredOpenPercent = 0.0;
-	private final SlewRateLimiter m_openPercentLimiter = new SlewRateLimiter(
-			0.5, -0.5, 0.0
-	);
+	private final SlewRateLimiter m_openPercentLimiter = new SlewRateLimiter(0.5, -0.5, 0.0);
 
 	public Intake() {
 		pivotRight.configFactoryDefault();
@@ -169,8 +167,10 @@ public class Intake extends SubsystemBase {
 		SmartDashboard.putNumber(
 				"Intake Roller Rot/Sec", (spinRight.getSelectedSensorVelocity() / (2048 * 4)) * 10);
 
-		spinLeft.set(ControlMode.PercentOutput, m_openPercentLimiter.calculate(m_desiredOpenPercent));
-		spinRight.set(ControlMode.PercentOutput, m_openPercentLimiter.calculate(m_desiredOpenPercent));
+		spinLeft.set(
+				ControlMode.PercentOutput, m_openPercentLimiter.calculate(m_desiredOpenPercent));
+		spinRight.set(
+				ControlMode.PercentOutput, m_openPercentLimiter.calculate(m_desiredOpenPercent));
 	}
 
 	public void retract() {
@@ -197,7 +197,7 @@ public class Intake extends SubsystemBase {
 	}
 
 	public void mid() {
-    setClosedLoop(Position.Mid.position);
+		setClosedLoop(Position.Mid.position);
 	}
 
 	public void shoot() {

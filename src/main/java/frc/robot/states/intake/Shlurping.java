@@ -7,33 +7,30 @@ import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 
 public class Shlurping extends IntakeState {
-  private static final double SHLURP_SPEED = 0.05;
+	private static final double SHLURP_SPEED = 0.05;
 
-  public Shlurping(
-      Intake intake,
-      Feeder feeder,
-      Conveyor conveyor) {
-    super(intake, feeder, conveyor);
-  }
+	public Shlurping(Intake intake, Feeder feeder, Conveyor conveyor) {
+		super(intake, feeder, conveyor);
+	}
 
-  @Override
-  public void init() {
-    if (!DriverStation.isEnabled()) return;
+	@Override
+	public void init() {
+		if (!DriverStation.isEnabled()) return;
 
-    m_intake.setBrakeMode(true);
-  }
+		m_intake.setBrakeMode(true);
+	}
 
-  @Override
-  public void periodic() {
-    if (!DriverStation.isEnabled()) return;
+	@Override
+	public void periodic() {
+		if (!DriverStation.isEnabled()) return;
 
-    if (!m_initialized) {
-      init();
-      m_initialized = true;
-    }
+		if (!m_initialized) {
+			init();
+			m_initialized = true;
+		}
 
-    m_intake.setOpenLoop(SHLURP_SPEED);
-    m_feeder.stop();
-    m_conveyor.stop();
-  }
+		m_intake.setOpenLoop(SHLURP_SPEED);
+		m_feeder.stop();
+		m_conveyor.stop();
+	}
 }

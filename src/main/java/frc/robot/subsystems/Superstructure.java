@@ -123,12 +123,12 @@ public class Superstructure extends SubsystemBase {
 				}
 
 				if (!m_scoreBlinking) {
-          if (m_intakeState.getClass() != Shlurping.class) {
-            if (m_element == Element.Cone) {
-              m_ledWrapper.setColor(new boolean[] {true, true, false});
-            } else if (m_element == Element.Cube) {
-              m_ledWrapper.setColor(new boolean[] {true, false, true});
-            }
+					if (m_intakeState.getClass() != Shlurping.class) {
+						if (m_element == Element.Cone) {
+							m_ledWrapper.setColor(new boolean[] {true, true, false});
+						} else if (m_element == Element.Cube) {
+							m_ledWrapper.setColor(new boolean[] {true, false, true});
+						}
 					} else {
 						m_ledWrapper.setColor(new boolean[] {true, true, true});
 					}

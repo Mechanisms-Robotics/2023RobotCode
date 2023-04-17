@@ -16,10 +16,6 @@ import frc.robot.commands.auto.OneElementGrabBalanceHP;
 import frc.robot.commands.auto.OneElementGrabBalanceWall;
 import frc.robot.commands.auto.ThreeElementHP;
 import frc.robot.commands.auto.ThreeElementWall;
-import frc.robot.commands.auto.TwoElementBalanceHP;
-import frc.robot.commands.auto.TwoElementBalanceWall;
-import frc.robot.commands.auto.TwoElementGrabBalanceHP;
-import frc.robot.commands.auto.TwoElementGrabBalanceWall;
 import frc.robot.commands.auto.TwoElementGrabHP;
 import frc.robot.commands.auto.TwoElementHP;
 import frc.robot.commands.auto.TwoElementWall;
@@ -116,17 +112,18 @@ public class RobotContainer {
 				OneElementGrabBalanceWall.oneElementGrabBalanceWall(m_autoBuilder));
 		autoChooser.addOption("2ElementHP", TwoElementHP.twoElementHP(m_autoBuilder));
 		autoChooser.addOption("2ElementWall", TwoElementWall.twoElementWall(m_autoBuilder));
-		autoChooser.addOption("2ElementGrabHP", TwoElementGrabHP.twoElementGrabHP(m_autoBuilder, m_swerve));
-//		autoChooser.addOption(
-//				"2ElementBalanceHP", TwoElementBalanceHP.twoElementBalanceHP(m_autoBuilder));
-//		autoChooser.addOption(
-//				"2ElementBalanceWall", TwoElementBalanceWall.twoElementBalanceWall(m_autoBuilder));
-//		autoChooser.addOption(
-//				"2ElementGrabBalanceHP",
-//				TwoElementGrabBalanceHP.twoElementGrabBalanceHP(m_autoBuilder));
-//		autoChooser.addOption(
-//				"2ElementGrabBalanceWall",
-//				TwoElementGrabBalanceWall.twoElementGrabBalanceWall(m_autoBuilder));
+		autoChooser.addOption(
+				"2ElementGrabHP", TwoElementGrabHP.twoElementGrabHP(m_autoBuilder, m_swerve));
+		//		autoChooser.addOption(
+		//				"2ElementBalanceHP", TwoElementBalanceHP.twoElementBalanceHP(m_autoBuilder));
+		//		autoChooser.addOption(
+		//				"2ElementBalanceWall", TwoElementBalanceWall.twoElementBalanceWall(m_autoBuilder));
+		//		autoChooser.addOption(
+		//				"2ElementGrabBalanceHP",
+		//				TwoElementGrabBalanceHP.twoElementGrabBalanceHP(m_autoBuilder));
+		//		autoChooser.addOption(
+		//				"2ElementGrabBalanceWall",
+		//				TwoElementGrabBalanceWall.twoElementGrabBalanceWall(m_autoBuilder));
 		autoChooser.addOption("3ElementHP", ThreeElementHP.threeElementHP(m_autoBuilder, m_swerve));
 		autoChooser.addOption("3ElementWall", ThreeElementWall.threeElementWall(m_autoBuilder));
 		autoChooser.addOption("BalanceTune", BalanceTune.balanceTune(m_autoBuilder));
@@ -146,13 +143,15 @@ public class RobotContainer {
 		m_driverController.leftBumper().onTrue(new RetractIntakeCommand(m_intake));
 		m_driverController.rightBumper().onTrue(new DeployIntakeCommand(m_intake));
 
-		m_driverController.leftTrigger().onTrue(
-				new ConditionalCommand(
-						new InstantCommand(m_superstructure::shlurp),
-						new InstantCommand(m_superstructure::idle),
-						() -> m_superstructure.getIntakeState().getClass() != Shlurping.class
-				)
-		);
+		m_driverController
+				.leftTrigger()
+				.onTrue(
+						new ConditionalCommand(
+								new InstantCommand(m_superstructure::shlurp),
+								new InstantCommand(m_superstructure::idle),
+								() ->
+										m_superstructure.getIntakeState().getClass()
+												!= Shlurping.class));
 
 		m_driverController.povRight().onTrue(new InstantCommand(m_intake::mid));
 		m_driverController.povUp().onTrue(new InstantCommand(m_superstructure::shoot));
@@ -350,10 +349,12 @@ public class RobotContainer {
 
 		m_secondDriverController
 				.rightTrigger()
-				.whileTrue(new SequentialCommandGroup(new AutoLineup(m_swerve, m_limelight),
-						new InstantCommand(m_superstructure::open),
-						new WaitCommand(0.5),
-						new InstantCommand(m_superstructure::idle)));
+				.whileTrue(
+						new SequentialCommandGroup(
+								new AutoLineup(m_swerve, m_limelight),
+								new InstantCommand(m_superstructure::open),
+								new WaitCommand(0.5),
+								new InstantCommand(m_superstructure::idle)));
 	}
 
 	private void configureDefaultCommands() {
