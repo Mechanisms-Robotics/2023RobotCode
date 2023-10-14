@@ -12,7 +12,7 @@ import frc.robot.util.Limelight;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class AutoLineup extends CommandBase {
-	private static final double TARGET_AREA = Constants.SHWALTON_MODE ? 0.34 : 0.24;
+	private static final double TARGET_AREA = Constants.SHWALTON_MODE ? 0.34 : 0.32;
 	private static final double TARGET_YAW = Constants.SHWALTON_MODE ? 8.0 : 10.0;
 	private static final double TARGET_GYRO = 0.0;
 

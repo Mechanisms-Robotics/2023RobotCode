@@ -11,22 +11,22 @@ import java.util.function.Supplier;
 public class Scoring extends ArmState {
 	private static final double[][][] ARM_POSITIONS = {
 		{
-			{12000, -750}, // Low  | Cube
-			{23000, -3750}, // Mid  | Cube
-			{30000, -18000}, // High | Cube
+			{12000, -750, 0.1}, // Low  | Cube
+			{23000, -3750, 0.1}, // Mid  | Cube
+			{30000, -18000, 0.2}, // High | Cube
 		},
 		{
-			{12000, -1500}, // Low  | Cone
-			{27000, -4000}, // Mid  | Cone
-			{33000, -18000}, // High | Cone
-			{30000, -18000}, // Place | Cone
+			{12000, -1500, 0.1}, // Low  | Cone
+			{25000, -4000, 0.5}, // Mid  | Cone
+			{32500, -18000, 0.75}, // High | Cone
+			{28000, -18000, 0.5}, // Place | Cone
 		}
 	};
 
 	private static final double[][] GRIPPER_POSITIONS =
 			new double[][] {
 				{0, -17500, -17500}, // Open, Closed, Auto | Cube
-				{0, -26500, -26500} // Open, Closed, Auto | Cone
+				{0, -27000, -27000} // Open, Closed, Auto | Cone
 			};
 
 	private static final double OPEN_INCREMENT = 7.5;
@@ -57,6 +57,8 @@ public class Scoring extends ArmState {
 				GRIPPER_POSITIONS,
 				elementSupplier,
 				() -> levelSupplier.get() == 3);
+
+		m_holdPercent = ARM_POSITIONS[elementSupplier.get().index][levelSupplier.get()][2];
 
 		m_elementSupplier = elementSupplier;
 		m_levelSupplier = levelSupplier;
@@ -95,6 +97,7 @@ public class Scoring extends ArmState {
 					ARM_POSITIONS[m_elementSupplier.get().index][m_levelSupplier.get()][0];
 			m_desiredExtension =
 					ARM_POSITIONS[m_elementSupplier.get().index][m_levelSupplier.get()][1];
+			m_holdPercent = ARM_POSITIONS[m_elementSupplier.get().index][m_levelSupplier.get()][2];
 
 			super.init();
 

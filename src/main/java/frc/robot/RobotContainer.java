@@ -352,6 +352,8 @@ public class RobotContainer {
 				.whileTrue(
 						new SequentialCommandGroup(
 								new AutoLineup(m_swerve, m_limelight),
+								new InstantCommand(() -> {m_superstructure.setNode(3, 0);}),
+								new WaitCommand(0.5),
 								new InstantCommand(m_superstructure::open),
 								new WaitCommand(0.5),
 								new InstantCommand(m_superstructure::idle)));
@@ -379,6 +381,11 @@ public class RobotContainer {
 
 		events.put("idle", new InstantCommand(m_superstructure::idle));
 		events.put("intake", new InstantCommand(m_superstructure::intake));
+		events.put("shootCube", new ConditionalCommand(
+				new InstantCommand(() -> m_conveyor.setOpenLoop(1.0)),
+				Commands.none(),
+				() -> m_arm.getPosition() > 12000
+		).raceWith(new WaitUntilCommand(m_arm::isExtended)));
 
 		events.put("deploy", new DeployIntakeCommand(m_intake));
 		events.put("retract", new RetractIntakeCommand(m_intake));

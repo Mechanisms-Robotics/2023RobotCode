@@ -19,8 +19,8 @@ public class Arm extends SubsystemBase {
 
 	private static final double START_ARM_POSITION = 1985;
 
-	private static final double ALLOWABLE_PIVOT_ERROR = 1000;
-	private static final double ALLOWABLE_EXTENSION_ERROR = 1000;
+	private static final double ALLOWABLE_PIVOT_ERROR = 1250;
+	private static final double ALLOWABLE_EXTENSION_ERROR = 1250;
 
 	private static final double JOG_INCREMENT = 3;
 
@@ -36,8 +36,8 @@ public class Arm extends SubsystemBase {
 		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = 0;
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 33000;
 
-		ARM_MOTOR_CONFIG.motionCruiseVelocity = 50000; // 25000
-		ARM_MOTOR_CONFIG.motionAcceleration = 45000; // 20000
+		ARM_MOTOR_CONFIG.motionCruiseVelocity = 30000; // 25000
+		ARM_MOTOR_CONFIG.motionAcceleration = 30000; // 20000
 		ARM_MOTOR_CONFIG.motionCurveStrength = 7;
 
 		ARM_MOTOR_CONFIG.neutralDeadband = 0.001;
@@ -47,8 +47,8 @@ public class Arm extends SubsystemBase {
 		ARM_EXTENDER_MOTOR_CONFIG.reverseSoftLimitThreshold = -17500;
 		ARM_EXTENDER_MOTOR_CONFIG.forwardSoftLimitThreshold = 0;
 
-		ARM_EXTENDER_MOTOR_CONFIG.motionCruiseVelocity = 20000; // 15000
-		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 15000; // 10000
+		ARM_EXTENDER_MOTOR_CONFIG.motionCruiseVelocity = 12500; // 15000
+		ARM_EXTENDER_MOTOR_CONFIG.motionAcceleration = 12500; // 10000
 		ARM_EXTENDER_MOTOR_CONFIG.motionCurveStrength = 2;
 
 		ARM_EXTENDER_MOTOR_CONFIG.voltageCompSaturation = 10.0;
@@ -152,7 +152,11 @@ public class Arm extends SubsystemBase {
 		System.out.println("DESIRED POSITION: " + desiredPosition[0]);
 
 		armMotor.set(
-				ControlMode.MotionMagic, desiredPosition[0], DemandType.ArbitraryFeedForward, 0.05);
+				ControlMode.MotionMagic, desiredPosition[0], DemandType.ArbitraryFeedForward, 0.025);
+	}
+
+	public double getPosition() {
+		return armMotor.getSelectedSensorPosition();
 	}
 
 	public void setExtensionClosedLoop(double position) {

@@ -16,6 +16,7 @@ public abstract class ArmState implements State {
 	protected double m_desiredPosition;
 	protected double m_desiredExtension;
 	protected boolean m_desiredGripper;
+	protected double m_holdPercent = 0.0; // percent
 
 	protected double[][] m_positions;
 	protected Supplier<Element> m_ElementSupplier;
@@ -23,6 +24,7 @@ public abstract class ArmState implements State {
 	protected boolean m_initialized = false;
 
 	protected boolean m_autoReleasing = false;
+
 
 	private double m_closedPosition = 0.0;
 	private double m_openAmount = 0.0;
@@ -113,6 +115,7 @@ public abstract class ArmState implements State {
 				extend();
 				break;
 			default:
+				hold();
 				break;
 		}
 	}
@@ -147,6 +150,10 @@ public abstract class ArmState implements State {
 		} else if (m_arm.extendAtPosition()) {
 			m_currentAction = ArmAction.Idling;
 		}
+	}
+
+	public void hold() {
+		m_arm.setOpenLoop(m_holdPercent);
 	}
 
 	public void open() {
