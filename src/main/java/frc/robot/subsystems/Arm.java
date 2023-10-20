@@ -36,8 +36,8 @@ public class Arm extends SubsystemBase {
 		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = 0;
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 33000;
 
-		ARM_MOTOR_CONFIG.motionCruiseVelocity = 50000; // 25000
-		ARM_MOTOR_CONFIG.motionAcceleration = 45000; // 20000
+		ARM_MOTOR_CONFIG.motionCruiseVelocity = 35000; // 25000
+		ARM_MOTOR_CONFIG.motionAcceleration = 35000; // 20000
 		ARM_MOTOR_CONFIG.motionCurveStrength = 7;
 
 		ARM_MOTOR_CONFIG.neutralDeadband = 0.001;
@@ -62,7 +62,15 @@ public class Arm extends SubsystemBase {
 	private boolean zeroed = false;
 	private double m_jogAmount = 0.0;
 
+	private static final double ENC_TICKS_TO_RADIANS = 0.5 * Math.PI / 23405;
+
 	private Supplier<Element> m_elementSupplier = () -> Element.Cube;
+
+	private final ArmFeedforward armFeedformward = new ArmFeedforward(
+			() -> 0.58 + (0.91 - 0.58) * (extenderMotor.getSelectedSensorPosition() / -17500),
+			() -> armMotor.getSelectedSensorPosition() * ENC_TICKS_TO_RADIANS,
+			1
+	);
 
 	public Arm() {
 		armMotor.configFactoryDefault();
@@ -75,7 +83,7 @@ public class Arm extends SubsystemBase {
 		armMotor.config_kF(0, kF);
 
 		armMotor.configSupplyCurrentLimit(
-				new SupplyCurrentLimitConfiguration(true, 15.0, 13.0, 1.0));
+				new SupplyCurrentLimitConfiguration(true, 30.0, 28.0, 1.0));
 
 		armMotor.configNeutralDeadband(0.001);
 		armMotor.configAllowableClosedloopError(0, 0.0);
@@ -150,9 +158,9 @@ public class Arm extends SubsystemBase {
 		}
 
 		System.out.println("DESIRED POSITION: " + desiredPosition[0]);
-
+		System.out.println("FEEDFORWARD: " + armFeedformward.calculate());
 		armMotor.set(
-				ControlMode.MotionMagic, desiredPosition[0], DemandType.ArbitraryFeedForward, 0.05);
+				ControlMode.MotionMagic, desiredPosition[0], DemandType.ArbitraryFeedForward, armFeedformward.calculate());
 	}
 
 	public void setExtensionClosedLoop(double position) {
@@ -190,8 +198,6 @@ public class Arm extends SubsystemBase {
 	}
 
 	public void jogArm(double joyValue, Supplier<Element> elementSupplier) {
-		System.out.println("JOG AMOUNT: " + m_jogAmount);
-
 		if (joyValue > 0.0) {
 			m_jogAmount += JOG_INCREMENT;
 		} else {

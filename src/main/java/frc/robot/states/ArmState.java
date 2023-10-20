@@ -113,6 +113,8 @@ public abstract class ArmState implements State {
 				extend();
 				break;
 			default:
+				if (m_desiredPosition >= 10000)
+					pivot();
 				break;
 		}
 	}
