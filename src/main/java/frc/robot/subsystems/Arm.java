@@ -19,7 +19,7 @@ public class Arm extends SubsystemBase {
 
 	private static final double START_ARM_POSITION = 1985;
 
-	private static final double ALLOWABLE_PIVOT_ERROR = 1000;
+	private static final double ALLOWABLE_PIVOT_ERROR = 1250;
 	private static final double ALLOWABLE_EXTENSION_ERROR = 1000;
 
 	private static final double JOG_INCREMENT = 3;
@@ -36,8 +36,8 @@ public class Arm extends SubsystemBase {
 		ARM_MOTOR_CONFIG.reverseSoftLimitThreshold = 0;
 		ARM_MOTOR_CONFIG.forwardSoftLimitThreshold = 33000;
 
-		ARM_MOTOR_CONFIG.motionCruiseVelocity = 35000; // 25000
-		ARM_MOTOR_CONFIG.motionAcceleration = 35000; // 20000
+		ARM_MOTOR_CONFIG.motionCruiseVelocity = 30000; // 25000
+		ARM_MOTOR_CONFIG.motionAcceleration = 30000; // 20000
 		ARM_MOTOR_CONFIG.motionCurveStrength = 7;
 
 		ARM_MOTOR_CONFIG.neutralDeadband = 0.001;
@@ -69,7 +69,7 @@ public class Arm extends SubsystemBase {
 	private final ArmFeedforward armFeedformward = new ArmFeedforward(
 			() -> 0.58 + (0.91 - 0.58) * (extenderMotor.getSelectedSensorPosition() / -17500),
 			() -> armMotor.getSelectedSensorPosition() * ENC_TICKS_TO_RADIANS,
-			1
+			0.25
 	);
 
 	public Arm() {

@@ -11,7 +11,7 @@ public class Intake extends SubsystemBase {
 
 	private enum Position {
 		Retract(-7500),
-		Deploy(-42000),
+		Deploy(-41000),
 		Shoot(-35000),
 		GamePieceStation(-16387),
 		Mid(-16500);

@@ -132,7 +132,7 @@ public abstract class ArmState implements State {
 	public void pivot() {
 		if (m_currentAction != ArmAction.Pivoting) {
 			m_currentAction = ArmAction.Pivoting;
-
+			m_arm.setOpenLoop(0);
 			m_arm.setClosedLoop(m_desiredPosition);
 		} else if (m_arm.isAtPosition()) {
 			extend();
